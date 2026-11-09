@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" style="background:#090a0f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <!-- Background Canvas -->
+  <rect width="1440" height="900" fill="#090a0f"/>
+
+  <!-- Blueprint Lines -->
+  <line x1="80" y1="0" x2="80" y2="900" stroke="#161b26" stroke-width="1"/>
+  <line x1="1360" y1="0" x2="1360" y2="900" stroke="#161b26" stroke-width="1"/>
+  <line x1="80" y1="100" x2="1360" y2="100" stroke="#161b26" stroke-width="1"/>
+
+  <!-- Section Masthead -->
+  <g transform="translate(80, 45)">
+    <text x="0" y="0" font-family="monospace" font-size="11" font-weight="700" fill="#b84218" letter-spacing="1.5">03 / SIGNATURE INTERACTION STORYBOARD</text>
+    <text x="0" y="34" font-family="Georgia, serif" font-size="32" font-weight="700" fill="#f0f3f8">Finished Product ↔ Behind the Build: <tspan font-style="italic" fill="#e5c07b">Interaction States</tspan></text>
+    <text x="0" y="58" font-size="13" fill="#9da7b8">A multi-modal reveal system providing instant aesthetic comprehension for non-technical clients and deep architectural inspection for technical leads.</text>
+  </g>
+
+  <!-- Storyboard: 4 Discrete States Grid -->
+  <!-- State 1: Default Client View -->
+  <g transform="translate(80, 130)">
+    <rect x="0" y="0" width="620" height="340" rx="12" fill="#11141c" stroke="#1f2433" stroke-width="1"/>
+    <g transform="translate(24, 20)">
+      <rect x="0" y="0" width="80" height="20" rx="10" fill="#1b212f"/>
+      <text x="40" y="14" font-family="monospace" font-size="9" font-weight="700" fill="#34d399" text-anchor="middle">STATE 01</text>
+      <text x="95" y="15" font-size="13" font-weight="700" fill="#f0f3f8">Default State: 100% Finished Client UI</text>
+      <text x="0" y="38" font-size="11" fill="#9da7b8">Non-technical visitors see pure, beautiful, client-facing design with zero code distraction.</text>
+
+      <rect x="0" y="52" width="572" height="230" rx="8" fill="#181d2a" stroke="#283247" stroke-width="1"/>
+      <g transform="translate(16, 16)">
+        <text x="0" y="14" font-family="Georgia, serif" font-size="13" font-weight="700" fill="#fbf9f5" letter-spacing="1">THREAD &amp; FORM — BESPOKE APPAREL</text>
+        <line x1="0" y1="24" x2="540" y2="24" stroke="#283247" stroke-width="1"/>
+        <rect x="0" y="36" width="280" height="150" rx="4" fill="#242b3d"/>
+        <text x="140" y="115" font-family="Georgia, serif" font-size="12" font-style="italic" fill="#9da7b8" text-anchor="middle">Full Lookbook Presentation</text>
+        <rect x="296" y="36" width="244" height="68" rx="4" fill="#242b3d"/>
+        <text x="310" y="62" font-size="11" font-weight="600" fill="#f0f3f8">Editorial Collection Grid</text>
+        <text x="310" y="80" font-family="monospace" font-size="10" fill="#e5c07b">$480 USD</text>
+        <rect x="296" y="118" width="244" height="68" rx="4" fill="#242b3d"/>
+        <text x="310" y="144" font-size="11" font-weight="600" fill="#f0f3f8">Clean Gutenberg Block Styles</text>
+        <text x="310" y="162" font-size="10" fill="#34d399">100% Native WordPress</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- State 2: Active Cursor Drag Reveal -->
+  <g transform="translate(740, 130)">
+    <rect x="0" y="0" width="620" height="340" rx="12" fill="#11141c" stroke="#1f2433" stroke-width="1"/>
+    <g transform="translate(24, 20)">
+      <rect x="0" y="0" width="80" height="20" rx="10" fill="#1b212f"/>
+      <text x="40" y="14" font-family="monospace" font-size="9" font-weight="700" fill="#e5c07b" text-anchor="middle">STATE 02</text>
+      <text x="95" y="15" font-size="13" font-weight="700" fill="#f0f3f8">Desktop Draggable Curtain (Pointer Follow)</text>
+      <text x="0" y="38" font-size="11" fill="#9da7b8">Cursor drags reveal divider using CSS clip-path mask; right pane unmasks code tokens.</text>
+
+      <rect x="0" y="52" width="572" height="230" rx="8" fill="#181d2a" stroke="#283247" stroke-width="1"/>
+      <!-- Split Presentation -->
+      <g transform="translate(16, 16)">
+        <rect x="0" y="0" width="270" height="198" fill="#181d2a"/>
+        <text x="10" y="20" font-family="Georgia, serif" font-size="11" font-weight="700" fill="#fbf9f5">FINISHED PRODUCT</text>
+        <rect x="10" y="35" width="250" height="150" rx="4" fill="#242b3d"/>
+        <text x="135" y="115" font-size="10" fill="#9da7b8" text-anchor="middle">Client View Lookbook</text>
+
+        <!-- Divider Line & Handle -->
+        <line x1="285" y1="0" x2="285" y2="198" stroke="#b84218" stroke-width="2"/>
+        <circle cx="285" cy="100" r="14" fill="#b84218"/>
+        <text x="285" y="104" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">⇄</text>
+
+        <!-- Right Side: Unmasked Code -->
+        <g transform="translate(300, 10)">
+          <text x="0" y="10" font-family="monospace" font-size="9" font-weight="700" fill="#b84218">BEHIND THE BUILD</text>
+          <rect x="0" y="25" width="240" height="150" rx="4" fill="#090a0f"/>
+          <text x="10" y="45" font-family="monospace" font-size="8.5" fill="#7d8ca6">// theme.json tokens</text>
+          <text x="10" y="65" font-family="monospace" font-size="8.5" fill="#e5c07b">"appearanceTools": true,</text>
+          <text x="10" y="85" font-family="monospace" font-size="8.5" fill="#f0f2f5">"fluid": true,</text>
+          <text x="10" y="105" font-family="monospace" font-size="8.5" fill="#34d399">"palette": [...]</text>
+          <text x="10" y="135" font-family="monospace" font-size="8" fill="#9da7b8">PHP 8.3 • Gutenberg</text>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- State 3: Keyboard-Operable Accessible Toggle -->
+  <g transform="translate(80, 500)">
+    <rect x="0" y="0" width="620" height="340" rx="12" fill="#11141c" stroke="#1f2433" stroke-width="1"/>
+    <g transform="translate(24, 20)">
+      <rect x="0" y="0" width="80" height="20" rx="10" fill="#1b212f"/>
+      <text x="40" y="14" font-family="monospace" font-size="9" font-weight="700" fill="#3b82f6" text-anchor="middle">STATE 03</text>
+      <text x="95" y="15" font-size="13" font-weight="700" fill="#f0f2f5">Accessible Mode: Keyboard-Operable Button</text>
+      <text x="0" y="38" font-size="11" fill="#9da7b8">Screen-reader and keyboard navigators can press [Space] or [Enter] on focus ring.</text>
+
+      <rect x="0" y="52" width="572" height="230" rx="8" fill="#181d2a" stroke="#283247" stroke-width="1"/>
+      <g transform="translate(20, 20)">
+        <text x="0" y="16" font-size="12" font-weight="600" fill="#f0f3f8">Current View: Finished Product</text>
+        
+        <!-- Accessible Button with high-contrast 2px focus ring -->
+        <rect x="0" y="32" width="260" height="38" rx="6" fill="#1f2433" stroke="#3b82f6" stroke-width="2"/>
+        <text x="130" y="56" font-family="monospace" font-size="11" font-weight="600" fill="#ffffff" text-anchor="middle">[Switch to Architecture View ↵]</text>
+
+        <!-- Focus Ring Specification Box -->
+        <rect x="0" y="90" width="532" height="120" rx="6" fill="#090a0f" stroke="#1c2230" stroke-width="1"/>
+        <g transform="translate(16, 20)">
+          <text x="0" y="14" font-family="monospace" font-size="10" fill="#10b981">WCAG 2.4.11 &amp; 2.4.13 Focus Appearance (AAA):</text>
+          <text x="0" y="36" font-size="10" fill="#9da7b8">• Focus ring ratio: 5.2:1 against surface (#3b82f6 on #181d2a).</text>
+          <text x="0" y="56" font-size="10" fill="#9da7b8">• aria-pressed="false" announced to assistive tech; switches to "true".</text>
+          <text x="0" y="76" font-size="10" fill="#9da7b8">• Zero reliance on dragging, cursor coordinates, or precision motor control.</text>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- State 4: Mobile Tap Switcher -->
+  <g transform="translate(740, 500)">
+    <rect x="0" y="0" width="620" height="340" rx="12" fill="#11141c" stroke="#1f2433" stroke-width="1"/>
+    <g transform="translate(24, 20)">
+      <rect x="0" y="0" width="80" height="20" rx="10" fill="#1b212f"/>
+      <text x="40" y="14" font-family="monospace" font-size="9" font-weight="700" fill="#b84218" text-anchor="middle">STATE 04</text>
+      <text x="95" y="15" font-size="13" font-weight="700" fill="#f0f3f8">Mobile Mode: Zero-Drag Labeled Tab Switcher</text>
+      <text x="0" y="38" font-size="11" fill="#9da7b8">Mobile screens (&lt;768px) swap the drag curtain for simple tap pills to avoid scroll interference.</text>
+
+      <rect x="0" y="52" width="572" height="230" rx="8" fill="#181d2a" stroke="#283247" stroke-width="1"/>
+      <g transform="translate(20, 20)">
+        <!-- Mobile Switcher Simulation -->
+        <rect x="0" y="0" width="300" height="36" rx="18" fill="#151922" stroke="#232a3b" stroke-width="1"/>
+        <rect x="3" y="3" width="145" height="30" rx="15" fill="#b84218"/>
+        <text x="75" y="22" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">● Finished Product</text>
+        <text x="220" y="22" font-size="11" font-weight="500" fill="#9da7b8" text-anchor="middle">Behind the Build</text>
+
+        <!-- Tap result -->
+        <rect x="0" y="52" width="532" height="140" rx="6" fill="#11141c" stroke="#1f2433" stroke-width="1"/>
+        <g transform="translate(16, 16)">
+          <text x="0" y="14" font-family="Georgia, serif" font-size="12" font-weight="700" fill="#fbf9f5">INSTANT ONE-TAP TOGGLE</text>
+          <text x="0" y="36" font-size="11" fill="#9da7b8">• Prevents mobile drag collisions with native vertical scroll gestures.</text>
+          <text x="0" y="56" font-size="11" fill="#9da7b8">• 48px touch target compliance for accessibility.</text>
+          <text x="0" y="76" font-size="11" fill="#34d399">• Instantaneous transition under reduced-motion preference.</text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

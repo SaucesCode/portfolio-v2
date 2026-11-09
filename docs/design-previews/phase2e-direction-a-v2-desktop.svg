@@ -1,0 +1,185 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" style="background:#fbf9f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <defs>
+    <filter id="v2CardShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="12" stdDeviation="20" flood-color="#000000" flood-opacity="0.08"/>
+    </filter>
+    <filter id="darkSectionShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="20" stdDeviation="30" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+    <linearGradient id="terracottaAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b84218"/>
+      <stop offset="100%" stop-color="#9a3412"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Base Canvas: Warm Unbleached Linen (#fbf9f5) -->
+  <rect width="1440" height="900" fill="#fbf9f5"/>
+
+  <!-- Architectural Hairline Registration Lines -->
+  <line x1="80" y1="0" x2="80" y2="900" stroke="#ede7de" stroke-width="1"/>
+  <line x1="1360" y1="0" x2="1360" y2="900" stroke="#ede7de" stroke-width="1"/>
+  <line x1="80" y1="96" x2="1360" y2="96" stroke="#ede7de" stroke-width="1"/>
+
+  <!-- ================= TOP MASTHEAD ================= -->
+  <g transform="translate(80, 36)">
+    <!-- Architectural Monogram Stamp (Visual Identity Upgrade) -->
+    <rect x="0" y="0" width="44" height="44" rx="4" fill="#161614"/>
+    <text x="22" y="27" font-family="Georgia, serif" font-size="16" font-weight="700" fill="#fbf9f5" text-anchor="middle">JM</text>
+    <text x="56" y="20" font-family="Georgia, serif" font-size="18" font-weight="700" fill="#161614" letter-spacing="0.5">JAMES DE MESA</text>
+    <text x="56" y="36" font-family="monospace" font-size="10" fill="#747269">DIGITAL CRAFT // BESPOKE WEB SYSTEMS</text>
+
+    <!-- Client Availability & Location Pill -->
+    <rect x="520" y="8" width="260" height="28" rx="14" fill="#f2eee7" stroke="#dfdbd2" stroke-width="1"/>
+    <circle cx="534" cy="22" r="4" fill="#10b981"/>
+    <text x="546" y="26" font-family="monospace" font-size="10" font-weight="600" fill="#46443e">OPEN TO SELECT CONTRACT &amp; FULL-STACK ROLES</text>
+
+    <!-- Navigation Links -->
+    <text x="910" y="27" font-size="13" font-weight="500" fill="#46443e">Selected Work</text>
+    <text x="1030" y="27" font-size="13" font-weight="500" fill="#46443e">Behind the Build</text>
+    <text x="1160" y="27" font-size="13" font-weight="500" fill="#46443e">Services</text>
+
+    <!-- Primary Conversion CTA Pill -->
+    <rect x="1240" y="6" width="120" height="34" rx="17" fill="url(#terracottaAccent)"/>
+    <text x="1300" y="27" font-size="12" font-weight="600" fill="#ffffff" text-anchor="middle">Start a Project →</text>
+  </g>
+
+  <!-- ================= HERO SECTION (UPGRADED EDITORIAL RHYTHM) ================= -->
+  <g transform="translate(80, 135)">
+    <!-- 5-Second Clarity Eyebrow -->
+    <text x="0" y="16" font-family="monospace" font-size="11" font-weight="700" fill="#b84218" letter-spacing="1.5">01 / COMMERCIAL WEB CRAFT &amp; FULL-STACK ARCHITECTURE</text>
+
+    <!-- Dynamic Typographic Headline -->
+    <text x="0" y="68" font-family="Georgia, serif" font-size="46" font-weight="400" fill="#161614" letter-spacing="-0.5">
+      Engineering <tspan font-style="italic" fill="#b84218">tailored web platforms</tspan>, luxury
+    </text>
+    <text x="0" y="122" font-family="Georgia, serif" font-size="46" font-weight="400" fill="#161614" letter-spacing="-0.5">
+      WordPress themes, and high-impact digital systems.
+    </text>
+
+    <!-- Client-Focused Subhead -->
+    <text x="0" y="166" font-size="16" fill="#58564e" width="880">
+      <tspan x="0" dy="0">We partner with founders, boutique brands, and growing businesses to design and engineer bespoke web</tspan>
+      <tspan x="0" dy="24">applications, custom Full Site Editing themes, and digital storefronts that eliminate software bloat and drive conversion.</tspan>
+    </text>
+
+    <!-- 3-Pillar Client Service Selector (Integrated from Direction B) -->
+    <g transform="translate(0, 222)">
+      <!-- Pillar 1 -->
+      <rect x="0" y="0" width="290" height="58" rx="8" fill="#ffffff" stroke="#dfdbd2" stroke-width="1"/>
+      <circle cx="20" cy="22" r="5" fill="#3b82f6"/>
+      <text x="32" y="26" font-size="13" font-weight="700" fill="#161614">Full-Stack Web Systems</text>
+      <text x="14" y="44" font-size="11" fill="#747269">React, Next.js, Node.js &amp; PostgreSQL</text>
+
+      <!-- Pillar 2 (Selected) -->
+      <rect x="306" y="0" width="310" height="58" rx="8" fill="#ffffff" stroke="#b84218" stroke-width="1.5"/>
+      <circle cx="326" cy="22" r="5" fill="#b84218"/>
+      <text x="338" y="26" font-size="13" font-weight="700" fill="#161614">Custom WordPress &amp; FSE Themes</text>
+      <text x="320" y="44" font-size="11" fill="#747269">Zero-plugin Gutenberg themes &amp; design tokens</text>
+
+      <!-- Pillar 3 -->
+      <rect x="632" y="0" width="300" height="58" rx="8" fill="#ffffff" stroke="#dfdbd2" stroke-width="1"/>
+      <circle cx="652" cy="22" r="5" fill="#10b981"/>
+      <text x="664" y="26" font-size="13" font-weight="700" fill="#161614">E-Commerce &amp; Landing Pages</text>
+      <text x="646" y="44" font-size="11" fill="#747269">Headless storefronts &amp; high-converting UI</text>
+    </g>
+  </g>
+
+  <!-- ================= DELIBERATE CONTRASTING DARK SECTION (RHYTHM UPGRADE) ================= -->
+  <!-- Transitions from warm paper to obsidian slate engineering bay (#0d0f14) -->
+  <g transform="translate(80, 440)">
+    <!-- Dark Studio Bay Container -->
+    <rect x="0" y="0" width="1280" height="425" rx="16" fill="#0d0f14" stroke="#1f2433" stroke-width="1" filter="url(#darkSectionShadow)"/>
+    
+    <!-- Section Top Header Bar -->
+    <g transform="translate(32, 28)">
+      <rect x="0" y="0" width="1216" height="36" rx="6" fill="#151922" stroke="#232a3b" stroke-width="1"/>
+      <text x="16" y="22" font-family="monospace" font-size="10" font-weight="700" fill="#e5c07b">FEATURED CLIENT SHOWCASE // ARCHITECTURAL SPLIT REVEAL</text>
+      <text x="680" y="22" font-size="11" fill="#9da7b8">DEFAULT VIEW: <tspan fill="#fbf9f5" font-weight="600">Finished Product</tspan> • INTERACTION: <tspan fill="#34d399">Draggable Architecture Curtain</tspan></text>
+      <text x="1130" y="22" font-family="monospace" font-size="10" fill="#b84218">[TAB] TO SWITCH</text>
+    </g>
+
+    <!-- Left Half: FINISHED CLIENT PRODUCT (Default Presentation) -->
+    <g transform="translate(32, 80)">
+      <rect x="0" y="0" width="600" height="315" rx="10" fill="#151822" stroke="#232a3b" stroke-width="1"/>
+      
+      <g transform="translate(24, 24)">
+        <text x="0" y="14" font-family="monospace" font-size="10" font-weight="700" fill="#e5c07b">FINISHED PRODUCT</text>
+        <text x="0" y="42" font-family="Georgia, serif" font-size="24" font-weight="700" fill="#f0f3f8">Thread &amp; Form — Luxury Fashion Block Theme</text>
+        <text x="0" y="64" font-size="12" fill="#9da7b8">Engineered with modern WordPress 6.7+ Full Site Editing (FSE) block hierarchy.</text>
+
+        <!-- Simulated Luxury Lookbook Plate -->
+        <g transform="translate(0, 80)">
+          <rect x="0" y="0" width="552" height="155" rx="6" fill="#1f2432" stroke="#2d3548" stroke-width="1"/>
+          
+          <g transform="translate(16, 14)">
+            <text x="0" y="14" font-family="Georgia, serif" font-size="12" font-weight="700" fill="#fbf9f5" letter-spacing="1">THREAD &amp; FORM</text>
+            <text x="440" y="14" font-size="9" fill="#9da7b8">STORE / CART (0)</text>
+            <line x1="0" y1="22" x2="520" y2="22" stroke="#2d3548" stroke-width="1"/>
+            
+            <rect x="0" y="30" width="250" height="85" rx="4" fill="#293042"/>
+            <text x="125" y="76" font-family="Georgia, serif" font-size="11" font-style="italic" fill="#9da7b8" text-anchor="middle">Bespoke Editorial Lookbook</text>
+
+            <rect x="264" y="30" width="256" height="85" rx="4" fill="#293042"/>
+            <text x="278" y="58" font-size="11" font-weight="600" fill="#f0f3f8">Minimalist Wool Trench</text>
+            <text x="278" y="76" font-size="10" font-family="monospace" fill="#e5c07b">$480 • In Stock</text>
+            <text x="278" y="96" font-size="9" fill="#9da7b8">Client-editable via Gutenberg blocks</text>
+          </g>
+        </g>
+
+        <!-- Verified Capability Badges -->
+        <g transform="translate(0, 260)">
+          <rect x="0" y="0" width="130" height="24" rx="4" fill="#1b212f"/>
+          <text x="65" y="16" font-family="monospace" font-size="10" fill="#34d399" text-anchor="middle">✓ Zero Plugin Bloat</text>
+
+          <rect x="140" y="0" width="150" height="24" rx="4" fill="#1b212f"/>
+          <text x="215" y="16" font-family="monospace" font-size="10" fill="#34d399" text-anchor="middle">✓ Full Site Editing (FSE)</text>
+
+          <rect x="300" y="0" width="130" height="24" rx="4" fill="#1b212f"/>
+          <text x="365" y="16" font-family="monospace" font-size="10" fill="#e5c07b" text-anchor="middle">✓ Fluid Typography</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- Interactive Center Split Handle (Curtain Drag Mechanism) -->
+    <line x1="640" y1="75" x2="640" y2="400" stroke="#b84218" stroke-width="2"/>
+    <g transform="translate(640, 235)">
+      <circle cx="0" cy="0" r="22" fill="#b84218" filter="url(#darkSectionShadow)"/>
+      <text x="0" y="4" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">⇄</text>
+      <rect x="-65" y="26" width="130" height="20" rx="10" fill="#161614" stroke="#dfdbd2" stroke-width="0.5"/>
+      <text x="0" y="40" font-family="monospace" font-size="8" font-weight="600" fill="#ffffff" text-anchor="middle">DRAG REVEAL</text>
+    </g>
+
+    <!-- Right Half: BEHIND THE BUILD (Engineering Credibility) -->
+    <g transform="translate(650, 80)">
+      <rect x="0" y="0" width="598" height="315" rx="10" fill="#11141c" stroke="#1f2433" stroke-width="1"/>
+      
+      <g transform="translate(24, 24)">
+        <text x="0" y="14" font-family="monospace" font-size="10" font-weight="700" fill="#b84218">BEHIND THE BUILD</text>
+        <text x="0" y="42" font-family="Georgia, serif" font-size="24" font-weight="700" fill="#f0f3f8">Clean theme.json Architecture &amp; Code</text>
+        <text x="0" y="64" font-size="12" fill="#9da7b8">Verified zero-plugin block architecture running natively in PHP 8.3 &amp; WordPress Core.</text>
+
+        <!-- Code Excerpt Frame -->
+        <g transform="translate(0, 80)">
+          <rect x="0" y="0" width="550" height="155" rx="6" fill="#090a0f" stroke="#1c2230" stroke-width="1"/>
+          
+          <g transform="translate(16, 20)" font-family="monospace" font-size="10">
+            <text y="0" fill="#7d8ca6">// theme.json (Verified Design Tokens &amp; Gutenberg Block API)</text>
+            <text y="18" fill="#e5c07b">"settings": {</text>
+            <text y="34" fill="#f0f2f5">  "appearanceTools": <tspan fill="#34d399">true</tspan>,</text>
+            <text y="50" fill="#f0f2f5">  "color": { "palette": [ { "slug": <tspan fill="#e5c07b">"linen-base"</tspan>, "color": <tspan fill="#e5c07b">"#fbf9f5"</tspan> } ] },</text>
+            <text y="66" fill="#f0f2f5">  "typography": { "fluid": <tspan fill="#34d399">true</tspan> },</text>
+            <text y="82" fill="#e5c07b">  "layout": { "contentSize": <tspan fill="#e5c07b">"1280px"</tspan>, "wideSize": <tspan fill="#e5c07b">"1440px"</tspan> }</text>
+            <text y="98" fill="#e5c07b">}</text>
+            <text y="118" fill="#7d8ca6">// Verification: GitHub SaucesCode/thread-and-form • 0 Third-Party Plugins</text>
+          </g>
+        </g>
+
+        <!-- Action Link -->
+        <g transform="translate(0, 260)">
+          <text x="0" y="16" font-size="12" font-weight="600" fill="#e5c07b">Inspect GitHub Source ↗</text>
+          <text x="200" y="16" font-size="12" fill="#9da7b8">WordPress 6.7+ • PHP 8.3 • Gutenberg</text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

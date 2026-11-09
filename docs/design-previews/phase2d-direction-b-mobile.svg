@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" width="390" height="844" style="background:#0c0e14; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <defs>
+    <linearGradient id="goldM" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e5c07b"/>
+      <stop offset="100%" stop-color="#d4af37"/>
+    </linearGradient>
+    <filter id="mStudioShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#000000" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+
+  <!-- Mobile Canvas Background -->
+  <rect width="390" height="844" fill="#0c0e14"/>
+
+  <!-- Top Studio Header -->
+  <g transform="translate(20, 20)">
+    <rect x="0" y="8" width="30" height="30" rx="6" fill="#1e2433" stroke="#e5c07b" stroke-width="1"/>
+    <text x="15" y="28" font-size="12" font-weight="800" fill="#e5c07b" text-anchor="middle">DM</text>
+    
+    <text x="38" y="22" font-size="14" font-weight="800" fill="#f0f3f8" letter-spacing="0.5">STUDIO DE MESA</text>
+    <text x="38" y="36" font-family="monospace" font-size="9" fill="#7d8ca6">FULL-STACK &amp; COMMERCE</text>
+
+    <!-- Quick Call CTA Pill -->
+    <rect x="260" y="7" width="90" height="32" rx="16" fill="url(#goldM)"/>
+    <text x="305" y="27" font-size="11" font-weight="700" fill="#0c0e14" text-anchor="middle">Book Call →</text>
+  </g>
+  <line x1="20" y1="68" x2="370" y2="68" stroke="#1c2230" stroke-width="1"/>
+
+  <!-- Mobile Hero Section -->
+  <g transform="translate(20, 90)">
+    <rect x="0" y="0" width="240" height="24" rx="12" fill="#182030" stroke="#2a354d" stroke-width="1"/>
+    <circle cx="12" cy="12" r="3.5" fill="#e5c07b"/>
+    <text x="22" y="16" font-family="monospace" font-size="9" font-weight="600" fill="#e5c07b">WEB APPS &amp; WORDPRESS PLATFORMS</text>
+
+    <text x="0" y="52" font-size="28" font-weight="800" fill="#f0f3f8" letter-spacing="-0.5">
+      Bespoke Web Systems &amp;
+    </text>
+    <text x="0" y="88" font-size="28" font-weight="800" fill="#e5c07b" letter-spacing="-0.5">
+      High-Impact WordPress.
+    </text>
+
+    <text x="0" y="122" font-size="13" fill="#9da7b8">
+      <tspan x="0" dy="0">Custom web applications, zero-bloat WordPress</tspan>
+      <tspan x="0" dy="18">themes, and digital platforms built for scale.</tspan>
+    </text>
+  </g>
+
+  <!-- Mobile Service Filter Pills -->
+  <g transform="translate(20, 255)">
+    <rect x="0" y="0" width="105" height="30" rx="15" fill="#e5c07b"/>
+    <text x="52" y="19" font-size="10" font-weight="700" fill="#0c0e14" text-anchor="middle">Full-Stack Apps</text>
+
+    <rect x="113" y="0" width="115" height="30" rx="15" fill="#141822" stroke="#232a3b" stroke-width="1"/>
+    <text x="170" y="19" font-size="10" font-weight="600" fill="#9da7b8" text-anchor="middle">Custom WordPress</text>
+
+    <rect x="236" y="0" width="114" height="30" rx="15" fill="#141822" stroke="#232a3b" stroke-width="1"/>
+    <text x="293" y="19" font-size="10" font-weight="600" fill="#9da7b8" text-anchor="middle">E-Commerce</text>
+  </g>
+
+  <!-- Mobile Project Showcase Card -->
+  <g transform="translate(20, 305)">
+    <rect x="0" y="0" width="350" height="435" rx="16" fill="#141822" stroke="#232a3b" stroke-width="1" filter="url(#mStudioShadow)"/>
+
+    <g transform="translate(18, 20)">
+      <text x="0" y="14" font-family="monospace" font-size="9" font-weight="700" fill="#e5c07b">CASE STUDY // FULL-STACK CMS</text>
+      <text x="0" y="38" font-size="20" font-weight="800" fill="#f0f3f8">Portfolio CMS Platform</text>
+      <text x="0" y="56" font-size="11" fill="#7d8ca6">React • Node.js • Prisma ORM • PostgreSQL</text>
+
+      <!-- Simulated App UI Screen -->
+      <g transform="translate(0, 72)">
+        <rect x="0" y="0" width="314" height="175" rx="8" fill="#0e121a" stroke="#1c2230" stroke-width="1"/>
+        <g transform="translate(12, 12)">
+          <rect x="0" y="0" width="290" height="24" rx="4" fill="#1c2230"/>
+          <text x="10" y="16" font-family="monospace" font-size="9" font-weight="600" fill="#e5c07b">WORKBENCH ADMIN // CONSOLE</text>
+          
+          <rect x="0" y="32" width="290" height="115" rx="4" fill="#141822" stroke="#232a3b" stroke-width="1"/>
+          <text x="12" y="52" font-family="monospace" font-size="10" fill="#f0f3f8">Draft: Client Editorial Post</text>
+          <text x="12" y="70" font-family="monospace" font-size="9" fill="#10b981">● Live Preview: Instant Edge Synced</text>
+          <rect x="12" y="80" width="266" height="38" rx="4" fill="#0c0e14"/>
+          <text x="20" y="102" font-family="monospace" font-size="9" fill="#3b82f6">Query latency: 4.1ms via Prisma</text>
+        </g>
+      </g>
+
+      <!-- Client Metrics Grid -->
+      <g transform="translate(0, 260)">
+        <rect x="0" y="0" width="150" height="60" rx="8" fill="#0e121a" stroke="#1c2230" stroke-width="1"/>
+        <text x="12" y="22" font-family="monospace" font-size="8" fill="#7d8ca6">PUBLISH SPEED</text>
+        <text x="12" y="46" font-size="18" font-weight="800" fill="#10b981">-75%</text>
+
+        <rect x="164" y="0" width="150" height="60" rx="8" fill="#0e121a" stroke="#1c2230" stroke-width="1"/>
+        <text x="12" y="22" font-family="monospace" font-size="8" fill="#7d8ca6">CMS LICENSING</text>
+        <text x="12" y="46" font-size="18" font-weight="800" fill="#e5c07b">$0/mo</text>
+      </g>
+
+      <!-- Project Action Button -->
+      <g transform="translate(0, 335)">
+        <rect x="0" y="0" width="314" height="40" rx="8" fill="#1e2433" stroke="#e5c07b" stroke-width="1"/>
+        <text x="157" y="25" font-size="12" font-weight="700" fill="#f0f3f8" text-anchor="middle">View Full Case Study →</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Bottom Conversion Bar -->
+  <g transform="translate(20, 760)">
+    <rect x="0" y="0" width="350" height="52" rx="26" fill="url(#goldM)" filter="url(#mStudioShadow)"/>
+    <text x="175" y="32" font-size="13" font-weight="800" fill="#0c0e14" text-anchor="middle">Book a Free 20-Min Scope Call →</text>
+  </g>
+</svg>

@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" style="background:#0c0e14; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <defs>
+    <linearGradient id="goldGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e5c07b" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#d4af37" stop-opacity="0.9"/>
+    </linearGradient>
+    <filter id="studioShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.7"/>
+    </filter>
+  </defs>
+
+  <!-- Dark Slate/Graphite Canvas -->
+  <rect width="1440" height="900" fill="#0c0e14"/>
+
+  <!-- Subtle Studio Grid Lines -->
+  <line x1="80" y1="0" x2="80" y2="900" stroke="#181d2a" stroke-width="1"/>
+  <line x1="1360" y1="0" x2="1360" y2="900" stroke="#181d2a" stroke-width="1"/>
+  <line x1="80" y1="90" x2="1360" y2="90" stroke="#181d2a" stroke-width="1"/>
+
+  <!-- Top Floating Studio Navigation -->
+  <g transform="translate(80, 28)">
+    <rect x="0" y="0" width="1280" height="52" rx="26" fill="#141822" stroke="#232a3b" stroke-width="1"/>
+    
+    <!-- Monogram / Studio Mark -->
+    <rect x="16" y="10" width="32" height="32" rx="8" fill="#1e2433" stroke="#e5c07b" stroke-width="1"/>
+    <text x="32" y="31" font-size="13" font-weight="800" fill="#e5c07b" text-anchor="middle">DM</text>
+    <text x="60" y="32" font-size="14" font-weight="700" fill="#f0f3f8" letter-spacing="1">STUDIO DE MESA</text>
+    <text x="215" y="32" font-size="11" font-family="monospace" fill="#7d8ca6">/ FULL-STACK &amp; COMMERCE</text>
+
+    <!-- Nav Links -->
+    <text x="760" y="32" font-size="13" font-weight="500" fill="#9da7b8">Solutions</text>
+    <text x="850" y="32" font-size="13" font-weight="500" fill="#9da7b8">Client Work</text>
+    <text x="955" y="32" font-size="13" font-weight="500" fill="#9da7b8">Process &amp; Pricing</text>
+
+    <!-- Primary Conversion CTA -->
+    <rect x="1100" y="8" width="164" height="36" rx="18" fill="url(#goldGlow)"/>
+    <text x="1182" y="31" font-size="12" font-weight="700" fill="#0c0e14" text-anchor="middle">Book Project Call →</text>
+  </g>
+
+  <!-- Hero Section -->
+  <g transform="translate(80, 130)">
+    <!-- 5-Second Value Proposition Pill -->
+    <rect x="0" y="0" width="310" height="26" rx="13" fill="#182030" stroke="#2a354d" stroke-width="1"/>
+    <circle cx="14" cy="13" r="4" fill="#e5c07b"/>
+    <text x="26" y="17" font-family="monospace" font-size="10" font-weight="600" fill="#e5c07b" letter-spacing="0.5">FULL-STACK APPLICATIONS &amp; BESPOKE CMS</text>
+
+    <!-- Bold Modernist Headline -->
+    <text x="0" y="65" font-size="44" font-weight="800" fill="#f0f3f8" letter-spacing="-0.5">
+      Bespoke Web Systems &amp; <tspan fill="#e5c07b">High-Impact</tspan>
+    </text>
+    <text x="0" y="118" font-size="44" font-weight="800" fill="#f0f3f8" letter-spacing="-0.5">
+      WordPress Platforms for Growing Brands.
+    </text>
+
+    <!-- Client-Focused Subtitle -->
+    <text x="0" y="160" font-size="16" fill="#9da7b8" width="850">
+      <tspan x="0" dy="0">We engineer custom web applications, high-performance WordPress themes, and high-converting</tspan>
+      <tspan x="0" dy="24">digital storefronts—giving founders and marketing teams complete digital independence without technical friction.</tspan>
+    </text>
+
+    <!-- 3 Core Client Service Cards (Instant Clarity) -->
+    <g transform="translate(0, 215)">
+      <!-- Pillar 1 -->
+      <rect x="0" y="0" width="280" height="72" rx="10" fill="#141822" stroke="#232a3b" stroke-width="1"/>
+      <circle cx="24" cy="26" r="6" fill="#3b82f6"/>
+      <text x="38" y="30" font-size="13" font-weight="700" fill="#f0f3f8">Full-Stack Web Systems</text>
+      <text x="16" y="52" font-size="11" fill="#7d8ca6">React, Next.js, Node.js &amp; PostgreSQL</text>
+
+      <!-- Pillar 2 -->
+      <rect x="296" y="0" width="280" height="72" rx="10" fill="#141822" stroke="#232a3b" stroke-width="1"/>
+      <circle cx="320" cy="26" r="6" fill="#e5c07b"/>
+      <text x="334" y="30" font-size="13" font-weight="700" fill="#f0f3f8">Custom WordPress &amp; FSE</text>
+      <text x="312" y="52" font-size="11" fill="#7d8ca6">Zero-bloat Gutenberg themes &amp; stores</text>
+
+      <!-- Pillar 3 -->
+      <rect x="592" y="0" width="280" height="72" rx="10" fill="#141822" stroke="#232a3b" stroke-width="1"/>
+      <circle cx="616" cy="26" r="6" fill="#10b981"/>
+      <text x="630" y="30" font-size="13" font-weight="700" fill="#f0f3f8">High-Converting Stores</text>
+      <text x="608" y="52" font-size="11" fill="#7d8ca6">Headless commerce, UI/UX &amp; speed</text>
+    </g>
+  </g>
+
+  <!-- Interactive Client Work Showcase: Portfolio CMS & Kinetix Athletics -->
+  <g transform="translate(80, 440)">
+    <!-- Container Card with double bezel -->
+    <rect x="0" y="0" width="1280" height="420" rx="16" fill="#141822" stroke="#232a3b" stroke-width="1" filter="url(#studioShadow)"/>
+    <rect x="8" y="8" width="1264" height="404" rx="12" fill="#0e121a" stroke="#1c2230" stroke-width="1"/>
+
+    <!-- Left: Project Visual Showcase -->
+    <g transform="translate(36, 36)">
+      <text x="0" y="16" font-family="monospace" font-size="11" font-weight="700" fill="#e5c07b" letter-spacing="1">CLIENT CASE STUDY // FULL-STACK SYSTEM</text>
+      <text x="0" y="46" font-size="28" font-weight="800" fill="#f0f3f8">Portfolio CMS — Custom Content Management Engine</text>
+      <text x="0" y="70" font-size="13" fill="#9da7b8">A bespoke full-stack platform built with React, Node.js, Express, Prisma ORM, and PostgreSQL.</text>
+
+      <!-- Visual Preview Screen -->
+      <g transform="translate(0, 95)">
+        <rect x="0" y="0" width="680" height="235" rx="8" fill="#141822" stroke="#2a354d" stroke-width="1"/>
+        
+        <!-- App Dashboard Simulation -->
+        <g transform="translate(16, 16)">
+          <!-- Dashboard Top Bar -->
+          <rect x="0" y="0" width="648" height="32" rx="6" fill="#1c2230"/>
+          <text x="14" y="21" font-family="monospace" font-size="11" font-weight="600" fill="#e5c07b">WORKBENCH CMS // ADMIN CONSOLE</text>
+          <text x="540" y="21" font-size="11" fill="#10b981">● SECURE JWT SESSION</text>
+          
+          <!-- Asymmetric Split View -->
+          <!-- Left: Content Editor -->
+          <rect x="0" y="42" width="316" height="160" rx="6" fill="#0c0e14" stroke="#1c2230" stroke-width="1"/>
+          <text x="14" y="64" font-family="monospace" font-size="11" fill="#f0f3f8">Article: "Modern Architecture"</text>
+          <text x="14" y="84" font-family="monospace" font-size="10" fill="#7d8ca6">Status: Published (Edge Cached)</text>
+          <rect x="14" y="98" width="288" height="50" rx="4" fill="#141822"/>
+          <text x="24" y="122" font-family="monospace" font-size="9" fill="#9da7b8">Markdown parser: 0ms live render</text>
+          <text x="24" y="136" font-family="monospace" font-size="9" fill="#3b82f6">API: Prisma ORM Query [4.1ms]</text>
+
+          <!-- Right: Live Editorial Preview -->
+          <rect x="332" y="42" width="316" height="160" rx="6" fill="#1a1e2a" stroke="#2a354d" stroke-width="1"/>
+          <text x="346" y="66" font-family="Georgia, serif" font-size="13" font-weight="700" fill="#f0f3f8">Editorial Front-End View</text>
+          <line x1="346" y1="76" x2="630" y2="76" stroke="#2a354d" stroke-width="1"/>
+          <rect x="346" y="88" width="130" height="80" rx="4" fill="#242b3d"/>
+          <text x="411" y="132" font-size="10" fill="#7d8ca6" text-anchor="middle">Live Client Layout</text>
+          <text x="486" y="105" font-size="11" font-weight="600" fill="#f0f3f8">Clean typography</text>
+          <text x="486" y="122" font-size="10" fill="#9da7b8">Instant publish</text>
+          <text x="486" y="139" font-size="10" fill="#e5c07b">Zero CMS licensing</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- Right: Client Business Impact & Technical Highlights -->
+    <g transform="translate(760, 36)">
+      <!-- View Mode Selector -->
+      <rect x="0" y="0" width="460" height="36" rx="18" fill="#1c2230" stroke="#2a354d" stroke-width="1"/>
+      <rect x="4" y="4" width="220" height="28" rx="14" fill="#e5c07b"/>
+      <text x="114" y="22" font-size="11" font-weight="700" fill="#0c0e14" text-anchor="middle">Business Value Delivered</text>
+      <text x="340" y="22" font-size="11" font-weight="600" fill="#9da7b8" text-anchor="middle">Technical Architecture</text>
+
+      <!-- Business Value Metrics -->
+      <g transform="translate(0, 56)">
+        <!-- Metric 1 -->
+        <rect x="0" y="0" width="460" height="74" rx="8" fill="#141822" stroke="#232a3b" stroke-width="1"/>
+        <text x="20" y="28" font-size="11" font-family="monospace" fill="#7d8ca6">CONTENT PUBLISHING VELOCITY</text>
+        <text x="20" y="52" font-size="18" font-weight="700" fill="#f0f3f8">75% Reduction in Publishing Time</text>
+        <text x="380" y="48" font-size="20" font-weight="800" fill="#10b981">-75%</text>
+
+        <!-- Metric 2 -->
+        <rect x="0" y="86" width="460" height="74" rx="8" fill="#141822" stroke="#232a3b" stroke-width="1"/>
+        <text x="20" y="114" font-size="11" font-family="monospace" fill="#7d8ca6">SOFTWARE RUNTIME COSTS</text>
+        <text x="20" y="138" font-size="18" font-weight="700" fill="#f0f3f8">$0 / Mo Recurring CMS Subscriptions</text>
+        <text x="400" y="134" font-size="20" font-weight="800" fill="#e5c07b">$0</text>
+
+        <!-- Metric 3 -->
+        <rect x="0" y="172" width="460" height="74" rx="8" fill="#141822" stroke="#232a3b" stroke-width="1"/>
+        <text x="20" y="200" font-size="11" font-family="monospace" fill="#7d8ca6">SECURITY &amp; DATA PRIVACY</text>
+        <text x="20" y="224" font-size="18" font-weight="700" fill="#f0f3f8">Full Database Ownership (Prisma + Postgres)</text>
+        <text x="390" y="220" font-size="14" font-weight="700" fill="#10b981">100% OWNED</text>
+      </g>
+
+      <!-- Call To Action Button -->
+      <g transform="translate(0, 320)">
+        <rect x="0" y="0" width="460" height="44" rx="8" fill="#232a3b" stroke="#e5c07b" stroke-width="1"/>
+        <text x="230" y="27" font-size="13" font-weight="700" fill="#f0f3f8" text-anchor="middle">Request a Custom System Like This →</text>
+      </g>
+    </g>
+  </g>
+</svg>

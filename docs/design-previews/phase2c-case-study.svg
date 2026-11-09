@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" style="background:#090a0f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <defs>
+    <linearGradient id="headerGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#181b27" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#11131c" stop-opacity="0.9"/>
+    </linearGradient>
+    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="1440" height="900" fill="#090a0f"/>
+
+  <!-- Subtle Blueprint Grid lines -->
+  <line x1="80" y1="0" x2="80" y2="900" stroke="#141824" stroke-width="1"/>
+  <line x1="1360" y1="0" x2="1360" y2="900" stroke="#141824" stroke-width="1"/>
+  <line x1="80" y1="100" x2="1360" y2="100" stroke="#181d2c" stroke-width="1"/>
+
+  <!-- Top Navigation Bar -->
+  <rect x="80" y="24" width="1280" height="56" rx="28" fill="#11131c" stroke="#242938" stroke-width="1"/>
+  
+  <!-- Identity -->
+  <circle cx="116" cy="52" r="14" fill="#181b27" stroke="#353c52" stroke-width="1"/>
+  <text x="116" y="57" font-size="12" font-weight="700" fill="#f0f2f5" text-anchor="middle">JP</text>
+  <text x="142" y="57" font-size="14" font-weight="600" fill="#f0f2f5">James Patrick De Mesa</text>
+  <text x="296" y="57" font-size="12" fill="#7d8ca6">/ portfolio case study</text>
+
+  <!-- Nav links -->
+  <text x="880" y="57" font-size="13" font-weight="500" fill="#9da7b8">Work</text>
+  <text x="940" y="57" font-size="13" font-weight="500" fill="#9da7b8">Archive</text>
+  <text x="1010" y="57" font-size="13" font-weight="500" fill="#9da7b8">Atlas</text>
+  <text x="1070" y="57" font-size="13" font-weight="500" fill="#9da7b8">About</text>
+
+  <!-- GitHub Verified Badge -->
+  <rect x="1140" y="36" width="200" height="32" rx="16" fill="#181b27" stroke="#242938" stroke-width="1"/>
+  <circle cx="1156" cy="52" r="4" fill="#10b981"/>
+  <text x="1168" y="56" font-size="11" font-family="monospace" fill="#f0f2f5">SaucesCode • 42 Repos</text>
+
+  <!-- Case Study Header / Breadcrumb -->
+  <text x="80" y="140" font-size="12" font-family="monospace" font-weight="600" fill="#7d8ca6" letter-spacing="1.5">← BACK TO SELECTED SYSTEMS / CASE STUDY 02</text>
+  
+  <text x="80" y="185" font-size="34" font-weight="700" fill="#f0f2f5">MeetingMode: Zero-Latency <tspan font-style="italic" font-family="Georgia, serif" fill="#f0f2f5">Screen Privacy</tspan> Engine</text>
+
+  <!-- Verified Metadata Strip -->
+  <rect x="80" y="210" width="1280" height="42" rx="8" fill="#11131c" stroke="#242938" stroke-width="1"/>
+  <text x="96" y="236" font-size="11" font-family="monospace" fill="#10b981">● MICROSOFT EDGE ADD-ONS VERIFIED</text>
+  <text x="360" y="236" font-size="11" font-family="monospace" fill="#9da7b8">ADD-ON ID: <tspan fill="#f0f2f5">pnfahfnonohbgnbgdalegoicoldkbkno</tspan></text>
+  <text x="730" y="236" font-size="11" font-family="monospace" fill="#9da7b8">STACK: <tspan fill="#f0f2f5">TypeScript • Manifest V3 • Web Extensions API</tspan></text>
+  <text x="1120" y="236" font-size="11" font-family="monospace" fill="#3b82f6">GITHUB: SaucesCode/meeting-mode ↗</text>
+
+  <!-- Main Case Study Content Container (Double Bezel) -->
+  <rect x="80" y="275" width="1280" height="585" rx="16" fill="#11131c" stroke="#242938" stroke-width="1"/>
+  <rect x="88" y="283" width="1264" height="569" rx="12" fill="#0d0f17" stroke="#181b27" stroke-width="1"/>
+
+  <!-- Left Column: Editorial Technical Narrative (Concept B Poise) -->
+  <g transform="translate(120, 315)">
+    <!-- Section 1: The Problem -->
+    <text x="0" y="20" font-size="11" font-family="monospace" fill="#7d8ca6" letter-spacing="1">01 / THE SECURITY VULNERABILITY</text>
+    <text x="0" y="46" font-size="18" font-weight="600" fill="#f0f2f5">Inadvertent Credential Exposure in Live Collaboration</text>
+    <text x="0" y="72" font-size="13" fill="#9da7b8" width="460">
+      <tspan x="0" dy="0">Engineers frequently stream monitors during live architectural reviews,</tspan>
+      <tspan x="0" dy="20">incident response bridges, and pair-programming sessions. A momentary</tspan>
+      <tspan x="0" dy="20">tab switch to staging dashboards, AWS consoles, or messaging windows</tspan>
+      <tspan x="0" dy="20">exposes session JWTs, API secret keys, customer PII, and internal URLs.</tspan>
+    </text>
+
+    <!-- Section 2: Architecture -->
+    <text x="0" y="185" font-size="11" font-family="monospace" fill="#7d8ca6" letter-spacing="1">02 / ARCHITECTURAL SOLUTION</text>
+    <text x="0" y="211" font-size="18" font-weight="600" fill="#f0f2f5">Manifest V3 Isolated-World Obfuscation Engine</text>
+    <text x="0" y="237" font-size="13" fill="#9da7b8">
+      <tspan x="0" dy="0">MeetingMode operates inside a sandboxed Content Script execution context.</tspan>
+      <tspan x="0" dy="20">Instead of continuously scanning the DOM with heavy regex engines,</tspan>
+      <tspan x="0" dy="20">it attaches a debounced MutationObserver queue that classifies newly</tspan>
+      <tspan x="0" dy="20">inserted sensitive nodes and applies hardware-accelerated CSS blur shaders</tspan>
+      <tspan x="0" dy="20">before layout painting occurs.</tspan>
+    </text>
+
+    <!-- Section 3: Performance & Integrity -->
+    <text x="0" y="355" font-size="11" font-family="monospace" fill="#7d8ca6" letter-spacing="1">03 / TECHNICAL CONSTRAINTS &amp; PERFORMANCE INVARIANT</text>
+    <text x="0" y="381" font-size="18" font-weight="600" fill="#f0f2f5">Sub-16ms Paint Budget &amp; Zero Layout Thrashing</text>
+    <text x="0" y="407" font-size="13" fill="#9da7b8">
+      <tspan x="0" dy="0">By using CSS backdrop-filter overlays and batching mutations via</tspan>
+      <tspan x="0" dy="20"><tspan font-family="monospace" fill="#f0f2f5">requestAnimationFrame</tspan>, DOM read/write cycles are completely segregated,</tspan>
+      <tspan x="0" dy="20">guaranteeing zero layout shifts (CLS = 0.00) and zero video call latency.</tspan>
+    </text>
+  </g>
+
+  <!-- Divider Line -->
+  <line x1="620" y1="315" x2="620" y2="820" stroke="#181b27" stroke-width="1"/>
+
+  <!-- Right Column: Architecture Schematic & Source Excerpt (Concept A & C Precision) -->
+  <g transform="translate(650, 315)">
+    <!-- Header -->
+    <text x="0" y="20" font-size="11" font-family="monospace" fill="#7d8ca6" letter-spacing="1">SYSTEM ARCHITECTURE PIPELINE &amp; RUNTIME STATE</text>
+    
+    <!-- Schematic Pipeline Canvas -->
+    <rect x="0" y="36" width="670" height="180" rx="8" fill="#11131c" stroke="#242938" stroke-width="1"/>
+    
+    <!-- Step 1: DOM Event -->
+    <rect x="24" y="60" width="120" height="70" rx="6" fill="#181b27" stroke="#353c52" stroke-width="1"/>
+    <text x="84" y="86" font-size="10" font-family="monospace" fill="#7d8ca6" text-anchor="middle">STAGE 01</text>
+    <text x="84" y="106" font-size="12" font-weight="600" fill="#f0f2f5" text-anchor="middle">DOM Mutation</text>
+    
+    <!-- Vector Arrow -->
+    <line x1="144" y1="95" x2="184" y2="95" stroke="#3b82f6" stroke-width="2"/>
+    <polygon points="184,91 192,95 184,99" fill="#3b82f6"/>
+
+    <!-- Step 2: Microtask Queue -->
+    <rect x="192" y="60" width="130" height="70" rx="6" fill="#181b27" stroke="#353c52" stroke-width="1"/>
+    <text x="257" y="86" font-size="10" font-family="monospace" fill="#7d8ca6" text-anchor="middle">STAGE 02</text>
+    <text x="257" y="106" font-size="12" font-weight="600" fill="#f0f2f5" text-anchor="middle">Batch Queue</text>
+
+    <!-- Vector Arrow -->
+    <line x1="322" y1="95" x2="362" y2="95" stroke="#3b82f6" stroke-width="2"/>
+    <polygon points="362,91 370,95 362,99" fill="#3b82f6"/>
+
+    <!-- Step 3: Rule Classifier -->
+    <rect x="370" y="60" width="130" height="70" rx="6" fill="#181b27" stroke="#353c52" stroke-width="1"/>
+    <text x="435" y="86" font-size="10" font-family="monospace" fill="#7d8ca6" text-anchor="middle">STAGE 03</text>
+    <text x="435" y="106" font-size="12" font-weight="600" fill="#f0f2f5" text-anchor="middle">PII Selector Hash</text>
+
+    <!-- Vector Arrow -->
+    <line x1="500" y1="95" x2="536" y2="95" stroke="#10b981" stroke-width="2"/>
+    <polygon points="536,91 544,95 536,99" fill="#10b981"/>
+
+    <!-- Step 4: Shader Layer -->
+    <rect x="544" y="60" width="102" height="70" rx="6" fill="#14261d" stroke="#10b981" stroke-width="1"/>
+    <text x="595" y="86" font-size="10" font-family="monospace" fill="#10b981" text-anchor="middle">STAGE 04</text>
+    <text x="595" y="106" font-size="11" font-weight="600" fill="#f0f2f5" text-anchor="middle">Shader Mask</text>
+
+    <!-- Pipeline Metric Footer -->
+    <text x="24" y="156" font-size="11" font-family="monospace" fill="#9da7b8">Latency Benchmark: <tspan fill="#10b981">&lt; 4.2ms execution</tspan> • Layout Recalculation: <tspan fill="#10b981">0 forced reflows</tspan> • Manifest: <tspan fill="#f0f2f5">V3</tspan></text>
+
+    <!-- TypeScript Implementation Excerpt (Authentic Architecture) -->
+    <text x="0" y="246" font-size="11" font-family="monospace" fill="#7d8ca6" letter-spacing="1">AUTHENTIC CONTENT SCRIPT ENGINE EXCERPT (TYPESCRIPT)</text>
+    <rect x="0" y="260" width="670" height="240" rx="8" fill="#11131c" stroke="#242938" stroke-width="1"/>
+    <g transform="translate(20, 285)" font-family="monospace" font-size="12">
+      <text y="0" fill="#7d8ca6">// MeetingMode: Non-blocking Mutation Batching Engine</text>
+      <text y="24" fill="#3b82f6">export interface <tspan fill="#f0f2f5">ObfuscationRule</tspan> {</text>
+      <text y="44" fill="#f0f2f5">  selector: <tspan fill="#10b981">string</tspan>;</text>
+      <text y="64" fill="#f0f2f5">  maskType: <tspan fill="#b84218">'blur'</tspan> | <tspan fill="#b84218">'redact'</tspan>;</text>
+      <text y="84" fill="#f0f2f5">  immediate: <tspan fill="#3b82f6">boolean</tspan>;</text>
+      <text y="104" fill="#3b82f6">}</text>
+      <text y="132" fill="#3b82f6">export class <tspan fill="#f0f2f5">DOMPrivacyPipeline</tspan> {</text>
+      <text y="152" fill="#f0f2f5">  <tspan fill="#3b82f6">private</tspan> queue: Set&lt;Element&gt; = <tspan fill="#3b82f6">new</tspan> Set();</text>
+      <text y="172" fill="#f0f2f5">  <tspan fill="#3b82f6">public</tspan> scheduleBatch(nodes: NodeList): <tspan fill="#3b82f6">void</tspan> {</text>
+      <text y="192" fill="#7d8ca6">    // Batches mutation records into single requestAnimationFrame tick</text>
+      <text y="212" fill="#f0f2f5">    window.requestAnimationFrame(() =&gt; <tspan fill="#3b82f6">this</tspan>.applyMasks());</text>
+      <text y="232" fill="#f0f2f5">  }</text>
+    </g>
+  </g>
+</svg>

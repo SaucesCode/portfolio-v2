@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" style="background:#090a0f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <defs>
+    <filter id="cardGlow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+
+  <!-- Dark Engineering Bay Canvas -->
+  <rect width="1440" height="900" fill="#090a0f"/>
+
+  <!-- Hairline Blueprint Grid -->
+  <line x1="80" y1="0" x2="80" y2="900" stroke="#161b26" stroke-width="1"/>
+  <line x1="1360" y1="0" x2="1360" y2="900" stroke="#161b26" stroke-width="1"/>
+  <line x1="80" y1="110" x2="1360" y2="110" stroke="#161b26" stroke-width="1"/>
+
+  <!-- Section Header -->
+  <g transform="translate(80, 45)">
+    <text x="0" y="0" font-family="monospace" font-size="11" font-weight="700" fill="#b84218" letter-spacing="1.5">02 / FLAGSHIP CLIENT SYSTEMS &amp; BESPOKE THEMES</text>
+    <text x="0" y="34" font-family="Georgia, serif" font-size="32" font-weight="700" fill="#f0f3f8">Full-Width Interactive Showcase: <tspan font-style="italic" fill="#e5c07b">Craft vs. Architecture</tspan></text>
+    <text x="0" y="58" font-size="13" fill="#9da7b8">Explore verified client deliverables: from client-facing Gutenberg block aesthetics to production Node.js/Prisma backend architecture.</text>
+  </g>
+
+  <!-- Showcase Grid: 2 Full Flagship Projects -->
+  <!-- Project 1: thread-and-form (WordPress FSE) -->
+  <g transform="translate(80, 135)">
+    <rect x="0" y="0" width="1280" height="345" rx="14" fill="#11141c" stroke="#1f2433" stroke-width="1" filter="url(#cardGlow)"/>
+    
+    <!-- Left: Finished Lookbook UI -->
+    <g transform="translate(28, 24)">
+      <text x="0" y="14" font-family="monospace" font-size="10" font-weight="700" fill="#e5c07b">01 // WORDPRESS FULL SITE EDITING THEME</text>
+      <text x="0" y="42" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#f0f3f8">Thread &amp; Form — Bespoke Apparel Theme</text>
+      <text x="0" y="62" font-size="12" fill="#9da7b8">Full Site Editing architecture giving boutique apparel brands complete visual control in Gutenberg.</text>
+
+      <g transform="translate(0, 78)">
+        <rect x="0" y="0" width="580" height="185" rx="8" fill="#181d2a" stroke="#283247" stroke-width="1"/>
+        <g transform="translate(18, 16)">
+          <text x="0" y="14" font-family="Georgia, serif" font-size="12" font-weight="700" fill="#fbf9f5" letter-spacing="1.5">THREAD &amp; FORM</text>
+          <text x="470" y="14" font-size="9" fill="#9da7b8">STOREFRONT</text>
+          <line x1="0" y1="24" x2="544" y2="24" stroke="#283247" stroke-width="1"/>
+          
+          <rect x="0" y="34" width="260" height="110" rx="4" fill="#242b3d"/>
+          <text x="130" y="92" font-family="Georgia, serif" font-size="11" font-style="italic" fill="#9da7b8" text-anchor="middle">Luxury Lookbook Grid</text>
+
+          <rect x="276" y="34" width="268" height="50" rx="4" fill="#242b3d"/>
+          <text x="290" y="56" font-size="11" font-weight="600" fill="#f0f3f8">Minimalist Wool Trench</text>
+          <text x="290" y="72" font-family="monospace" font-size="10" fill="#e5c07b">$480 • Available</text>
+
+          <rect x="276" y="94" width="268" height="50" rx="4" fill="#242b3d"/>
+          <text x="290" y="116" font-size="11" font-weight="600" fill="#f0f3f8">Tailored Linen Trousers</text>
+          <text x="290" y="132" font-family="monospace" font-size="10" fill="#e5c07b">$260 • Available</text>
+        </g>
+      </g>
+
+      <!-- Client Result -->
+      <g transform="translate(0, 280)">
+        <text x="0" y="16" font-size="11" font-weight="600" fill="#10b981">Client Benefit:</text>
+        <text x="90" y="16" font-size="11" fill="#9da7b8">100% native block patterns • Zero third-party page builder lock-in • Clean maintenance</text>
+      </g>
+    </g>
+
+    <!-- Divider -->
+    <line x1="640" y1="20" x2="640" y2="325" stroke="#1f2433" stroke-width="1"/>
+
+    <!-- Right: Behind the Build Architecture -->
+    <g transform="translate(668, 24)">
+      <text x="0" y="14" font-family="monospace" font-size="10" font-weight="700" fill="#b84218">BEHIND THE BUILD // CODE INSPECTOR</text>
+      <text x="0" y="42" font-size="18" font-weight="700" fill="#f0f3f8">theme.json &amp; Block Templates Engine</text>
+      <text x="0" y="62" font-size="12" fill="#9da7b8">WordPress 6.7+ FSE eliminates bloated shortcodes with clean semantic JSON tokens.</text>
+
+      <g transform="translate(0, 78)">
+        <rect x="0" y="0" width="580" height="185" rx="8" fill="#090a0f" stroke="#1c2230" stroke-width="1"/>
+        <g transform="translate(18, 22)" font-family="monospace" font-size="10">
+          <text y="0" fill="#7d8ca6">// theme.json (Verified Design Tokens &amp; Gutenberg Block API)</text>
+          <text y="18" fill="#e5c07b">"settings": {</text>
+          <text y="34" fill="#f0f2f5">  "appearanceTools": <tspan fill="#34d399">true</tspan>,</text>
+          <text y="50" fill="#f0f2f5">  "color": { "palette": [ { "slug": <tspan fill="#e5c07b">"linen"</tspan>, "color": <tspan fill="#e5c07b">"#fbf9f5"</tspan> } ] },</text>
+          <text y="66" fill="#f0f2f5">  "typography": { "fluid": <tspan fill="#34d399">true</tspan> },</text>
+          <text y="82" fill="#f0f2f5">  "spacing": { "units": [<tspan fill="#e5c07b">"px"</tspan>, <tspan fill="#e5c07b">"rem"</tspan>, <tspan fill="#e5c07b">"vh"</tspan>] }</text>
+          <text y="98" fill="#e5c07b">}</text>
+          <text y="120" fill="#7d8ca6">// Verified Source: GitHub SaucesCode/thread-and-form</text>
+        </g>
+      </g>
+
+      <g transform="translate(0, 280)">
+        <text x="0" y="16" font-size="11" font-weight="600" fill="#f0f3f8">Stack Verification:</text>
+        <text x="130" y="16" font-family="monospace" font-size="11" fill="#7d8ca6">PHP 8.3 • Gutenberg Block API • HTML5/CSS • Zero Plugins</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Project 2: portfolio-cms (Full-Stack Platform) -->
+  <g transform="translate(80, 500)">
+    <rect x="0" y="0" width="1280" height="345" rx="14" fill="#11141c" stroke="#1f2433" stroke-width="1" filter="url(#cardGlow)"/>
+
+    <!-- Left: Finished Application Console UI -->
+    <g transform="translate(28, 24)">
+      <text x="0" y="14" font-family="monospace" font-size="10" font-weight="700" fill="#e5c07b">02 // FULL-STACK BESPOKE WEB SYSTEM</text>
+      <text x="0" y="42" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#f0f3f8">Portfolio CMS — Custom Content Management Engine</text>
+      <text x="0" y="62" font-size="12" fill="#9da7b8">A tailor-made administrative portal and live public platform eliminating recurring SaaS CMS fees.</text>
+
+      <g transform="translate(0, 78)">
+        <rect x="0" y="0" width="580" height="185" rx="8" fill="#181d2a" stroke="#283247" stroke-width="1"/>
+        <g transform="translate(18, 16)">
+          <rect x="0" y="0" width="544" height="26" rx="4" fill="#1f2433"/>
+          <text x="12" y="17" font-family="monospace" font-size="10" font-weight="600" fill="#e5c07b">WORKBENCH ADMIN // SECURE CONSOLE</text>
+          <text x="440" y="17" font-size="10" fill="#10b981">● AUTH: httpOnly JWT</text>
+          
+          <rect x="0" y="34" width="260" height="100" rx="4" fill="#090a0f" stroke="#1c2230" stroke-width="1"/>
+          <text x="12" y="56" font-family="monospace" font-size="10" fill="#f0f2f5">Article: "2027 System Design"</text>
+          <text x="12" y="74" font-size="9" fill="#7d8ca6">Status: Published (Edge Synced)</text>
+          <text x="12" y="92" font-family="monospace" font-size="9" fill="#3b82f6">Live Markdown Editor Active</text>
+
+          <rect x="276" y="34" width="268" height="100" rx="4" fill="#242b3d"/>
+          <text x="290" y="56" font-family="Georgia, serif" font-size="11" font-weight="700" fill="#f0f3f8">Live Editorial Public Site</text>
+          <text x="290" y="74" font-size="10" fill="#9da7b8">Instant client publishing</text>
+          <text x="290" y="92" font-size="10" fill="#10b981">Zero third-party SaaS dependency</text>
+        </g>
+      </g>
+
+      <g transform="translate(0, 280)">
+        <text x="0" y="16" font-size="11" font-weight="600" fill="#10b981">Client Benefit:</text>
+        <text x="90" y="16" font-size="11" fill="#9da7b8">100% database ownership • Complete brand autonomy • Zero recurring software licenses</text>
+      </g>
+    </g>
+
+    <!-- Divider -->
+    <line x1="640" y1="20" x2="640" y2="325" stroke="#1f2433" stroke-width="1"/>
+
+    <!-- Right: Behind the Build Architecture -->
+    <g transform="translate(668, 24)">
+      <text x="0" y="14" font-family="monospace" font-size="10" font-weight="700" fill="#b84218">BEHIND THE BUILD // PRISMA &amp; POSTGRES MODEL</text>
+      <text x="0" y="42" font-size="18" font-weight="700" fill="#f0f3f8">Prisma ORM Relational Schema &amp; Node.js API</text>
+      <text x="0" y="62" font-size="12" fill="#9da7b8">Type-safe PostgreSQL relational modeling with Express backend and secure cookie sessions.</text>
+
+      <g transform="translate(0, 78)">
+        <rect x="0" y="0" width="580" height="185" rx="8" fill="#090a0f" stroke="#1c2230" stroke-width="1"/>
+        <g transform="translate(18, 22)" font-family="monospace" font-size="10">
+          <text y="0" fill="#7d8ca6">// prisma/schema.prisma (Relational Data Model)</text>
+          <text y="18" fill="#3b82f6">model <tspan fill="#f0f2f5">Post</tspan> {</text>
+          <text y="34" fill="#f0f2f5">  id          <tspan fill="#e5c07b">String</tspan>   @id @default(uuid())</text>
+          <text y="50" fill="#f0f2f5">  title       <tspan fill="#e5c07b">String</tspan></text>
+          <text y="66" fill="#f0f2f5">  slug        <tspan fill="#e5c07b">String</tspan>   @unique</text>
+          <text y="82" fill="#f0f2f5">  content     <tspan fill="#e5c07b">String</tspan>   // Markdown storage</text>
+          <text y="98" fill="#f0f2f5">  published   <tspan fill="#34d399">Boolean</tspan>  @default(false)</text>
+          <text y="114" fill="#3b82f6">}</text>
+        </g>
+      </g>
+
+      <g transform="translate(0, 280)">
+        <text x="0" y="16" font-size="11" font-weight="600" fill="#f0f3f8">Stack Verification:</text>
+        <text x="130" y="16" font-family="monospace" font-size="11" fill="#7d8ca6">React • Vite • Node.js • Express • Prisma ORM • PostgreSQL</text>
+      </g>
+    </g>
+  </g>
+</svg>

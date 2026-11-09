@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" style="background:#fbf9f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <defs>
+    <filter id="subtleShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#000000" flood-opacity="0.06"/>
+    </filter>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="1440" height="900" fill="#fbf9f5"/>
+
+  <!-- Architectural Hairline Grid -->
+  <line x1="80" y1="0" x2="80" y2="900" stroke="#ede9e1" stroke-width="1"/>
+  <line x1="1360" y1="0" x2="1360" y2="900" stroke="#ede9e1" stroke-width="1"/>
+  <line x1="80" y1="90" x2="1360" y2="90" stroke="#ede9e1" stroke-width="1"/>
+
+  <!-- Header Masthead -->
+  <g transform="translate(80, 42)">
+    <text x="0" y="16" font-family="Georgia, serif" font-size="20" font-weight="700" fill="#161614" letter-spacing="0.5">JAMES DE MESA</text>
+    <text x="185" y="16" font-family="monospace" font-size="11" fill="#747269">/ DIGITAL CRAFT &amp; BESPOKE SYSTEMS</text>
+
+    <!-- Nav Links -->
+    <text x="820" y="16" font-size="13" font-weight="500" fill="#46443e">Services</text>
+    <text x="910" y="16" font-size="13" font-weight="500" fill="#46443e">Selected Work</text>
+    <text x="1030" y="16" font-size="13" font-weight="500" fill="#46443e">Behind the Build</text>
+    
+    <!-- CTA Button -->
+    <rect x="1170" y="-4" width="110" height="32" rx="16" fill="#161614"/>
+    <text x="1225" y="17" font-size="12" font-weight="600" fill="#fbf9f5" text-anchor="middle">Inquire →</text>
+  </g>
+
+  <!-- Hero Section -->
+  <g transform="translate(80, 130)">
+    <!-- 5-Second Client Clarity Badge -->
+    <rect x="0" y="0" width="280" height="26" rx="13" fill="#f0ede6" stroke="#dfdbd2" stroke-width="1"/>
+    <circle cx="14" cy="13" r="4" fill="#b84218"/>
+    <text x="26" y="17" font-family="monospace" font-size="10" font-weight="600" fill="#46443e" letter-spacing="0.5">BESPOKE WEB DESIGN &amp; DEVELOPMENT</text>
+
+    <!-- Editorial Headline -->
+    <text x="0" y="65" font-family="Georgia, serif" font-size="44" font-weight="400" fill="#161614" line-height="1.2">
+      Crafting <tspan font-style="italic" fill="#b84218">bespoke web platforms</tspan>, luxury
+    </text>
+    <text x="0" y="118" font-family="Georgia, serif" font-size="44" font-weight="400" fill="#161614">
+      WordPress themes, and custom digital systems.
+    </text>
+
+    <!-- Client-Focused Subtitle -->
+    <text x="0" y="160" font-size="16" fill="#58564e" width="800">
+      <tspan x="0" dy="0">Independent creative developer partnering with growing businesses, founders, and creative directors</tspan>
+      <tspan x="0" dy="24">to build memorable, high-converting digital storefronts and tailored full-stack applications.</tspan>
+    </text>
+
+    <!-- Client Service Filters -->
+    <g transform="translate(0, 215)">
+      <rect x="0" y="0" width="80" height="32" rx="16" fill="#161614"/>
+      <text x="40" y="20" font-size="12" font-weight="600" fill="#fbf9f5" text-anchor="middle">All Work</text>
+
+      <rect x="92" y="0" width="165" height="32" rx="16" fill="#fff" stroke="#dfdbd2" stroke-width="1"/>
+      <text x="174" y="20" font-size="12" font-weight="500" fill="#46443e" text-anchor="middle">WordPress &amp; FSE Themes</text>
+
+      <rect x="269" y="0" width="180" height="32" rx="16" fill="#fff" stroke="#dfdbd2" stroke-width="1"/>
+      <text x="359" y="20" font-size="12" font-weight="500" fill="#46443e" text-anchor="middle">Custom Web Applications</text>
+
+      <rect x="461" y="0" width="175" height="32" rx="16" fill="#fff" stroke="#dfdbd2" stroke-width="1"/>
+      <text x="548" y="20" font-size="12" font-weight="500" fill="#46443e" text-anchor="middle">E-Commerce &amp; Landing</text>
+    </g>
+  </g>
+
+  <!-- Interactive Reveal Showcase: Finished Product vs Behind the Build -->
+  <g transform="translate(80, 400)">
+    <!-- Container Card with subtle shadow -->
+    <rect x="0" y="0" width="1280" height="460" rx="16" fill="#ffffff" stroke="#dfdbd2" stroke-width="1" filter="url(#subtleShadow)"/>
+
+    <!-- Split Screen Left: FINISHED CLIENT EXPERIENCE -->
+    <g transform="translate(24, 24)">
+      <!-- Left Header -->
+      <rect x="0" y="0" width="600" height="412" rx="10" fill="#fcfbf9" stroke="#ede9e1" stroke-width="1"/>
+      
+      <g transform="translate(24, 24)">
+        <text x="0" y="16" font-family="monospace" font-size="10" font-weight="700" fill="#b84218" letter-spacing="1">01 / FINISHED CLIENT EXPERIENCE</text>
+        <text x="0" y="46" font-family="Georgia, serif" font-size="26" font-weight="700" fill="#161614">Thread &amp; Form — Luxury Fashion Block Theme</text>
+        <text x="0" y="70" font-size="13" fill="#58564e">Custom WordPress Full Site Editing (FSE) theme engineered for boutique apparel brands.</text>
+        
+        <!-- Live Mockup Plate inside left panel -->
+        <rect x="0" y="90" width="552" height="250" rx="8" fill="#f4efe8" stroke="#dfdbd2" stroke-width="1"/>
+        
+        <!-- Mockup Visual Artwork Elements -->
+        <g transform="translate(20, 20)">
+          <!-- Mini Brand Header -->
+          <text x="0" y="15" font-family="Georgia, serif" font-size="14" font-weight="700" fill="#161614" letter-spacing="2">THREAD &amp; FORM</text>
+          <text x="440" y="15" font-size="10" fill="#747269">BAG (0)</text>
+          <line x1="0" y1="26" x2="512" y2="26" stroke="#dfdbd2" stroke-width="1"/>
+          
+          <!-- Editorial Lookbook Grid -->
+          <rect x="0" y="38" width="246" height="150" rx="4" fill="#ebe4d8"/>
+          <text x="123" y="115" font-family="Georgia, serif" font-size="12" font-style="italic" fill="#747269" text-anchor="middle">Autumn Collection Lookbook</text>
+          
+          <rect x="266" y="38" width="246" height="70" rx="4" fill="#ede7dc"/>
+          <text x="280" y="65" font-size="11" font-weight="600" fill="#161614">Minimalist Wool Trench</text>
+          <text x="280" y="82" font-size="10" font-family="monospace" fill="#b84218">$480 USD • In Stock</text>
+
+          <rect x="266" y="118" width="246" height="70" rx="4" fill="#ede7dc"/>
+          <text x="280" y="145" font-size="11" font-weight="600" fill="#161614">Tailored Linen Trousers</text>
+          <text x="280" y="162" font-size="10" font-family="monospace" fill="#b84218">$260 USD • In Stock</text>
+        </g>
+
+        <!-- Metric Footer -->
+        <g transform="translate(0, 360)">
+          <text x="0" y="16" font-size="12" font-weight="600" fill="#161614">Client Outcome:</text>
+          <text x="105" y="16" font-size="12" fill="#58564e">3.2× faster page load, 100% Gutenberg client-editable, zero plugin dependencies.</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- Center Reveal Divider with Interactive Drag Handle -->
+    <line x1="640" y1="20" x2="640" y2="440" stroke="#b84218" stroke-width="2"/>
+    <g transform="translate(640, 230)">
+      <circle cx="0" cy="0" r="22" fill="#b84218" filter="url(#subtleShadow)"/>
+      <text x="0" y="4" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">⇄</text>
+      <rect x="-65" y="28" width="130" height="22" rx="11" fill="#161614"/>
+      <text x="0" y="43" font-family="monospace" font-size="9" font-weight="600" fill="#ffffff" text-anchor="middle">DRAG REVEAL</text>
+    </g>
+
+    <!-- Split Screen Right: BEHIND THE BUILD (Engineering Credibility) -->
+    <g transform="translate(656, 24)">
+      <rect x="0" y="0" width="600" height="412" rx="10" fill="#161614" stroke="#2a2924" stroke-width="1"/>
+      
+      <g transform="translate(24, 24)">
+        <text x="0" y="16" font-family="monospace" font-size="10" font-weight="700" fill="#e5c07b" letter-spacing="1">02 / BEHIND THE BUILD (ARCHITECTURE &amp; CODE)</text>
+        <text x="0" y="46" font-family="Georgia, serif" font-size="24" font-weight="700" fill="#fbf9f5">Modern Full Site Editing Architecture</text>
+        <text x="0" y="70" font-size="13" fill="#9da7b8">Clean theme.json design tokens, semantic block templates, and sub-1s LCP.</text>
+
+        <!-- Code & Schema Inspector Box -->
+        <rect x="0" y="90" width="552" height="250" rx="8" fill="#0d0f14" stroke="#242938" stroke-width="1"/>
+        
+        <g transform="translate(18, 115)" font-family="monospace" font-size="11">
+          <text y="0" fill="#7d8ca6">// theme.json - Zero-Bloat FSE Design System</text>
+          <text y="20" fill="#e5c07b">"settings": {</text>
+          <text y="38" fill="#f0f2f5">  "appearanceTools": <tspan fill="#34d399">true</tspan>,</text>
+          <text y="56" fill="#f0f2f5">  "color": { "palette": [</text>
+          <text y="74" fill="#f0f2f5">    { "slug": <tspan fill="#e5c07b">"linen-base"</tspan>, "color": <tspan fill="#e5c07b">"#fcfbf9"</tspan> },</text>
+          <text y="92" fill="#f0f2f5">    { "slug": <tspan fill="#e5c07b">"charcoal-text"</tspan>, "color": <tspan fill="#e5c07b">"#161614"</tspan> }</text>
+          <text y="110" fill="#f0f2f5">  ]},</text>
+          <text y="128" fill="#f0f2f5">  "typography": { "fluid": <tspan fill="#34d399">true</tspan> }</text>
+          <text y="146" fill="#e5c07b">}</text>
+          <text y="174" fill="#7d8ca6">// Performance Benchmarks:</text>
+          <text y="192" fill="#34d399">✓ Lighthouse Score: 100/100  ✓ LCP: 0.68s  ✓ Weight: 42kb (Vanilla)</text>
+        </g>
+
+        <!-- Technical Verification Footer -->
+        <g transform="translate(0, 360)">
+          <text x="0" y="16" font-size="12" font-weight="600" fill="#fbf9f5">Stack:</text>
+          <text x="50" y="16" font-size="12" font-family="monospace" fill="#9da7b8">WordPress 6.7+ FSE • PHP 8.3 • Gutenberg Block API • GitHub: SaucesCode/thread-and-form</text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

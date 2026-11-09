@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# next.js build output
+.next/
+out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+
+# playwright output
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+
+# logs and OS files
+npm-debug.log*
+*.log
+.DS_Store
+Thumbs.db
+.vercel

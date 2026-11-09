@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 2E — Digital Craft V2 (James De Mesa Portfolio)</title>
+  <style>
+    :root {
+      --bg: #090a0f;
+      --card-bg: #11141c;
+      --elevated: #181d2a;
+      --text: #f0f3f8;
+      --secondary: #9da7b8;
+      --muted: #7d8ca6;
+      --border: #1f2433;
+      --accent: #b84218;
+      --gold: #e5c07b;
+      --emerald: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2.5rem 1.5rem;
+    }
+    header {
+      max-width: 1440px;
+      margin: 0 auto 3rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2rem;
+    }
+    .badge-v2 {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: rgba(184, 66, 24, 0.18);
+      color: #fb923c;
+      border: 1px solid rgba(184, 66, 24, 0.4);
+      margin-bottom: 0.75rem;
+    }
+    .disclaimer-pill {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      background: rgba(59, 130, 246, 0.12);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      margin-left: 0.5rem;
+    }
+    h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 0.5rem; }
+    h1 span.serif { font-family: Georgia, serif; font-style: italic; font-weight: 400; color: #fbf9f5; }
+    .subtitle { color: var(--secondary); font-size: 1.05rem; max-width: 980px; margin-bottom: 1rem; }
+    .meta-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 1rem;
+    }
+    .meta-strip span { color: var(--text); }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .nav-tabs a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+    .nav-tabs a:hover, .nav-tabs a.active {
+      color: #fff;
+      background: var(--elevated);
+    }
+    .nav-tabs a.highlight {
+      border: 1px solid rgba(184, 66, 24, 0.5);
+      color: #fb923c;
+    }
+
+    .section-card {
+      max-width: 1440px;
+      margin: 0 auto 3.5rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2.5rem;
+    }
+    .section-header {
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.25rem;
+    }
+    .section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .section-desc { color: var(--secondary); font-size: 0.95rem; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    @media (max-width: 1024px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    .preview-box {
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      overflow: hidden;
+      box-shadow: 0 16px 32px rgba(0,0,0,0.6);
+    }
+    .preview-box img, .preview-box svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .preview-caption {
+      padding: 0.75rem 1rem;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: var(--elevated);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .details-panel {
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+    }
+    .details-panel h3 { font-size: 1.15rem; margin-bottom: 0.75rem; color: var(--text); }
+    .details-panel p { font-size: 0.9rem; color: var(--secondary); margin-bottom: 1rem; }
+    .details-list { list-style: none; margin-bottom: 1rem; }
+    .details-list li {
+      font-size: 0.85rem;
+      color: var(--secondary);
+      margin-bottom: 0.5rem;
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .details-list li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+
+    table.token-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+    }
+    table.token-table th, table.token-table td {
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.85rem;
+      text-align: left;
+    }
+    table.token-table th { background: var(--card-bg); color: var(--text); }
+    table.token-table td { color: var(--secondary); }
+    .pass { color: #34d399; font-weight: 600; }
+
+    .archive-card {
+      opacity: 0.8;
+      transition: opacity 0.2s ease;
+    }
+    .archive-card:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <span class="badge-v2">Phase 2E: Digital Craft V2 Upgraded</span>
+      <span class="disclaimer-pill">Static Concept Artwork • Strict Review Gate</span>
+    </div>
+    <h1>DE MESA — <span class="serif">Digital Craft &amp; Bespoke Systems V2</span></h1>
+    <p class="subtitle">
+      Upgraded client-focused digital atelier featuring rhythmic alternating contrast (Warm Linen &amp; Obsidian Slate), the multi-modal "Finished Product ↔ Behind the Build" reveal, 60fps motion choreography, and Next.js 16 technical SEO architecture.
+    </p>
+    <div class="meta-strip">
+      <div>IDENTITY: <span>James Patrick De Mesa (SaucesCode)</span></div>
+      <div>CORE UPGRADE: <span>Rhythmic Slate/Paper Contrast + Monogram Stamp (JM / 01)</span></div>
+      <div>PLAYWRIGHT MCP: <span>Installed &amp; Callable Verified</span></div>
+      <div>STATUS: <span>Awaiting Approval Gate</span></div>
+    </div>
+    <div class="nav-tabs">
+      <a href="#phase3a-live" class="active highlight" style="background:#10b981; color:#0d0f14; font-weight:700;">★ Phase 3A Live Prototype</a>
+      <a href="#v2-desktop" class="highlight">01. V2 Desktop Homepage</a>
+      <a href="#v2-mobile" class="highlight">02. V2 Mobile Homepage</a>
+      <a href="#v2-showcase" class="highlight">03. Full-Width Showcase</a>
+      <a href="#v2-reveal" class="highlight">04. Reveal Storyboard</a>
+      <a href="#v2-motion" class="highlight">05. Motion Choreography</a>
+      <a href="#phase2d-archive">Phase 2D Archive</a>
+      <a href="#phase2c-archive">Phase 2C Archive</a>
+    </div>
+  </header>
+
+  <!-- DELIVERABLE 0: PHASE 3A LIVE WORKING PROTOTYPE -->
+  <section id="phase3a-live" class="section-card" style="border: 2px solid #10b981;">
+    <div class="section-header" style="border-bottom-color: rgba(16, 185, 129, 0.3);">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:0.5rem;">
+        <span class="badge-v2" style="background:rgba(16, 185, 129, 0.2); color:#34d399; border-color:#10b981;">
+          Phase 3A Live Prototype • Next.js 16 Active LTS
+        </span>
+        <a href="http://localhost:3000" target="_blank" style="background:#10b981; color:#0d0f14; font-weight:700; text-decoration:none; padding:0.4rem 0.9rem; border-radius:6px; font-size:0.85rem;">
+          Open Live App (http://localhost:3000) ↗
+        </a>
+      </div>
+      <h2 class="section-title">Verified Phase 3A Working Implementation</h2>
+      <p class="section-desc">Real automated screenshots captured via Playwright in the live running environment. All 10 automated test suites passed (0 failed). Zero mockups — this is the compiled Next.js 16 application running in production mode.</p>
+    </div>
+
+    <!-- Live Desktop Previews -->
+    <div style="margin-bottom: 2rem;">
+      <h3 style="font-size:1.15rem; color:#f0f3f8; margin-bottom:1rem; font-family:monospace;">DESKTOP VIEWPORT (1440 × 900 PX)</h3>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap:1.5rem;">
+        <div class="preview-box">
+          <img src="phase3a-live-desktop-hero.png" alt="Phase 3A Live Desktop Hero Viewport">
+          <div class="preview-caption">
+            <span>LIVE VIEWPORT: phase3a-live-desktop-hero.png</span>
+            <span>1440 × 900 (HERO + MONOGRAM)</span>
+          </div>
+        </div>
+        <div class="preview-box">
+          <img src="phase3a-live-desktop-showcase.png" alt="Phase 3A Live Desktop Interactive Showcase">
+          <div class="preview-caption">
+            <span>LIVE SHOWCASE: phase3a-live-desktop-showcase.png</span>
+            <span>FINISHED ↔ BUILD REVEAL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Mobile Previews -->
+    <div>
+      <h3 style="font-size:1.15rem; color:#f0f3f8; margin-bottom:1rem; font-family:monospace;">MOBILE VIEWPORT (390 × 844 PX)</h3>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem;">
+        <div class="preview-box">
+          <img src="phase3a-live-mobile-hero.png" alt="Phase 3A Live Mobile Hero">
+          <div class="preview-caption">
+            <span>MOBILE HERO: phase3a-live-mobile-hero.png</span>
+            <span>390 × 844</span>
+          </div>
+        </div>
+        <div class="preview-box">
+          <img src="phase3a-live-mobile-showcase.png" alt="Phase 3A Live Mobile Showcase">
+          <div class="preview-caption">
+            <span>MOBILE ARCHITECTURE CARD: phase3a-live-mobile-showcase.png</span>
+            <span>THEME.JSON V3 TAB</span>
+          </div>
+        </div>
+        <div class="preview-box">
+          <img src="phase3a-live-mobile-fullpage.png" alt="Phase 3A Live Mobile Fullpage">
+          <div class="preview-caption">
+            <span>FULLPAGE MOBILE: phase3a-live-mobile-fullpage.png</span>
+            <span>COMPLETE VERTICAL SLICE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DELIVERABLE 1: V2 DESKTOP HOMEPAGE -->
+  <section id="v2-desktop" class="section-card">
+    <div class="section-header">
+      <h2 class="section-title">01 / Upgraded Desktop Homepage ("Digital Craft V2")</h2>
+      <p class="section-desc">Documented resolution: 1440x900px. Shows the architectural monogram stamp (JM / 01), asymmetric hero layout, 3-pillar service selector, and the seamless transition into the obsidian slate engineering bay.</p>
+    </div>
+    <div class="grid-2">
+      <div class="preview-box">
+        <img src="phase2e-direction-a-v2-desktop.svg" alt="Digital Craft V2 Desktop Mockup">
+        <div class="preview-caption">
+          <span>STATIC CONCEPT ARTWORK: phase2e-direction-a-v2-desktop.svg</span>
+          <span>1440 × 900 PX</span>
+        </div>
+      </div>
+      <div class="details-panel">
+        <h3>Key Upgrades &amp; Architecture</h3>
+        <p>Solves single-tone monotony by establishing a rhythmic cadence between warm paper and obsidian slate.</p>
+        <ul class="details-list">
+          <li><strong>Architectural Monogram Stamp:</strong> Geometric 44x44px "JM" mark with coordinate registration and live availability capsule.</li>
+          <li><strong>3-Pillar Service Selector:</strong> Full-Stack Systems, WordPress &amp; FSE Themes, and E-Commerce &amp; Landing Pages.</li>
+          <li><strong>Contrasting Dark Section:</strong> Seamless transition to an obsidian slate studio showcase (#0d0f14) for technical depth.</li>
+          <li><strong>Featured Projects:</strong> <code>thread-and-form</code> (WordPress FSE) and <code>portfolio-cms</code> (React/Node/Prisma).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- DELIVERABLE 2: V2 MOBILE HOMEPAGE -->
+  <section id="v2-mobile" class="section-card">
+    <div class="section-header">
+      <h2 class="section-title">02 / Upgraded Mobile Homepage ("Digital Craft V2")</h2>
+      <p class="section-desc">Documented resolution: 390x844px. Shows mobile masthead, stacked editorial hierarchy, labeled tab switcher, and sticky bottom conversion dock.</p>
+    </div>
+    <div class="grid-2">
+      <div class="preview-box" style="max-width: 420px; margin: 0 auto;">
+        <img src="phase2e-direction-a-v2-mobile.svg" alt="Digital Craft V2 Mobile Mockup">
+        <div class="preview-caption">
+          <span>STATIC CONCEPT ARTWORK: phase2e-direction-a-v2-mobile.svg</span>
+          <span>390 × 844 PX</span>
+        </div>
+      </div>
+      <div class="details-panel">
+        <h3>Mobile Client UX &amp; Touch Standards</h3>
+        <p>Tailored specifically for frictionless smartphone navigation without drag gesture collisions.</p>
+        <ul class="details-list">
+          <li><strong>Labeled Tab Switcher:</strong> Instant <code>[● Finished Product] [Behind the Build]</code> pill toggle avoids touch scroll conflicts.</li>
+          <li><strong>48px Touch Targets:</strong> Fully accessible tap boundaries across all mobile controls.</li>
+          <li><strong>Sticky Bottom Dock:</strong> "Start a Project With James →" floating dock with direct inquiry link.</li>
+          <li><strong>Performance:</strong> Lightweight SVG vector rendering, zero layout shifts.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- DELIVERABLE 3: FULL-WIDTH SHOWCASE -->
+  <section id="v2-showcase" class="section-card">
+    <div class="section-header">
+      <h2 class="section-title">03 / Full-Width Featured Project Showcase</h2>
+      <p class="section-desc">Documented resolution: 1440x900px. Demonstrates the dual-panel showcase inside the dark engineering bay (#090a0f).</p>
+    </div>
+    <div class="grid-2">
+      <div class="preview-box">
+        <img src="phase2e-featured-showcase-v2.svg" alt="Full-Width Showcase Mockup">
+        <div class="preview-caption">
+          <span>STATIC CONCEPT ARTWORK: phase2e-featured-showcase-v2.svg</span>
+          <span>1440 × 900 PX</span>
+        </div>
+      </div>
+      <div class="details-panel">
+        <h3>Verified Engineering Depth</h3>
+        <p>Balances aesthetic luxury with commercial and technical credibility.</p>
+        <ul class="details-list">
+          <li><strong>WordPress 6.7+ FSE:</strong> <code>thread-and-form</code> shows native Gutenberg lookbook alongside clean <code>theme.json</code> tokens.</li>
+          <li><strong>Bespoke Full-Stack CMS:</strong> <code>portfolio-cms</code> shows secure admin console alongside Prisma relational schema.</li>
+          <li><strong>Honest Credibility Audit:</strong> All unverified performance metrics and marketing fluff removed.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- DELIVERABLE 4: REVEAL STORYBOARD -->
+  <section id="v2-reveal" class="section-card">
+    <div class="section-header">
+      <h2 class="section-title">04 / "Finished Product ↔ Behind the Build" Reveal Storyboard</h2>
+      <p class="section-desc">Documented resolution: 1440x900px. 4-state visual storyboard showing default client view, cursor drag curtain, accessible keyboard mode, and mobile tabs.</p>
+    </div>
+    <div class="grid-2">
+      <div class="preview-box">
+        <img src="phase2e-reveal-storyboard.svg" alt="Reveal Storyboard Mockup">
+        <div class="preview-caption">
+          <span>INTERACTION STORYBOARD: phase2e-reveal-storyboard.svg</span>
+          <span>1440 × 900 PX (4 STATES)</span>
+        </div>
+      </div>
+      <div class="details-panel">
+        <h3>Multi-Modal Accessibility Rationale</h3>
+        <p>Ensures that non-technical clients see beauty first, while engineers can inspect code with accessible controls.</p>
+        <ul class="details-list">
+          <li><strong>State 01 (Default):</strong> 100% Finished Client UI — zero code distraction.</li>
+          <li><strong>State 02 (Desktop Drag):</strong> Hardware-accelerated CSS <code>clip-path</code> mask following pointer.</li>
+          <li><strong>State 03 (Accessible Mode):</strong> Keyboard button with 5.2:1 focus ring (Space/Enter toggle).</li>
+          <li><strong>State 04 (Mobile Tabs):</strong> Zero-drag labeled tap pills preventing scroll locking.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- DELIVERABLE 5: MOTION STORYBOARD -->
+  <section id="v2-motion" class="section-card">
+    <div class="section-header">
+      <h2 class="section-title">05 / Motion Choreography &amp; Route Transitions Storyboard</h2>
+      <p class="section-desc">Documented resolution: 1440x900px. 4-phase entrance timeline and App Router cross-fade mechanics with Level AAA reduced-motion policy.</p>
+    </div>
+    <div class="grid-2">
+      <div class="preview-box">
+        <img src="phase2e-motion-storyboard.svg" alt="Motion Storyboard Mockup">
+        <div class="preview-caption">
+          <span>MOTION STORYBOARD: phase2e-motion-storyboard.svg</span>
+          <span>1440 × 900 PX (4 PHASES)</span>
+        </div>
+      </div>
+      <div class="details-panel">
+        <h3>Choreography &amp; Acceptance Standards</h3>
+        <p>Subtle, purposeful motion that never slows down client reading or navigation.</p>
+        <ul class="details-list">
+          <li><strong>Choreography Ceiling:</strong> Total hero sequence finishes in under 450ms.</li>
+          <li><strong>Immediate Feedback:</strong> Tactile buttons respond in under 100ms (&lt;80ms active scale).</li>
+          <li><strong>Compositor Only:</strong> Pure CSS transforms and opacity — zero layout thrashing.</li>
+          <li><strong>WCAG 2.3.3 Level AAA:</strong> 0.001ms instantaneous fallback when reduced motion is preferred.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHASE 2D ARCHIVE -->
+  <section id="phase2d-archive" class="section-card archive-card">
+    <div class="section-header">
+      <h2 class="section-title">Phase 2D Archive: Digital Craft V1 &amp; Studio De Mesa</h2>
+      <p class="section-desc">Original comparative concepts reviewed prior to Phase 2E upgrade.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+      <div class="preview-box">
+        <img src="phase2d-direction-a-desktop.svg" alt="Phase 2D Direction A Desktop">
+        <div class="preview-caption"><span>PHASE 2D: DIRECTION A DESKTOP (V1)</span></div>
+      </div>
+      <div class="preview-box">
+        <img src="phase2d-direction-b-desktop.svg" alt="Phase 2D Direction B Desktop">
+        <div class="preview-caption"><span>PHASE 2D: DIRECTION B DESKTOP</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHASE 2C ARCHIVE -->
+  <section id="phase2c-archive" class="section-card archive-card">
+    <div class="section-header">
+      <h2 class="section-title">Phase 2C Archive: The Architectural Compiler</h2>
+      <p class="section-desc">Engineering-focused concepts created prior to commercial client reorientation.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+      <div class="preview-box">
+        <img src="phase2c-desktop-homepage.jpg" alt="Phase 2C Desktop">
+        <div class="preview-caption"><span>PHASE 2C: DESKTOP HOMEPAGE</span></div>
+      </div>
+      <div class="preview-box">
+        <img src="phase2c-case-study.svg" alt="Phase 2C Case Study">
+        <div class="preview-caption"><span>PHASE 2C: CASE STUDY</span></div>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>
