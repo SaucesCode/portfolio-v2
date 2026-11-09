@@ -1,0 +1,106 @@
+/* Frames share the hero's radius; each kind of project answers hover in its own way. */
+.frame {
+  position: relative;
+  display: block;
+  aspect-ratio: 1440 / 900;
+  overflow: hidden;
+  border-radius: var(--radius-frame);
+  background: var(--chalk);
+  box-shadow: var(--shadow-hang);
+}
+
+.frame[data-fit="contain"] {
+  background: #16181b;
+}
+
+.frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform 700ms var(--ease-out);
+}
+
+.frame[data-fit="contain"] img {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: 86%;
+  margin: auto;
+}
+
+@media (hover: hover) {
+  /* A website: the page drifts upward, as if you had started scrolling it. */
+  :global(.group):hover .frame[data-kind="website"] img {
+    transform: translateY(-4%) scale(1.06);
+    transform-origin: 50% 0;
+  }
+
+  /* Software: the camera eases toward the data, like the guided tour does. */
+  :global(.group):hover .frame[data-kind="software"] img {
+    transform: scale(1.08);
+    transform-origin: 62% 62%;
+  }
+
+  :global(.group):hover .frame[data-kind="other"] img {
+    transform: scale(1.025);
+  }
+}
+
+/* The chip is the button system in miniature: capsule, knob, arrow handed through on hover. */
+.chip {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 2.5rem;
+  padding: 0.25rem 0.25rem 0.25rem 1rem;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--wall);
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 8px 18px -10px rgb(0 0 0 / 0.55);
+}
+
+@media (min-width: 640px) {
+  .chip {
+    bottom: 1rem;
+    left: 1rem;
+  }
+}
+
+.knob {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--wall);
+  color: var(--ink);
+}
+
+.knob svg {
+  grid-area: 1 / 1;
+  transition: transform 360ms var(--ease-out);
+}
+
+.knob svg:last-child {
+  transform: translateY(-170%);
+}
+
+@media (hover: hover) {
+  :global(.group):hover .knob svg:first-child {
+    transform: translateY(170%);
+  }
+
+  :global(.group):hover .knob svg:last-child {
+    transform: none;
+  }
+}
+
+:global(.group):active .chip {
+  transform: scale(0.97);
+}

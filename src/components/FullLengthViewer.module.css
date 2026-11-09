@@ -46,7 +46,7 @@
   display: inline-flex;
   padding: 3px;
   border: 1px solid var(--rule);
-  border-radius: 3px;
+  border-radius: 999px;
 }
 
 .segmented button,
@@ -55,8 +55,8 @@
   align-items: center;
   gap: 0.5rem;
   min-height: 2.75rem;
-  padding: 0 1rem;
-  border-radius: 2px;
+  padding: 0 1.125rem;
+  border-radius: 999px;
   font-size: 0.9375rem;
   font-weight: 500;
   color: var(--ink);
@@ -120,7 +120,7 @@
 .frame {
   position: relative;
   overflow: hidden;
-  border-radius: 2px;
+  border-radius: var(--radius-frame);
   background: var(--chalk);
   box-shadow: var(--shadow-hang);
   user-select: none;
@@ -181,7 +181,7 @@
   flex: none;
   width: var(--rail-width);
   container-type: size;
-  border-radius: 2px;
+  border-radius: var(--radius-frame);
   background: color-mix(in srgb, var(--ink) 7%, transparent);
   touch-action: none;
   user-select: none;
@@ -221,7 +221,7 @@
   right: -3px;
   height: calc(var(--r) * 100%);
   border: 2px solid var(--signal);
-  border-radius: 2px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--signal) 16%, transparent);
   transform: translate3d(0, calc(var(--p) * (1 - var(--r)) / var(--r) * 100%), 0);
 }

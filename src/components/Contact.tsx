@@ -18,7 +18,7 @@ export function Contact() {
               Tell me what you need: a web application, a system for your team, a WordPress site or a redesign. A few
               sentences is enough to start.
             </p>
-            <ButtonLink href={inquiryHref} variant="inverse" className="mt-6">
+            <ButtonLink href={inquiryHref} variant="inverse" icon="mail" className="mt-6">
               Email me about a project
             </ButtonLink>
           </div>

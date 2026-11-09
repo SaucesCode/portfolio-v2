@@ -76,8 +76,7 @@ test.describe('Homepage structure', () => {
   test('shows a real software screen above the fold', async ({ page }) => {
     // The hero now leads with the app itself, so the full tour starts just below it.
     await page.goto('/');
-    const window = page.getByRole('radio', { name: new RegExp(featuredSoftware.title) });
-    const box = await window.boundingBox();
+    const box = await page.locator('[data-id="software"]').boundingBox();
     expect(box!.y + box!.height / 2).toBeLessThan(page.viewportSize()!.height);
   });
 
@@ -97,20 +96,63 @@ test.describe('Hero: two disciplines', () => {
     await expect(hero.getByRole('link', { name: 'Start a project' })).toHaveAttribute('href', new RegExp(`^mailto:${site.email}`));
   });
 
-  test('selecting a window brings it forward and retargets the caption', async ({ page }) => {
+  test('choosing a discipline hands the primary frame to that project', async ({ page }) => {
     await page.goto('/');
     const software = page.getByRole('radio', { name: new RegExp(featuredSoftware.title) });
     const web = page.getByRole('radio', { name: new RegExp(featuredWebsite.title) });
 
     await expect(software).toHaveAttribute('aria-checked', 'true');
+    await expect(page.locator('[data-id="software"]')).toHaveAttribute('data-role', 'primary');
     await expect(heroCaption(page).getByRole('link')).toHaveAttribute('href', `#${featuredSoftware.slug}`);
 
     await web.click();
     await expect(web).toHaveAttribute('aria-checked', 'true');
-    await expect(web).toHaveAttribute('data-front', 'true');
-    await expect(software).toHaveAttribute('data-front', 'false');
+    await expect(page.locator('[data-id="web"]')).toHaveAttribute('data-role', 'primary');
+    await expect(page.locator('[data-id="software"]')).toHaveAttribute('data-role', 'support');
     await expect(heroCaption(page)).toContainText(featuredWebsite.title);
     await expect(heroCaption(page).getByRole('link')).toHaveAttribute('href', `#${featuredWebsite.slug}`);
+  });
+
+  test('clicking the supporting window hands it off too', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('[data-id="web"]').click();
+    await expect(page.locator('[data-id="web"]')).toHaveAttribute('data-role', 'primary');
+    await expect(page.getByRole('radio', { name: new RegExp(featuredWebsite.title) })).toHaveAttribute('aria-checked', 'true');
+  });
+
+  test('rapid switching settles cleanly on the last choice', async ({ page }) => {
+    await page.goto('/');
+    const software = page.getByRole('radio', { name: new RegExp(featuredSoftware.title) });
+    const web = page.getByRole('radio', { name: new RegExp(featuredWebsite.title) });
+    for (let i = 0; i < 7; i++) await (i % 2 ? software : web).click({ delay: 0 });
+
+    await expect(web).toHaveAttribute('aria-checked', 'true');
+    await expect(page.locator('[data-id="web"]')).toHaveAttribute('data-role', 'primary');
+    await expect
+      .poll(() =>
+        page.locator('[data-role]').evaluateAll((els) =>
+          els.map((el) => `${el.getAnimations().length}|${getComputedStyle(el).transform}|${(el as HTMLElement).style.zIndex}`),
+        ),
+      )
+      .toEqual(['0|none|', '0|none|']);
+  });
+
+  test('the dimension line attaches to the lit headline line', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'The line is drawn from tablet-landscape width up.');
+    await page.goto('/');
+    const web = page.getByRole('radio', { name: new RegExp(featuredWebsite.title) });
+    await web.click();
+    await page.waitForTimeout(900);
+    const gap = await page.evaluate(() => {
+      const line = document.querySelector('[data-lit="true"] > span')!;
+      const range = document.createRange();
+      range.selectNodeContents(line);
+      const rects = range.getClientRects();
+      const end = rects[rects.length - 1];
+      const dot = document.querySelector('svg circle')!.getBoundingClientRect();
+      return Math.hypot(dot.left + dot.width / 2 - end.right, dot.top + dot.height / 2 - (end.top + end.height / 2));
+    });
+    expect(gap).toBeLessThan(40);
   });
 
   test('works as a radio group from the keyboard', async ({ page }) => {
@@ -129,22 +171,6 @@ test.describe('Hero: two disciplines', () => {
     await expect(software).toHaveAttribute('aria-checked', 'true');
   });
 
-  test('hover previews a discipline without changing the selection', async ({ page, isMobile }) => {
-    test.skip(isMobile, 'Hover preview is a mouse enhancement; touch selects directly.');
-    await page.goto('/');
-    const software = page.getByRole('radio', { name: new RegExp(featuredSoftware.title) });
-    const web = page.getByRole('radio', { name: new RegExp(featuredWebsite.title) });
-
-    await web.hover();
-    await expect(web).toHaveAttribute('data-front', 'true');
-    await expect(heroCaption(page)).toContainText(featuredWebsite.title);
-    await expect(software).toHaveAttribute('aria-checked', 'true');
-
-    await page.mouse.move(5, 5);
-    await expect(software).toHaveAttribute('data-front', 'true');
-    await expect(heroCaption(page)).toContainText(featuredSoftware.title);
-  });
-
   test('a tap selects on touch screens', async ({ page, isMobile }) => {
     test.skip(!isMobile, 'Touch fallback.');
     await page.goto('/');
@@ -154,14 +180,27 @@ test.describe('Hero: two disciplines', () => {
     await expect(heroCaption(page)).toContainText(featuredWebsite.title);
   });
 
-  test('motion collapses when the visitor prefers reduced motion', async ({ page }) => {
+  test('reduced motion swaps instantly without flight animations', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
-    const durations = await page.getByRole('radio').first().evaluate((el) => [
-      parseFloat(getComputedStyle(el).transitionDuration),
-      parseFloat(getComputedStyle(el.parentElement!).animationDuration),
-    ]);
-    for (const seconds of durations) expect(seconds).toBeLessThanOrEqual(0.01);
+    await page.getByRole('radio', { name: new RegExp(featuredWebsite.title) }).click();
+    const running = await page.locator('[data-role]').evaluateAll((els) => els.map((el) => el.getAnimations().length));
+    expect(running).toEqual([0, 0]);
+    await expect(page.locator('[data-id="web"]')).toHaveAttribute('data-role', 'primary');
+  });
+
+  test('controls are comfortable to tap', async ({ page }) => {
+    await page.goto('/');
+    const controls = [
+      page.getByRole('link', { name: 'Explore my work' }),
+      page.locator('#main-content section').first().getByRole('link', { name: 'Start a project' }),
+      ...((await page.getByRole('radio').all()) as ReturnType<Page['getByRole']>[]),
+      page.locator('#work').getByRole('button', { name: /^All work/ }),
+    ];
+    for (const control of controls) {
+      const box = await control.boundingBox();
+      expect(box!.height).toBeGreaterThanOrEqual(44);
+    }
   });
 });
 

@@ -1,32 +1,41 @@
+import { ArrowDown, ArrowRight, Mail } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import styles from './ButtonLink.module.css';
+
+type Icon = 'right' | 'down' | 'mail';
 
 interface Props {
   href: string;
   children: ReactNode;
   variant?: 'primary' | 'outline' | 'inverse';
   size?: 'small' | 'regular';
+  icon?: Icon;
   className?: string;
 }
 
-const variants = {
-  primary: 'bg-signal text-signal-ink hover:bg-signal-hover',
-  outline: 'border border-ink text-ink hover:bg-ink hover:text-wall',
-  inverse: 'bg-wall text-ink hover:bg-chalk',
-};
+const icons: Record<Icon, typeof ArrowRight> = { right: ArrowRight, down: ArrowDown, mail: Mail };
 
-export function ButtonLink({ href, children, variant = 'primary', size = 'regular', className }: Props) {
+/** A capsule link with a knob compartment; the icon is drawn twice so hover can hand one through. */
+export function ButtonLink({ href, children, variant = 'primary', size = 'regular', icon = 'right', className }: Props) {
+  const Glyph = icons[icon];
   return (
     <a
       href={href}
+      data-icon={icon}
       className={cn(
-        'inline-flex min-h-11 items-center justify-center rounded-[2px] font-semibold whitespace-nowrap transition-[background-color,color,transform] duration-[var(--dur-micro)] ease-out active:translate-y-px',
-        size === 'small' ? 'px-4 text-[0.9375rem]' : 'px-6 text-base sm:min-h-12',
-        variants[variant],
+        styles.button,
+        variant === 'outline' && styles.outline,
+        variant === 'inverse' && styles.inverse,
+        size === 'small' && styles.small,
         className,
       )}
     >
-      {children}
+      <span>{children}</span>
+      <span className={styles.knob} aria-hidden>
+        <Glyph size={size === 'small' ? 15 : 17} strokeWidth={2.25} />
+        <Glyph size={size === 'small' ? 15 : 17} strokeWidth={2.25} />
+      </span>
     </a>
   );
 }

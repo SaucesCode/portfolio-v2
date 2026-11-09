@@ -31,7 +31,7 @@ export function SiteHeader() {
               </li>
             ))}
           </ul>
-          <ButtonLink href={inquiryHref} size="small">
+          <ButtonLink href={inquiryHref} size="small" icon="mail">
             <span className="sm:hidden">Contact</span>
             <span className="hidden sm:inline">Start a project</span>
           </ButtonLink>

@@ -17,6 +17,9 @@
 
   --shadow-hang: 0 1px 2px rgb(20 22 25 / 0.08), 0 22px 48px -24px rgb(20 22 25 / 0.42);
 
+  /* One radius for every screenshot frame, so the hero, featured work and gallery read as a set. */
+  --radius-frame: 10px;
+
   --dur-micro: 160ms;
   --dur-component: 240ms;
   --dur-page: 420ms;
@@ -39,6 +42,12 @@
     --signal-hover: #aab1ff;
     --shadow-hang: 0 1px 2px rgb(0 0 0 / 0.3), 0 26px 56px -24px rgb(0 0 0 / 0.75);
     color-scheme: dark;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --radius-frame: 14px;
   }
 }
 
@@ -103,30 +112,13 @@
 }
 
 /*
- * The orchestrated load moment. The hero's own choreography lives in HeroShowcase.module.css;
- * these utilities carry it to the server-rendered copy beside it and to the first featured piece.
- * Every entrance starts just above zero opacity and only uses transform, so nothing is hidden
- * from Largest Contentful Paint or from visitors before hydration.
+ * The hero's load choreography lives in HeroShowcase.module.css. The first featured piece fades
+ * up from just above zero opacity, so it still counts as painted for Largest Contentful Paint.
  */
-@keyframes rise-in {
-  from {
-    opacity: 0.01;
-    transform: translateY(0.75rem);
-  }
-}
-
 @keyframes hang {
   from {
     opacity: 0.01;
   }
-}
-
-@utility enter-rise {
-  animation: rise-in var(--dur-page) var(--ease-out) 220ms backwards;
-}
-
-@utility enter-rise-late {
-  animation: rise-in var(--dur-page) var(--ease-out) 340ms backwards;
 }
 
 @utility enter-hang {

@@ -16,27 +16,17 @@
   max-height: none;
   margin: auto;
   padding: 0;
+  overflow: visible;
   border: 0;
-  border-radius: 4px;
-  background: var(--wall);
+  border-radius: calc(var(--radius-frame) + 8px);
+  /* The sheet carries the surface, so it can grow out of the card that opened it. */
+  background: transparent;
   color: var(--ink);
-  box-shadow: 0 40px 120px -40px rgb(0 0 0 / 0.6);
-}
-
-.dialog[open] {
-  animation: sheet-in var(--dur-component) var(--ease-out);
 }
 
 .dialog::backdrop {
   background: rgb(10 11 13 / 0.72);
   animation: backdrop-in var(--dur-component) var(--ease-out);
-}
-
-@keyframes sheet-in {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.985);
-  }
 }
 
 @keyframes backdrop-in {
@@ -46,6 +36,10 @@
 }
 
 .sheet {
+  transform-origin: 0 0;
+  border-radius: inherit;
+  background: var(--wall);
+  box-shadow: 0 40px 120px -40px rgb(0 0 0 / 0.6);
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: 1.25rem;
@@ -88,7 +82,7 @@
   width: 2.75rem;
   height: 2.75rem;
   border: 1px solid var(--rule);
-  border-radius: 2px;
+  border-radius: 50%;
   color: var(--ink);
   cursor: pointer;
   transition: border-color var(--dur-micro) var(--ease-out);
