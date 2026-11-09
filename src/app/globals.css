@@ -103,13 +103,15 @@
 }
 
 /*
- * The single orchestrated load moment: the two headline lines settle in turn, then the featured
- * piece fades up. The fade starts just above zero opacity and never moves the piece, so its
- * first screen counts as painted immediately for Largest Contentful Paint.
+ * The orchestrated load moment. The hero's own choreography lives in HeroShowcase.module.css;
+ * these utilities carry it to the server-rendered copy beside it and to the first featured piece.
+ * Every entrance starts just above zero opacity and only uses transform, so nothing is hidden
+ * from Largest Contentful Paint or from visitors before hydration.
  */
-@keyframes settle {
+@keyframes rise-in {
   from {
-    transform: translateY(0.35em);
+    opacity: 0.01;
+    transform: translateY(0.75rem);
   }
 }
 
@@ -119,12 +121,12 @@
   }
 }
 
-@utility enter-settle {
-  animation: settle var(--dur-page) var(--ease-out) both;
+@utility enter-rise {
+  animation: rise-in var(--dur-page) var(--ease-out) 220ms backwards;
 }
 
-@utility enter-settle-late {
-  animation: settle var(--dur-page) var(--ease-out) 60ms both;
+@utility enter-rise-late {
+  animation: rise-in var(--dur-page) var(--ease-out) 340ms backwards;
 }
 
 @utility enter-hang {

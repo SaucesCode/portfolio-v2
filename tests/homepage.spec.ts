@@ -73,15 +73,95 @@ test.describe('Homepage structure', () => {
     expect(software!.y).toBeLessThan(website!.y);
   });
 
-  test('shows the software tour above the fold', async ({ page }) => {
+  test('shows a real software screen above the fold', async ({ page }) => {
+    // The hero now leads with the app itself, so the full tour starts just below it.
     await page.goto('/');
-    const box = await tourOf(page).boundingBox();
-    expect(box!.y).toBeLessThan(page.viewportSize()!.height);
+    const window = page.getByRole('radio', { name: new RegExp(featuredSoftware.title) });
+    const box = await window.boundingBox();
+    expect(box!.y + box!.height / 2).toBeLessThan(page.viewportSize()!.height);
   });
 
   test('has no horizontal overflow', async ({ page }) => {
     await page.goto('/');
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  });
+});
+
+test.describe('Hero: two disciplines', () => {
+  const heroCaption = (page: Page) => page.locator('#main-content section').first().locator('[aria-live="polite"]');
+
+  test('offers both calls to action', async ({ page }) => {
+    await page.goto('/');
+    const hero = page.locator('#main-content section').first();
+    await expect(hero.getByRole('link', { name: 'Explore my work' })).toHaveAttribute('href', '#featured');
+    await expect(hero.getByRole('link', { name: 'Start a project' })).toHaveAttribute('href', new RegExp(`^mailto:${site.email}`));
+  });
+
+  test('selecting a window brings it forward and retargets the caption', async ({ page }) => {
+    await page.goto('/');
+    const software = page.getByRole('radio', { name: new RegExp(featuredSoftware.title) });
+    const web = page.getByRole('radio', { name: new RegExp(featuredWebsite.title) });
+
+    await expect(software).toHaveAttribute('aria-checked', 'true');
+    await expect(heroCaption(page).getByRole('link')).toHaveAttribute('href', `#${featuredSoftware.slug}`);
+
+    await web.click();
+    await expect(web).toHaveAttribute('aria-checked', 'true');
+    await expect(web).toHaveAttribute('data-front', 'true');
+    await expect(software).toHaveAttribute('data-front', 'false');
+    await expect(heroCaption(page)).toContainText(featuredWebsite.title);
+    await expect(heroCaption(page).getByRole('link')).toHaveAttribute('href', `#${featuredWebsite.slug}`);
+  });
+
+  test('works as a radio group from the keyboard', async ({ page }) => {
+    await page.goto('/');
+    const software = page.getByRole('radio', { name: new RegExp(featuredSoftware.title) });
+    const web = page.getByRole('radio', { name: new RegExp(featuredWebsite.title) });
+
+    await expect(software).toHaveAttribute('tabindex', '0');
+    await expect(web).toHaveAttribute('tabindex', '-1');
+    await software.focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(web).toBeFocused();
+    await expect(web).toHaveAttribute('aria-checked', 'true');
+    await page.keyboard.press('ArrowLeft');
+    await expect(software).toBeFocused();
+    await expect(software).toHaveAttribute('aria-checked', 'true');
+  });
+
+  test('hover previews a discipline without changing the selection', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Hover preview is a mouse enhancement; touch selects directly.');
+    await page.goto('/');
+    const software = page.getByRole('radio', { name: new RegExp(featuredSoftware.title) });
+    const web = page.getByRole('radio', { name: new RegExp(featuredWebsite.title) });
+
+    await web.hover();
+    await expect(web).toHaveAttribute('data-front', 'true');
+    await expect(heroCaption(page)).toContainText(featuredWebsite.title);
+    await expect(software).toHaveAttribute('aria-checked', 'true');
+
+    await page.mouse.move(5, 5);
+    await expect(software).toHaveAttribute('data-front', 'true');
+    await expect(heroCaption(page)).toContainText(featuredSoftware.title);
+  });
+
+  test('a tap selects on touch screens', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'Touch fallback.');
+    await page.goto('/');
+    const web = page.getByRole('radio', { name: new RegExp(featuredWebsite.title) });
+    await web.tap();
+    await expect(web).toHaveAttribute('aria-checked', 'true');
+    await expect(heroCaption(page)).toContainText(featuredWebsite.title);
+  });
+
+  test('motion collapses when the visitor prefers reduced motion', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    const durations = await page.getByRole('radio').first().evaluate((el) => [
+      parseFloat(getComputedStyle(el).transitionDuration),
+      parseFloat(getComputedStyle(el.parentElement!).animationDuration),
+    ]);
+    for (const seconds of durations) expect(seconds).toBeLessThanOrEqual(0.01);
   });
 });
 
@@ -217,6 +297,7 @@ test.describe('Selected work gallery', () => {
     for (const project of projects) {
       const tile = page.locator(`#work-${project.slug}`);
       await expect(tile.getByRole('heading', { name: project.title })).toBeVisible();
+      await expect(tile.getByText(`${project.medium}, ${project.year}`, { exact: true }).filter({ visible: true })).toHaveCount(1);
       await expect(tile.getByText(project.provenance, { exact: false }).filter({ visible: true })).toHaveCount(1);
       for (const link of project.links) {
         await expect(tile.locator(`a[href="${link.href}"]`).filter({ visible: true })).toHaveCount(1);
@@ -245,6 +326,8 @@ test.describe('Without JavaScript', () => {
   test('projects, services and contact stay crawlable', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.getByRole('radio')).toHaveCount(2);
+    await expect(page.getByRole('link', { name: 'Explore my work' })).toBeVisible();
     for (const project of projects) {
       await expect(page.getByRole('heading', { name: project.title }).first()).toBeAttached();
       await expect(page.getByText(project.summary).first()).toBeAttached();

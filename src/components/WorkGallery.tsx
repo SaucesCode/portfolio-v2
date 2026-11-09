@@ -19,21 +19,22 @@ const filters: { id: Filter; label: string }[] = [
 ];
 
 /**
- * Rows of two with alternating weights (7/5, 5/7, 6/6); the second piece in each row hangs
- * lower, so the wall never reads as a uniform grid whichever filter is active.
+ * Rows of two with alternating weights (7/5, 5/7, 6/6); the second piece in each row hangs a
+ * little lower, so the wall never reads as a uniform grid whichever filter is active.
  */
 const slots = [
   'lg:col-span-7',
-  'lg:col-span-5 md:mt-24',
+  'lg:col-span-5 md:mt-16',
   'lg:col-span-5',
-  'lg:col-span-7 md:mt-24',
+  'lg:col-span-7 md:mt-16',
   'lg:col-span-6',
-  'lg:col-span-6 md:mt-24',
+  'lg:col-span-6 md:mt-16',
 ];
 
 const count = (filter: Filter) => (filter === 'all' ? projects.length : projects.filter((p) => p.category === filter).length);
 
-function PosterFrame({ project }: { project: Project }) {
+/** The screenshot, matted when it is not 16:10, with an optional action chip resting on its lower edge. */
+function PosterFrame({ project, chip }: { project: Project; chip?: ReactNode }) {
   const contain = project.posterFit === 'contain';
   return (
     <span
@@ -49,27 +50,32 @@ function PosterFrame({ project }: { project: Project }) {
         sizes={contain ? '(min-width: 1024px) 18vw, 40vw' : '(min-width: 1024px) 56vw, (min-width: 768px) 48vw, 92vw'}
         alt={`${project.title}${contain ? ' interface' : ' homepage'}`}
         className={cn(
-          'transition-transform duration-[var(--dur-page)] ease-out group-hover:scale-[1.015]',
+          'transition-transform duration-[var(--dur-page)] ease-out group-hover:scale-[1.02]',
           contain ? 'absolute inset-0 m-auto h-[86%] w-auto' : 'block h-auto w-full',
         )}
       />
+      {chip && (
+        <span className="absolute bottom-3 left-3 inline-flex min-h-10 items-center gap-2 rounded-[2px] bg-ink px-3.5 text-[0.875rem] font-semibold text-wall shadow-[0_6px_16px_-8px_rgb(0_0_0/0.5)] transition-transform duration-[var(--dur-micro)] ease-out group-hover:-translate-y-0.5 sm:bottom-4 sm:left-4">
+          {chip}
+        </span>
+      )}
     </span>
   );
 }
 
 function PosterAction({ project }: { project: Project }) {
-  const chip = (icon: ReactNode, text: string) => (
-    <span className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-[2px] border border-rule px-4 text-[0.9375rem] font-medium transition-colors duration-[var(--dur-micro)] group-hover:border-ink">
-      {icon}
-      {text}
-    </span>
-  );
-
   if (project.walkthrough) {
     return (
       <a href={`#${project.slug}`} className="group block" aria-label={`Take the guided tour of ${project.title}`}>
-        <PosterFrame project={project} />
-        {chip(<CirclePlay aria-hidden size={16} />, 'Take the guided tour')}
+        <PosterFrame
+          project={project}
+          chip={
+            <>
+              <CirclePlay aria-hidden size={16} />
+              Take the guided tour
+            </>
+          }
+        />
       </a>
     );
   }
@@ -77,8 +83,15 @@ function PosterAction({ project }: { project: Project }) {
     return (
       <ProjectDialog project={project}>
         <span className="group block">
-          <PosterFrame project={project} />
-          {chip(<MoveVertical aria-hidden size={16} />, 'View the full page')}
+          <PosterFrame
+            project={project}
+            chip={
+              <>
+                <MoveVertical aria-hidden size={16} />
+                View the full page
+              </>
+            }
+          />
         </span>
       </ProjectDialog>
     );
@@ -105,8 +118,8 @@ export function WorkGallery() {
     filter === 'all' ? `Showing all ${visible.length} projects` : `Showing ${visible.length} projects in ${categoryLabels[filter]}`;
 
   return (
-    <section id="work" aria-labelledby="work-title" className="mx-auto mt-28 max-w-[90rem] scroll-mt-20 px-4 sm:mt-40 sm:px-6 lg:px-10">
-      <div className="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-6">
+    <section id="work" aria-labelledby="work-title" className="mx-auto mt-24 max-w-[90rem] scroll-mt-20 px-4 sm:mt-32 sm:px-6 lg:mt-40 lg:px-10">
+      <div className="grid gap-6 border-t border-rule pt-10 sm:pt-14 lg:grid-cols-12 lg:items-end lg:gap-6">
         <div className="lg:col-span-6">
           <h2
             id="work-title"
@@ -142,7 +155,7 @@ export function WorkGallery() {
         {status}
       </p>
 
-      <ul className="mt-12 grid gap-x-6 gap-y-16 sm:mt-16 md:grid-cols-2 lg:grid-cols-12 lg:gap-y-24">
+      <ul className="mt-12 grid gap-x-6 gap-y-14 sm:mt-14 md:grid-cols-2 md:gap-x-8 lg:grid-cols-12 lg:gap-x-10 lg:gap-y-20">
         {visible.map((project, index) => (
           <li
             key={project.slug}
@@ -152,27 +165,31 @@ export function WorkGallery() {
           >
             <article id={`work-${project.slug}`} aria-labelledby={`tile-${project.slug}`} className="scroll-mt-24">
               <PosterAction project={project} />
-              <div className="mt-5 max-w-[46ch]">
-                <p className="text-[0.9375rem] text-graphite">
-                  {categoryLabels[project.category]}, {project.year}
-                </p>
-                <h3
-                  id={`tile-${project.slug}`}
-                  className="font-semiwide mt-1 text-2xl leading-tight font-semibold tracking-[-0.015em]"
-                >
-                  {project.title}
-                </h3>
-                <p className="mt-2">{project.summary}</p>
-                <p className="mt-2 text-[0.875rem] leading-snug text-graphite">
-                  {project.provenance}.{project.note ? ` ${project.note}` : ''}
-                </p>
-                <p className="mt-2 flex flex-wrap gap-x-5">
-                  {project.links.map((link) => (
-                    <ExternalLink key={link.href} href={link.href}>
-                      {link.label}
-                    </ExternalLink>
-                  ))}
-                </p>
+              <div className="mt-5 sm:mt-6">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                  <h3
+                    id={`tile-${project.slug}`}
+                    className="font-semiwide text-[1.375rem] leading-tight font-semibold tracking-[-0.015em] sm:text-2xl"
+                  >
+                    {project.title}
+                  </h3>
+                  <p className="text-[0.9375rem] text-graphite">
+                    {project.medium}, {project.year}
+                  </p>
+                </div>
+                <p className="mt-2 max-w-[52ch]">{project.summary}</p>
+                <div className="mt-3 flex flex-col gap-1 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
+                  <p className="max-w-[48ch] text-[0.875rem] leading-snug text-graphite lg:pt-2.5">
+                    {project.provenance}.{project.note ? ` ${project.note}` : ''}
+                  </p>
+                  <p className="flex flex-wrap gap-x-5 lg:shrink-0">
+                    {project.links.map((link) => (
+                      <ExternalLink key={link.href} href={link.href}>
+                        {link.label}
+                      </ExternalLink>
+                    ))}
+                  </p>
+                </div>
               </div>
             </article>
           </li>

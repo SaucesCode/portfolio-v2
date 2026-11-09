@@ -20,7 +20,7 @@ export function About() {
     <section
       id="about"
       aria-labelledby="about-title"
-      className="mx-auto mt-28 grid max-w-[90rem] scroll-mt-20 gap-10 px-4 sm:mt-40 sm:px-6 lg:grid-cols-12 lg:gap-6 lg:px-10"
+      className="mx-auto mt-24 grid max-w-[90rem] scroll-mt-20 gap-10 px-4 sm:mt-32 sm:px-6 lg:grid-cols-12 lg:gap-6 lg:px-10"
     >
       <div className="lg:col-span-5">
         <h2

@@ -1,0 +1,308 @@
+/*
+ * Two disciplines, one engineer. The left column is the proposition; the right is a stack of two
+ * real project windows. Whichever discipline is active comes to the front and its headline line
+ * lights up. Everything is server-rendered in the default state, so nothing waits on hydration.
+ */
+.hero {
+  display: grid;
+  gap: 3rem;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 1.5rem;
+    min-height: min(42rem, calc(100svh - 6rem));
+  }
+
+  .copy {
+    grid-column: 1 / span 6;
+  }
+
+  .visual {
+    grid-column: 7 / span 6;
+  }
+}
+
+/* Headline ---------------------------------------------------------------- */
+
+.headline {
+  font-size: clamp(2.5rem, 1rem + 5.4vw, 4.5rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+@media (min-width: 1024px) {
+  .headline {
+    font-size: clamp(3.25rem, 0.9rem + 3.6vw, 4.75rem);
+  }
+}
+
+.lineSoftware,
+.lineWeb {
+  display: block;
+  text-wrap: balance;
+  color: var(--graphite);
+  transition: color var(--dur-component) var(--ease-out);
+}
+
+.lineSoftware {
+  font-weight: 650;
+  font-variation-settings: "wdth" 84;
+  animation: settle-in var(--dur-page) var(--ease-out) both;
+}
+
+.lineWeb {
+  margin-top: 0.08em;
+  font-weight: 500;
+  font-variation-settings: "wdth" 125;
+  animation: settle-in var(--dur-page) var(--ease-out) 80ms both;
+}
+
+.lineSoftware[data-lit="true"],
+.lineWeb[data-lit="true"] {
+  color: var(--ink);
+}
+
+@keyframes settle-in {
+  from {
+    transform: translateY(0.3em);
+  }
+}
+
+/* A short signal bar marks the lit line, echoing the active window's tag. */
+.lineInner {
+  position: relative;
+  display: inline-block;
+  text-wrap: balance;
+  padding-bottom: 0.08em;
+}
+
+.lineInner::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.04em;
+  width: 1.4em;
+  height: 0.07em;
+  min-height: 3px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-component) var(--ease-out);
+}
+
+[data-lit="true"] > .lineInner::after {
+  transform: scaleX(1);
+}
+
+/* Project stack ------------------------------------------------------------ */
+
+.visual {
+  display: grid;
+  gap: 2.75rem;
+}
+
+.stack {
+  position: relative;
+  aspect-ratio: 1.36;
+  margin-block: 1.75rem;
+}
+
+.slot {
+  position: absolute;
+  animation: rise 560ms var(--ease-out) backwards;
+}
+
+.slot[data-slot="software"] {
+  top: 0;
+  left: 0;
+  width: 80%;
+  animation-delay: 180ms;
+}
+
+.slot[data-slot="web"] {
+  right: 0;
+  bottom: 0;
+  width: 64%;
+  animation-delay: 300ms;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0.01;
+    transform: translateY(2.5rem);
+  }
+}
+
+.window {
+  --s: 0.92;
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  opacity: 0.74;
+  transform: scale(var(--s));
+  transition:
+    transform var(--dur-page) var(--ease-out),
+    opacity var(--dur-component) var(--ease-out);
+}
+
+/* A receding window shrinks toward its own outer corner, so the stack never leaves the grid. */
+[data-slot="software"] .window {
+  transform-origin: 0 0;
+}
+
+[data-slot="web"] .window {
+  transform-origin: 100% 100%;
+}
+
+.window[data-front="true"] {
+  --s: 1;
+  opacity: 1;
+}
+
+.slot:has(.window[data-front="true"]) {
+  z-index: 2;
+}
+
+.frame {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--chalk);
+  box-shadow: var(--shadow-hang);
+}
+
+.frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.window:focus-visible {
+  outline: none;
+}
+
+.window:focus-visible .frame {
+  outline: 2px solid var(--signal);
+  outline-offset: 4px;
+}
+
+.window:active .frame {
+  transform: scale(0.995);
+}
+
+.demo {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 2px;
+  background: rgb(20 22 25 / 0.82);
+  color: #f4f4f0;
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+/* Each tag hangs outside its window's free corner, so neither covers the other's screenshot. */
+.tag {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--graphite);
+  transition: color var(--dur-component) var(--ease-out);
+  animation: fade 400ms var(--ease-out) 520ms backwards;
+}
+
+.tag::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+[data-slot="software"] .tag {
+  top: -1.75rem;
+  left: 0;
+}
+
+[data-slot="web"] .tag {
+  right: 0;
+  bottom: -1.75rem;
+}
+
+.window[data-front="true"] .tag {
+  color: var(--signal);
+}
+
+@keyframes fade {
+  from {
+    opacity: 0.01;
+  }
+}
+
+/* Caption ------------------------------------------------------------------ */
+
+.caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  min-height: 2.75rem;
+  animation: fade 400ms var(--ease-out) 600ms backwards;
+}
+
+.captionTitle {
+  font-weight: 600;
+  font-variation-settings: "wdth" 112;
+}
+
+.captionMedium {
+  color: var(--graphite);
+}
+
+.captionLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 2.75rem;
+  margin-left: auto;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  transition: text-decoration-color var(--dur-micro) var(--ease-out);
+}
+
+.captionLink:hover {
+  text-decoration-color: currentColor;
+}
+
+.captionLink svg {
+  transition: transform var(--dur-micro) var(--ease-out);
+}
+
+.captionLink:hover svg {
+  transform: translateY(2px);
+}
+
+@media (hover: hover) {
+  .window:not([data-front="true"]):hover {
+    opacity: 0.9;
+  }
+}

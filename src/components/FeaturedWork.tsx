@@ -43,7 +43,7 @@ export function FeaturedWork() {
       <article
         id={featuredWebsite.slug}
         aria-labelledby={`${featuredWebsite.slug}-title`}
-        className="mt-24 grid scroll-mt-24 gap-8 sm:mt-36 lg:grid-cols-12 lg:gap-6"
+        className="mt-24 grid scroll-mt-24 gap-8 sm:mt-36 lg:mt-44 lg:grid-cols-12 lg:gap-6"
       >
         <div className="lg:col-span-9 lg:row-start-1">
           <FullLengthViewer title={featuredWebsite.title} captures={captures} sizes={websiteSizes} />
