@@ -1,11 +1,44 @@
 import type { Metadata, Viewport } from 'next';
-import './globals.css';
+import { Archivo, Newsreader, Plus_Jakarta_Sans } from 'next/font/google';
+import { site } from '@/data/site';
 import { getBaseUrl } from '@/lib/seo';
+import './globals.css';
+
+const archivo = Archivo({
+  subsets: ['latin'],
+  axes: ['wdth'],
+  variable: '--font-archivo',
+  display: 'swap',
+});
+
+// Display faces borrowed from individual projects for their previews. Not preloaded:
+// browsers only fetch them when a project preview actually renders text in them.
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['800'],
+  variable: '--font-jakarta',
+  display: 'swap',
+  preload: false,
+});
+
+const newsreader = Newsreader({
+  subsets: ['latin'],
+  weight: ['500'],
+  variable: '--font-newsreader',
+  display: 'swap',
+  preload: false,
+});
 
 const baseUrl = getBaseUrl();
+const title = 'James De Mesa, WordPress and web developer';
+const description =
+  'James De Mesa designs and builds WordPress themes, websites, online stores and custom web applications. See full-length previews of real, live projects.';
 
 export const viewport: Viewport = {
-  themeColor: '#fbf9f5',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#e3e4df' },
+    { media: '(prefers-color-scheme: dark)', color: '#1c1e21' },
+  ],
   width: 'device-width',
   initialScale: 1,
 };
@@ -13,48 +46,27 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: 'James De Mesa | Digital Craft & Full-Stack Web Systems',
-    template: '%s | James De Mesa — Digital Craft',
+    default: title,
+    template: `%s | ${site.name}`,
   },
-  description:
-    'Full-stack software developer engineering tailored web applications, custom WordPress Full Site Editing themes, and digital storefronts.',
-  keywords: [
-    'Full-Stack Developer',
-    'Custom WordPress Themes',
-    'WordPress FSE',
-    'Next.js Engineer',
-    'React Developer',
-    'Prisma PostgreSQL',
-    'Web Application Engineering',
-  ],
-  authors: [{ name: 'James Patrick De Mesa', url: 'https://github.com/SaucesCode' }],
-  creator: 'James Patrick De Mesa',
+  description,
+  authors: [{ name: site.legalName, url: site.github }],
+  creator: site.legalName,
   alternates: {
-    canonical: baseUrl,
+    canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: baseUrl,
-    siteName: 'James De Mesa — Digital Craft',
-    title: 'James De Mesa | Digital Craft & Full-Stack Web Systems',
-    description:
-      'Engineering tailored web platforms, luxury WordPress themes, and high-impact digital systems.',
-    images: [
-      {
-        url: `${baseUrl}/og-image.png`,
-        width: 1200,
-        height: 630,
-        alt: 'James De Mesa — Digital Craft',
-      },
-    ],
+    url: '/',
+    siteName: site.name,
+    title,
+    description,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'James De Mesa | Digital Craft & Full-Stack Web Systems',
-    description:
-      'Engineering tailored web platforms, luxury WordPress themes, and high-impact digital systems.',
-    images: [`${baseUrl}/og-image.png`],
+    title,
+    description,
   },
   robots: {
     index: true,
@@ -62,73 +74,46 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'Person',
-        '@id': `${baseUrl}/#person`,
-        name: 'James Patrick De Mesa',
-        givenName: 'James Patrick',
-        familyName: 'De Mesa',
-        alternateName: 'SaucesCode',
-        jobTitle: 'Principal Creative Frontend Engineer & Full-Stack Architect',
-        sameAs: ['https://github.com/SaucesCode'],
-        knowsAbout: [
-          'WordPress Full Site Editing',
-          'Next.js',
-          'TypeScript',
-          'Node.js',
-          'Prisma ORM',
-          'PostgreSQL',
-          'Tailwind CSS',
-        ],
-      },
-      {
-        '@type': 'ProfessionalService',
-        '@id': `${baseUrl}/#service`,
-        name: 'James De Mesa — Digital Craft',
-        url: baseUrl,
-        founder: { '@id': `${baseUrl}/#person` },
-        description:
-          'Full-stack web application development, custom WordPress Full Site Editing themes, and digital storefront engineering.',
-        serviceType: [
-          'Full-Stack Web Application Development',
-          'WordPress Theme Design & Full Site Editing',
-          'E-Commerce Web Design',
-        ],
-      },
-    ],
-  };
+const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Person',
+      '@id': `${baseUrl}/#person`,
+      name: site.legalName,
+      alternateName: 'SaucesCode',
+      jobTitle: site.role,
+      url: baseUrl,
+      email: `mailto:${site.email}`,
+      address: { '@type': 'PostalAddress', addressCountry: 'PH' },
+      sameAs: [site.github, site.linkedin],
+      knowsAbout: ['WordPress', 'WordPress block themes', 'Web design', 'React', 'Next.js', 'Django', 'PostgreSQL'],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${baseUrl}/#website`,
+      url: baseUrl,
+      name: site.name,
+      publisher: { '@id': `${baseUrl}/#person` },
+    },
+  ],
+};
 
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap"
-          rel="stylesheet"
-        />
+    <html lang="en" className={`${archivo.variable} ${jakarta.variable} ${newsreader.variable}`}>
+      <body>
+        {children}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd).replace(/</g, '\\u003c') }}
         />
-      </head>
-      <body className="min-h-screen bg-[#fbf9f5] text-[#161614] antialiased selection:bg-[#b84218]/15 selection:text-[#161614]">
-        {children}
       </body>
     </html>
   );

@@ -1,87 +1,138 @@
 @import "tailwindcss";
 
-@layer base {
+/*
+ * Full Length / Gallery Edition
+ * The page is a photographer's seamless backdrop: a neutral mid-light grey that lets
+ * both light and dark websites read as the artwork. One signal colour marks actions.
+ */
+:root {
+  --wall: #e3e4df;
+  --chalk: #f4f4f0;
+  --ink: #141619;
+  --graphite: #4f5358;
+  --rule: #c3c5bf;
+  --signal: #2633e8;
+  --signal-ink: #ffffff;
+  --signal-hover: #1a26c4;
+
+  --shadow-hang: 0 1px 2px rgb(20 22 25 / 0.08), 0 22px 48px -24px rgb(20 22 25 / 0.42);
+
+  --dur-micro: 160ms;
+  --dur-component: 240ms;
+  --dur-page: 420ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
   :root {
-    /* Warm Paper Foundation (Day / Editorial) */
-    --paper-canvas: #fbf9f5;
-    --paper-surface: #f2eee7;
-    --paper-border: #dfdbd2;
-    --paper-border-strong: #c2bcb0;
-    
-    --text-charcoal: #161614;
-    --text-stone: #58564e;
-    --text-muted-paper: #747269;
-
-    /* Obsidian Slate Foundation (Night / Engineering Showcase) */
-    --slate-canvas: #0d0f14;
-    --slate-panel: #11141c;
-    --slate-elevated: #181d2a;
-    --slate-border: #1f2433;
-    --slate-border-active: #283247;
-
-    --text-chalk: #f0f3f8;
-    --text-ash: #9da7b8;
-    --text-muted-slate: #7d8ca6;
-
-    /* Accent & Signal Palette */
-    --accent-terracotta: #b84218;
-    --accent-terracotta-hover: #9a3412;
-    --signal-champagne: #e5c07b;
-    --signal-emerald: #10b981;
-    --signal-cobalt: #3b82f6;
-    --signal-focus: #3b82f6;
-
-    /* Typography Font Stacks */
-    --font-newsreader: "Newsreader", Georgia, Cambria, "Times New Roman", serif;
-    --font-geist-sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --font-geist-mono: "Geist Mono", Menlo, Monaco, Consolas, monospace;
-
-    /* Motion Tokens */
-    --duration-instant: 80ms;
-    --duration-fast: 150ms;
-    --duration-normal: 250ms;
-    --duration-slow: 400ms;
-    --duration-entrance: 450ms;
-
-    --ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1);
-    --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
-    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --wall: #1c1e21;
+    --chalk: #25282c;
+    --ink: #ecece7;
+    --graphite: #a5a9ae;
+    --rule: #3a3d42;
+    --signal: #8e97ff;
+    --signal-ink: #0e1033;
+    --signal-hover: #aab1ff;
+    --shadow-hang: 0 1px 2px rgb(0 0 0 / 0.3), 0 26px 56px -24px rgb(0 0 0 / 0.75);
+    color-scheme: dark;
   }
+}
 
-  @media (prefers-reduced-motion: reduce) {
-    :root {
-      --duration-instant: 0.001ms;
-      --duration-fast: 0.001ms;
-      --duration-normal: 0.001ms;
-      --duration-slow: 0.001ms;
-      --duration-entrance: 0.001ms;
-      --ease-out-cubic: linear;
-      --ease-spring: linear;
-      --ease-in-out: linear;
-    }
+@theme inline {
+  --color-wall: var(--wall);
+  --color-chalk: var(--chalk);
+  --color-ink: var(--ink);
+  --color-graphite: var(--graphite);
+  --color-rule: var(--rule);
+  --color-signal: var(--signal);
+  --color-signal-ink: var(--signal-ink);
+  --color-signal-hover: var(--signal-hover);
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --shadow-hang: var(--shadow-hang);
+  --ease-out: var(--ease-out);
+  --ease-in: var(--ease-in);
+  --ease-in-out: var(--ease-in-out);
+}
 
-    *, *::before, *::after {
-      animation-duration: 0.001ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.001ms !important;
-      scroll-behavior: auto !important;
-    }
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
-    background-color: var(--paper-canvas);
-    color: var(--text-charcoal);
-    font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    text-rendering: optimizeLegibility;
+    background: var(--wall);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--signal);
+    color: var(--signal-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 3px;
+  }
+
+  html:has(dialog[open]) {
+    overflow: hidden;
   }
 }
 
-.font-serif-editorial {
-  font-family: var(--font-newsreader), Georgia, Cambria, serif;
+@utility font-wide {
+  font-variation-settings: "wdth" 125;
 }
 
-.font-mono-code {
-  font-family: var(--font-geist-mono), Menlo, Monaco, Consolas, monospace;
+@utility font-semiwide {
+  font-variation-settings: "wdth" 112;
+}
+
+/*
+ * The single orchestrated load moment: the headline settles, then the featured piece fades up.
+ * The fade starts just above zero opacity and never moves the piece, so its poster counts as
+ * painted immediately and keeps the same geometry as the full-length image that replaces it.
+ */
+@keyframes settle {
+  from {
+    transform: translateY(0.35em);
+  }
+}
+
+@keyframes hang {
+  from {
+    opacity: 0.01;
+  }
+}
+
+@utility enter-settle {
+  animation: settle var(--dur-page) var(--ease-out) both;
+}
+
+@utility enter-hang {
+  animation: hang var(--dur-page) var(--ease-out) 120ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
 }

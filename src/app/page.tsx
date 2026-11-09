@@ -1,38 +1,56 @@
-import React from 'react';
-import { Header } from '@/components/Header';
-import { Hero } from '@/components/Hero';
-import { SplitRevealShowcase } from '@/components/SplitRevealShowcase';
-import { ServicesSection } from '@/components/ServicesSection';
-import { Footer } from '@/components/Footer';
+import { Collection } from '@/components/Collection';
+import { Contact } from '@/components/Contact';
+import { Intro } from '@/components/Intro';
+import { SelectedWork } from '@/components/SelectedWork';
+import { Services } from '@/components/Services';
+import { SiteHeader } from '@/components/SiteHeader';
+import { projects } from '@/data/projects';
+import { site } from '@/data/site';
+import { getBaseUrl } from '@/lib/seo';
+
+const baseUrl = getBaseUrl();
+
+const workListJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: `Websites and applications by ${site.legalName}`,
+  itemListElement: projects.map((project, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    item: {
+      '@type': 'CreativeWork',
+      name: project.title,
+      description: project.summary,
+      url: project.liveUrl,
+      image: `${baseUrl}${project.poster.src}`,
+      dateCreated: String(project.year),
+      creator: { '@id': `${baseUrl}/#person` },
+      sameAs: project.repoUrl,
+    },
+  })),
+};
 
 export default function HomePage() {
   return (
-    <div id="top" className="flex min-h-screen flex-col bg-[#fbf9f5] selection:bg-[#b84218] selection:text-[#fbf9f5]">
-      {/* Accessible Skip Link for Keyboard Navigation */}
+    <div id="top">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-[#161614] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[#fbf9f5] focus:outline-none focus:ring-2 focus:ring-[#3b82f6]"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-[2px] focus:bg-ink focus:px-4 focus:py-3 focus:font-semibold focus:text-wall"
       >
         Skip to main content
       </a>
-
-      {/* Primary Sticky Header */}
-      <Header />
-
-      {/* Main Content Landmark */}
-      <main id="main-content" className="flex-1">
-        {/* Hero Section */}
-        <Hero />
-
-        {/* Dual-View Split Showcase (Interactive Flagship Project) */}
-        <SplitRevealShowcase />
-
-        {/* Commercial Services & Capabilities */}
-        <ServicesSection />
+      <SiteHeader />
+      <main id="main-content">
+        <Intro />
+        <SelectedWork />
+        <Collection />
+        <Services />
       </main>
-
-      {/* Process & Contact Footer */}
-      <Footer />
+      <Contact />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(workListJsonLd).replace(/</g, '\\u003c') }}
+      />
     </div>
   );
 }

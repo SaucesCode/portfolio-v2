@@ -1,0 +1,265 @@
+/*
+ * --p  scroll position through the page, 0 (top) to 1 (bottom); set from JS.
+ * --r  share of the page one viewport shows (poster height / full height).
+ * --ar aspect ratio of the full capture (width / height), used by the rail track.
+ */
+.viewer {
+  --p: 0;
+  --rail-width: 3.5rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .viewer {
+    --rail-width: 6.5rem;
+  }
+}
+
+/* Device switching. "auto" follows the visitor's screen without any JS, so the right
+   poster and capture are the only ones requested. Hidden lazy images never load. */
+.viewer[data-mode="auto"] [data-device="phone"],
+.viewer[data-mode="desktop"] [data-device="phone"],
+.viewer[data-mode="phone"] [data-device="desktop"] {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .viewer[data-mode="auto"] [data-device="desktop"] {
+    display: none;
+  }
+
+  .viewer[data-mode="auto"] [data-device="phone"] {
+    display: block;
+  }
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
+
+.segmented button,
+.play {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border-radius: 2px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-micro) var(--ease-out),
+    color var(--dur-micro) var(--ease-out);
+}
+
+.segmented button:hover {
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+.segmented button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--wall);
+}
+
+.play {
+  border: 1px solid var(--rule);
+}
+
+.play:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+
+.play:active:not(:disabled),
+.segmented button:active {
+  transform: translateY(1px);
+}
+
+.play:disabled {
+  cursor: progress;
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .play {
+    display: none;
+  }
+}
+
+.body {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+}
+
+.stage {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .stage {
+    aspect-ratio: 1440 / 900;
+  }
+}
+
+.frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--chalk);
+  box-shadow: var(--shadow-hang);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+}
+
+.frame[data-device="desktop"] {
+  aspect-ratio: 1440 / 900;
+}
+
+.frame[data-device="phone"] {
+  aspect-ratio: 390 / 844;
+}
+
+@media (min-width: 768px) {
+  .frame[data-device="phone"] {
+    height: 100%;
+    margin-inline: auto;
+  }
+}
+
+@media (pointer: fine) {
+  .frame[data-loaded="true"] {
+    cursor: grab;
+  }
+
+  .viewer[data-dragging="true"] .frame {
+    cursor: grabbing;
+  }
+}
+
+.page,
+.poster {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  max-width: none;
+  pointer-events: none;
+}
+
+.page {
+  transform: translate3d(0, calc(var(--p) * (var(--r) - 1) * 100%), 0);
+}
+
+.poster {
+  transition: opacity var(--dur-component) var(--ease-out);
+}
+
+.frame[data-loaded="true"] .poster {
+  opacity: 0;
+}
+
+.rail {
+  position: relative;
+  flex: none;
+  width: var(--rail-width);
+  container-type: size;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+
+.rail[aria-disabled="true"] {
+  cursor: progress;
+}
+
+.track {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(100cqw, calc(100cqh * var(--ar)));
+  aspect-ratio: var(--ar);
+  transform: translateX(-50%);
+}
+
+.thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.rail[aria-disabled="true"] .thumb {
+  opacity: 0.4;
+}
+
+.window {
+  position: absolute;
+  top: 0;
+  left: -3px;
+  right: -3px;
+  height: calc(var(--r) * 100%);
+  border: 2px solid var(--signal);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--signal) 16%, transparent);
+  transform: translate3d(0, calc(var(--p) * (1 - var(--r)) / var(--r) * 100%), 0);
+}
+
+.rail[aria-disabled="true"] .window {
+  opacity: 0;
+}
+
+.viewer[data-animate="true"] .page,
+.viewer[data-animate="true"] .window {
+  transition: transform var(--dur-component) var(--ease-out);
+}
+
+.hint {
+  max-width: 64ch;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--graphite);
+}
+
+.hintCoarse {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .hintFine,
+  .hintKeys {
+    display: none;
+  }
+
+  .hintCoarse {
+    display: inline;
+  }
+}
+
+.readout {
+  margin-left: auto;
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}

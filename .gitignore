@@ -26,3 +26,6 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 .vercel
+
+# local browser review output
+.playwright-mcp/
