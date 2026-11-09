@@ -98,10 +98,14 @@
   font-variation-settings: "wdth" 112;
 }
 
+@utility font-narrow {
+  font-variation-settings: "wdth" 84;
+}
+
 /*
- * The single orchestrated load moment: the headline settles, then the featured piece fades up.
- * The fade starts just above zero opacity and never moves the piece, so its poster counts as
- * painted immediately and keeps the same geometry as the full-length image that replaces it.
+ * The single orchestrated load moment: the two headline lines settle in turn, then the featured
+ * piece fades up. The fade starts just above zero opacity and never moves the piece, so its
+ * first screen counts as painted immediately for Largest Contentful Paint.
  */
 @keyframes settle {
   from {
@@ -119,8 +123,22 @@
   animation: settle var(--dur-page) var(--ease-out) both;
 }
 
+@utility enter-settle-late {
+  animation: settle var(--dur-page) var(--ease-out) 60ms both;
+}
+
 @utility enter-hang {
   animation: hang var(--dur-page) var(--ease-out) 120ms both;
+}
+
+::view-transition-group(*) {
+  animation-duration: 320ms;
+  animation-timing-function: var(--ease-in-out);
+}
+
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 200ms;
 }
 
 @media (prefers-reduced-motion: reduce) {

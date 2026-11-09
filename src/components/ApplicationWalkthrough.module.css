@@ -1,0 +1,257 @@
+.tour {
+  display: grid;
+  gap: 1.5rem;
+}
+
+/* The app window: every step is stacked here and crossfades; the active one zooms toward its focus. */
+.stage {
+  position: relative;
+  aspect-ratio: 1440 / 900;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--chalk);
+  box-shadow: var(--shadow-hang);
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform-origin: var(--fx) var(--fy);
+  transition:
+    opacity var(--dur-component) var(--ease-in),
+    transform var(--dur-page) var(--ease-out);
+}
+
+.slide[data-active="true"] {
+  opacity: 1;
+  transform: scale(var(--zoom));
+  transition:
+    opacity var(--dur-component) var(--ease-out),
+    transform 640ms var(--ease-out) 80ms; /* a slow settle reads as a camera move, not a jump */
+}
+
+.slide img {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+/* On phones a whole desktop screen is too small to read, so the stage gets taller and
+   crops toward the part of the screen each step is about. */
+@media (max-width: 767px) {
+  .stage {
+    aspect-ratio: 4 / 3;
+  }
+
+  .slide img {
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--fx) var(--fy);
+  }
+
+  /* The crop already brings the screen closer; zooming as well would cut off labels. */
+  .slide[data-active="true"] {
+    transform: none;
+  }
+}
+
+.badge {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 2px;
+  background: rgb(20 22 25 / 0.82);
+  color: #f4f4f0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.below {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 900px) {
+  .below {
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
+    gap: 2.5rem;
+    align-items: start;
+  }
+}
+
+.caption {
+  /* Room for the longest step, so the controls below never jump between steps. */
+  min-height: 12.5rem;
+  max-width: 46ch;
+}
+
+@media (min-width: 900px) {
+  .caption {
+    min-height: 9.5rem;
+  }
+}
+
+.count {
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--graphite);
+}
+
+.title {
+  margin-top: 0.25rem;
+  font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variation-settings: "wdth" 112;
+}
+
+.body {
+  margin-top: 0.5rem;
+}
+
+.detail {
+  margin-top: 0.75rem;
+  font-size: 0.9375rem;
+}
+
+.detail summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+}
+
+.detail summary:hover {
+  text-decoration-color: currentColor;
+}
+
+.detail p {
+  max-width: 54ch;
+  padding-left: 0.875rem;
+  border-left: 2px solid var(--signal);
+  color: var(--graphite);
+}
+
+.steps {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .steps {
+    display: grid;
+    gap: 0.125rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.steps button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 2px;
+  color: var(--graphite);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-micro) var(--ease-out),
+    color var(--dur-micro) var(--ease-out);
+}
+
+.steps button:hover {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  color: var(--ink);
+}
+
+.steps button[aria-current="step"] {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.stepNumber {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.steps button[aria-current="step"] .stepNumber {
+  border-color: var(--signal);
+  background: var(--signal);
+  color: var(--signal-ink);
+}
+
+.arrows {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.arrows button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 2.75rem;
+  padding: 0 0.875rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--dur-micro) var(--ease-out);
+}
+
+.arrows button:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+
+.arrows button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.arrows button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.progress {
+  flex: 1;
+  height: 2px;
+  overflow: hidden;
+  background: var(--rule);
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  background: var(--signal);
+  transform-origin: left;
+  transition: transform var(--dur-component) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide,
+  .slide[data-active="true"] {
+    transform: none;
+  }
+}

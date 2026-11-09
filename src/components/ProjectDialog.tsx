@@ -99,8 +99,11 @@ export function ProjectDialog({ project, children }: Props) {
           </div>
 
           <footer className={styles.footer}>
-            <ExternalLink href={project.liveUrl}>Visit the live site</ExternalLink>
-            <ExternalLink href={project.repoUrl}>View the code</ExternalLink>
+            {project.links.map((link) => (
+              <ExternalLink key={link.href} href={link.href}>
+                {link.label}
+              </ExternalLink>
+            ))}
           </footer>
         </div>
       </dialog>

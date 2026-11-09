@@ -2,8 +2,9 @@ import { inquiryHref, site } from '@/data/site';
 import { ButtonLink } from './ButtonLink';
 
 const links = [
-  { href: '#work', label: 'Work' },
+  { href: '#featured', label: 'Work' },
   { href: '#services', label: 'Services' },
+  { href: '#about', label: 'About' },
   { href: '#contact', label: 'Contact' },
 ];
 
@@ -13,7 +14,7 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-[90rem] items-center justify-between gap-4 px-4 sm:px-6 lg:h-20 lg:px-10">
         <a
           href="#top"
-          className="font-wide inline-flex min-h-11 items-center text-[1.0625rem] font-semibold tracking-[-0.01em] sm:text-lg"
+          className="font-semiwide inline-flex min-h-11 items-center text-[0.9375rem] font-semibold tracking-[-0.01em] sm:text-[1.0625rem] lg:text-lg"
         >
           {site.name}
         </a>
@@ -31,7 +32,8 @@ export function SiteHeader() {
             ))}
           </ul>
           <ButtonLink href={inquiryHref} size="small">
-            Start a project
+            <span className="sm:hidden">Contact</span>
+            <span className="hidden sm:inline">Start a project</span>
           </ButtonLink>
         </nav>
       </div>

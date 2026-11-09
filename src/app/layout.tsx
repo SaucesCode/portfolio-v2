@@ -30,9 +30,9 @@ const newsreader = Newsreader({
 });
 
 const baseUrl = getBaseUrl();
-const title = 'James De Mesa, WordPress and web developer';
+const title = `${site.name}, full-stack software engineer`;
 const description =
-  'James De Mesa designs and builds WordPress themes, websites, online stores and custom web applications. See full-length previews of real, live projects.';
+  'James Patrick De Mesa is a full-stack software engineer building custom web applications, business systems, WordPress sites and themes, and websites. Take a guided tour of a real app and preview live sites in full.';
 
 export const viewport: Viewport = {
   themeColor: [
@@ -50,8 +50,8 @@ export const metadata: Metadata = {
     template: `%s | ${site.name}`,
   },
   description,
-  authors: [{ name: site.legalName, url: site.github }],
-  creator: site.legalName,
+  authors: [{ name: site.name, url: site.github }],
+  creator: site.name,
   alternates: {
     canonical: '/',
   },
@@ -86,14 +86,26 @@ const personJsonLd = {
     {
       '@type': 'Person',
       '@id': `${baseUrl}/#person`,
-      name: site.legalName,
-      alternateName: 'SaucesCode',
+      name: site.name,
+      alternateName: site.githubHandle,
       jobTitle: site.role,
       url: baseUrl,
       email: `mailto:${site.email}`,
       address: { '@type': 'PostalAddress', addressCountry: 'PH' },
       sameAs: [site.github, site.linkedin],
-      knowsAbout: ['WordPress', 'WordPress block themes', 'Web design', 'React', 'Next.js', 'Django', 'PostgreSQL'],
+      knowsAbout: [
+        'Full-stack software engineering',
+        'Web application development',
+        'Business management systems',
+        'REST APIs',
+        'PostgreSQL',
+        'Django',
+        'Node.js',
+        'React',
+        'Next.js',
+        'WordPress block themes',
+        'Web design',
+      ],
     },
     {
       '@type': 'WebSite',

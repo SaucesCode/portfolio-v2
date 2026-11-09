@@ -11,12 +11,12 @@ export function Contact() {
             id="contact-title"
             className="font-wide text-[clamp(2.25rem,1.2rem+4vw,5rem)] leading-[0.98] font-medium tracking-[-0.035em] text-balance lg:col-span-7"
           >
-            Have a website in mind?
+            Have something to build?
           </h2>
           <div className="max-w-[46ch] lg:col-span-4 lg:col-start-9 lg:self-end">
             <p className="text-lg leading-relaxed">
-              Tell me what you need: a new site, a redesign, a WordPress theme or a custom system. A few sentences is
-              enough to start.
+              Tell me what you need: a web application, a system for your team, a WordPress site or a redesign. A few
+              sentences is enough to start.
             </p>
             <ButtonLink href={inquiryHref} variant="inverse" className="mt-6">
               Email me about a project
@@ -34,10 +34,11 @@ export function Contact() {
         <div className="mt-16 flex flex-col gap-6 border-t border-[color-mix(in_srgb,var(--wall)_22%,transparent)] pt-6 text-[0.9375rem] sm:flex-row sm:items-center sm:justify-between">
           <p className="flex flex-wrap gap-x-6">
             <ExternalLink href={site.linkedin}>LinkedIn</ExternalLink>
-            <ExternalLink href={site.github}>GitHub</ExternalLink>
+            <ExternalLink href={site.github}>GitHub ({site.githubHandle})</ExternalLink>
           </p>
           <p className="text-[color-mix(in_srgb,var(--wall)_72%,transparent)]">
-            © {new Date().getFullYear()} {site.legalName}. Screenshots are captures of the live sites shown.
+            © {new Date().getFullYear()} {site.name}. Screenshots are captures of the projects shown; app screens use
+            demonstration data.
           </p>
         </div>
       </div>

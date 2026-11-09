@@ -8,31 +8,31 @@ export interface Service {
 
 export const services: Service[] = [
   {
-    id: 'wordpress',
-    name: 'WordPress websites and themes',
+    id: 'applications',
+    name: 'Web applications and business systems',
     description:
-      'Custom block themes your team edits in the WordPress Site Editor, with no page builder and no pile of plugins to keep updated.',
+      'Tools built around how your team actually works: records, approvals, inventory, dashboards and reports, with roles and logins where they matter.',
+    examples: ['rowszeins-delight', 'quickaid'],
+  },
+  {
+    id: 'backend',
+    name: 'APIs, databases and integrations',
+    description:
+      'REST APIs, PostgreSQL data models, authentication and exports, so the numbers on screen come from one reliable source.',
+    examples: ['rowszeins-delight', 'portfolio-cms'],
+  },
+  {
+    id: 'wordpress',
+    name: 'WordPress sites and custom themes',
+    description:
+      'Block themes your team edits in the WordPress Site Editor, with no page builder and no pile of plugins to keep updated.',
     examples: ['thread-and-form', 'kinetix-athletics'],
   },
   {
-    id: 'design',
-    name: 'Website design and redesigns',
+    id: 'websites',
+    name: 'Websites, stores and landing pages',
     description:
-      'Marketing sites and landing pages designed and built by the same person, so the site that launches is the one you approved.',
+      'Marketing sites, product pages and campaign pages designed and built by the same person, so what launches is what you approved.',
     examples: ['valence-capital', 'nexus-ai'],
-  },
-  {
-    id: 'commerce',
-    name: 'Online stores and product pages',
-    description:
-      'Catalogues, product pages and campaign pages that load quickly and make the next step obvious on a phone.',
-    examples: ['kinetix-athletics', 'rowszeins-delight'],
-  },
-  {
-    id: 'systems',
-    name: 'Web apps and business systems',
-    description:
-      'Custom tools for running a business: records, dashboards, forms and reports, with a proper database behind them.',
-    examples: ['quickaid', 'portfolio-cms'],
   },
 ];

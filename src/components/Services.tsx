@@ -1,12 +1,17 @@
-import { getProject } from '@/data/projects';
+import { featuredSoftware, featuredWebsite, getProject } from '@/data/projects';
 import { services } from '@/data/services';
+
+const featuredSlugs = new Set([featuredSoftware.slug, featuredWebsite.slug]);
+
+/** Featured projects have their own section; the rest live in the gallery. */
+const anchorFor = (slug: string) => (featuredSlugs.has(slug) ? `#${slug}` : `#work-${slug}`);
 
 export function Services() {
   return (
     <section
       id="services"
       aria-labelledby="services-title"
-      className="mx-auto mt-28 grid max-w-[90rem] gap-10 px-4 sm:mt-40 sm:px-6 lg:grid-cols-12 lg:gap-6 lg:px-10"
+      className="mx-auto mt-28 grid max-w-[90rem] scroll-mt-20 gap-10 px-4 sm:mt-40 sm:px-6 lg:grid-cols-12 lg:gap-6 lg:px-10"
     >
       <div className="lg:col-span-4">
         <h2
@@ -16,7 +21,8 @@ export function Services() {
           What I can build for you
         </h2>
         <p className="mt-5 max-w-[40ch] text-graphite">
-          From a single landing page to a custom system. You work with one person from the first sketch to launch.
+          From a single landing page to a system your whole team runs on. You work with one person from the first
+          conversation to launch.
         </p>
       </div>
 
@@ -33,7 +39,7 @@ export function Services() {
                   <span key={project.slug}>
                     {index > 0 && ' and '}
                     <a
-                      href={`#${project.slug}`}
+                      href={anchorFor(project.slug)}
                       className="inline-block py-2 font-medium text-ink underline decoration-1 underline-offset-4 decoration-[color-mix(in_srgb,currentColor_35%,transparent)] hover:decoration-current"
                     >
                       {project.title}

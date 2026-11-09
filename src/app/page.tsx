@@ -1,10 +1,11 @@
-import { Collection } from '@/components/Collection';
+import { About } from '@/components/About';
 import { Contact } from '@/components/Contact';
+import { FeaturedWork } from '@/components/FeaturedWork';
 import { Intro } from '@/components/Intro';
-import { SelectedWork } from '@/components/SelectedWork';
 import { Services } from '@/components/Services';
 import { SiteHeader } from '@/components/SiteHeader';
-import { projects } from '@/data/projects';
+import { WorkGallery } from '@/components/WorkGallery';
+import { categoryLabels, projects } from '@/data/projects';
 import { site } from '@/data/site';
 import { getBaseUrl } from '@/lib/seo';
 
@@ -13,19 +14,21 @@ const baseUrl = getBaseUrl();
 const workListJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
-  name: `Websites and applications by ${site.legalName}`,
+  name: `Software and websites by ${site.name}`,
   itemListElement: projects.map((project, index) => ({
     '@type': 'ListItem',
     position: index + 1,
     item: {
-      '@type': 'CreativeWork',
+      '@type': project.category === 'software' ? 'SoftwareApplication' : 'CreativeWork',
       name: project.title,
       description: project.summary,
-      url: project.liveUrl,
+      genre: categoryLabels[project.category],
+      url: project.links[0].href,
       image: `${baseUrl}${project.poster.src}`,
       dateCreated: String(project.year),
       creator: { '@id': `${baseUrl}/#person` },
-      sameAs: project.repoUrl,
+      sameAs: project.links.map((link) => link.href),
+      ...(project.category === 'software' && { applicationCategory: 'BusinessApplication' }),
     },
   })),
 };
@@ -42,9 +45,10 @@ export default function HomePage() {
       <SiteHeader />
       <main id="main-content">
         <Intro />
-        <SelectedWork />
-        <Collection />
+        <FeaturedWork />
+        <WorkGallery />
         <Services />
+        <About />
       </main>
       <Contact />
       <script
