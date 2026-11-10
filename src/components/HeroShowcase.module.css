@@ -141,19 +141,6 @@
 .lineInner {
   display: inline-block;
   text-wrap: balance;
-  animation: line-up 620ms var(--ease-out) backwards;
-}
-
-.lineWeb .lineInner {
-  animation-delay: 90ms;
-}
-
-/* Each line rises out of its own baseline mask, like type being set. */
-@keyframes line-up {
-  from {
-    clip-path: inset(0 0 100% 0);
-    transform: translateY(0.45em);
-  }
 }
 
 /* Windows ------------------------------------------------------------------ */
@@ -165,24 +152,6 @@
   border-radius: var(--radius-frame);
   background: var(--chalk);
   box-shadow: var(--shadow-hang);
-  animation: unroll 700ms var(--ease-out) 40ms backwards;
-}
-
-.window[data-id="web"] .frame {
-  animation-delay: 200ms;
-}
-
-/*
- * The frames are placed by unrolling downward, the way a print is hung. They start almost half
- * open, so the first paint already shows real work and Largest Contentful Paint is not delayed.
- */
-@keyframes unroll {
-  from {
-    clip-path: inset(0 0 55% 0 round var(--radius-frame));
-  }
-  to {
-    clip-path: inset(0 0 0 0 round var(--radius-frame));
-  }
 }
 
 .frame img {
@@ -353,36 +322,32 @@
   text-decoration-color: currentColor;
 }
 
-/* Thread: a dimension line from the lit headline line to the primary frame. */
+/*
+ * Thread: a dimension line from the lit headline line to the primary frame. It has no geometry
+ * until the script has measured the settled layout, so it stays hidden until then.
+ */
+.thread {
+  opacity: 0;
+}
+
+.thread[data-ready="true"] {
+  opacity: 1;
+}
+
 .thread path {
   fill: none;
   stroke: var(--signal);
   stroke-width: 1.5;
   stroke-dasharray: 1;
   stroke-dashoffset: 0;
-  animation: draw 520ms var(--ease-out) 900ms backwards;
 }
 
 .thread circle {
   fill: var(--wall);
   stroke: var(--signal);
   stroke-width: 1.5;
-  animation: dot 240ms var(--ease-out) 860ms backwards;
 }
 
 .thread circle:last-of-type {
   fill: var(--signal);
-  animation-delay: 1380ms;
-}
-
-@keyframes draw {
-  from {
-    stroke-dashoffset: 1;
-  }
-}
-
-@keyframes dot {
-  from {
-    opacity: 0;
-  }
 }

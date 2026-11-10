@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { categoryLabels, featuredSoftware, featuredWebsite, projects } from '../src/data/projects';
+import { categoryLabels, featuredSoftware, featuredWebsite, galleryProjects, heroProjects, projects } from '../src/data/projects';
 import { site } from '../src/data/site';
 
 const viewerSlider = (page: Page) =>
@@ -204,6 +204,25 @@ test.describe('Hero: two disciplines', () => {
   });
 });
 
+test.describe('First load', () => {
+  test('the hero arrives finished, with no entrance animation on its text or screenshots', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'commit' });
+    await page.locator('#intro-title').waitFor();
+    const running = await page.evaluate(() =>
+      [...document.querySelectorAll('#intro-title, #intro-title *, [data-role], [data-role] *')].flatMap((el) =>
+        el.getAnimations().map((animation) => (animation as CSSAnimation).animationName ?? 'script'),
+      ),
+    );
+    expect(running).toEqual([]);
+  });
+
+  test('only the hero screenshots are fetched eagerly', async ({ page }) => {
+    await page.goto('/');
+    const eager = await page.locator('img[loading="eager"]').evaluateAll((imgs) => imgs.map((img) => img.closest('[data-role]') !== null));
+    expect(eager).toEqual([true, true]);
+  });
+});
+
 test.describe('Application walkthrough', () => {
   test('moves through steps with buttons and the keyboard', async ({ page }) => {
     await page.goto('/');
@@ -225,6 +244,15 @@ test.describe('Application walkthrough', () => {
     await expect(caption).toHaveText(steps[0].title);
 
     await expect(tour.getByText('Demonstration data')).toBeVisible();
+  });
+
+  test('steps are arranged as a sequence around the current one', async ({ page }) => {
+    await page.goto('/');
+    const tour = tourOf(page);
+    await tour.getByRole('button', { name: 'Next' }).click();
+    await tour.getByRole('button', { name: 'Next' }).click();
+    const positions = await tour.locator('[data-pos]').evaluateAll((els) => els.map((el) => el.getAttribute('data-pos')));
+    expect(positions).toEqual(['before', 'before', 'current', 'after', 'after']);
   });
 
   test('step list jumps directly and the technical note opens', async ({ page, isMobile }) => {
@@ -310,16 +338,43 @@ test.describe('Selected work gallery', () => {
     await page.goto('/');
     const gallery = page.locator('#work');
     const items = gallery.locator('ul > li');
-    await expect(items).toHaveCount(projects.length);
+    await expect(items).toHaveCount(galleryProjects.length);
 
     for (const category of ['software', 'web', 'experiments'] as const) {
-      const expected = projects.filter((p) => p.category === category).length;
+      const expected = galleryProjects.filter((p) => p.category === category).length;
+      expect(expected).toBeGreaterThan(0);
       await gallery.getByRole('button', { name: new RegExp(`^${categoryLabels[category]}`) }).click();
       await expect(items).toHaveCount(expected);
       await expect(gallery.getByText(`Showing ${expected} projects in ${categoryLabels[category]}`)).toBeAttached();
     }
     await gallery.getByRole('button', { name: /^All work/ }).click();
-    await expect(items).toHaveCount(projects.length);
+    await expect(items).toHaveCount(galleryProjects.length);
+  });
+
+  test('rapid filter changes land on the last choice and keep focus on it', async ({ page }) => {
+    await page.goto('/');
+    const gallery = page.locator('#work');
+    const names = [/^Software & Systems/, /^Web & Commerce/, /^Experiments & Other/, /^Web & Commerce/];
+    for (const name of names) await gallery.getByRole('button', { name }).click();
+    const last = gallery.getByRole('button', { name: /^Web & Commerce/ });
+    await expect(last).toHaveAttribute('aria-pressed', 'true');
+    await expect(last).toBeFocused();
+    await expect(gallery.locator('ul > li')).toHaveCount(galleryProjects.filter((p) => p.category === 'web').length);
+    const categories = await gallery.locator('ul > li').evaluateAll((els) => els.map((el) => el.getAttribute('data-category')));
+    expect(new Set(categories)).toEqual(new Set(['web']));
+  });
+
+  test('hero projects are not repeated in the gallery', async ({ page }) => {
+    await page.goto('/');
+    const heroSlugs = Object.values(heroProjects).map((p) => p.slug);
+    expect(galleryProjects.map((p) => p.slug).filter((slug) => heroSlugs.includes(slug))).toEqual([]);
+    for (const slug of heroSlugs) {
+      await expect(page.locator(`#work-${slug}`)).toHaveCount(0);
+      // Each hero project still has its own showcase section to link to.
+      await expect(page.locator(`#${slug}`)).toHaveCount(1);
+    }
+    const tileIds = await page.locator('#work ul > li article').evaluateAll((els) => els.map((el) => el.id));
+    expect(new Set(tileIds).size).toBe(tileIds.length);
   });
 
   test('the default view mixes software and websites near the top', async ({ page }) => {
@@ -333,7 +388,7 @@ test.describe('Selected work gallery', () => {
 
   test('every project shows its provenance and verified links', async ({ page }) => {
     await page.goto('/');
-    for (const project of projects) {
+    for (const project of galleryProjects) {
       const tile = page.locator(`#work-${project.slug}`);
       await expect(tile.getByRole('heading', { name: project.title })).toBeVisible();
       await expect(tile.getByText(`${project.medium}, ${project.year}`, { exact: true }).filter({ visible: true })).toHaveCount(1);
@@ -346,7 +401,7 @@ test.describe('Selected work gallery', () => {
 
   test('website projects open a full-page preview dialog and return focus', async ({ page }) => {
     await page.goto('/');
-    const project = projects.find((p) => p.captures && p.brand)!;
+    const project = galleryProjects.find((p) => p.captures && p.brand)!;
     const trigger = page.getByRole('button', { name: `View the full ${project.title} page` });
     await trigger.click();
 
@@ -356,6 +411,40 @@ test.describe('Selected work gallery', () => {
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();
     await expect(trigger).toBeFocused();
+  });
+});
+
+test.describe('Services and contact', () => {
+  test('pointing at a service lights the part of the stack it covers', async ({ page }) => {
+    await page.goto('/');
+    const services = page.locator('#services');
+    const lit = () => services.locator('ol li[data-on="true"]').allTextContents();
+    expect(await lit()).toEqual(['Data', 'Logic', 'Interface', 'Design']);
+
+    await services.getByRole('link', { name: 'Valence Capital' }).focus();
+    expect(await lit()).toEqual(['Interface', 'Design']);
+    await expect(services.getByText('Websites, stores and landing pages').last()).toBeVisible();
+
+    await services.getByRole('link', { name: 'QuickAid' }).focus();
+    expect(await lit()).toEqual(['Data', 'Logic', 'Interface']);
+  });
+
+  test('service examples link to sections that exist', async ({ page }) => {
+    await page.goto('/');
+    const hrefs = await page.locator('#services a[href^="#"]').evaluateAll((links) => links.map((a) => a.getAttribute('href')!));
+    expect(hrefs.length).toBe(8);
+    for (const href of hrefs) await expect(page.locator(href)).toHaveCount(1);
+  });
+
+  test('the email address can be copied and stays a visible mail link', async ({ page, context, browserName }) => {
+    test.skip(browserName !== 'chromium', 'Clipboard permissions are Chromium-only in Playwright.');
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.goto('/');
+    const contact = page.locator('#contact');
+    await expect(contact.getByRole('link', { name: site.email })).toHaveAttribute('href', new RegExp(`^mailto:${site.email}`));
+    await contact.getByRole('button', { name: 'Copy address' }).click();
+    await expect(contact.getByRole('button', { name: 'Address copied' })).toBeVisible();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(site.email);
   });
 });
 

@@ -111,20 +111,6 @@
   font-variation-settings: "wdth" 84;
 }
 
-/*
- * The hero's load choreography lives in HeroShowcase.module.css. The first featured piece fades
- * up from just above zero opacity, so it still counts as painted for Largest Contentful Paint.
- */
-@keyframes hang {
-  from {
-    opacity: 0.01;
-  }
-}
-
-@utility enter-hang {
-  animation: hang var(--dur-page) var(--ease-out) 120ms both;
-}
-
 ::view-transition-group(*) {
   animation-duration: 320ms;
   animation-timing-function: var(--ease-in-out);

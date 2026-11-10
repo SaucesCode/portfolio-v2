@@ -104,7 +104,7 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
       if (!animate || reducedMotion()) return;
       path.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], {
         duration: 460,
-        delay: 260,
+        delay: 200,
         easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
         fill: 'backwards',
       });
@@ -172,15 +172,31 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
     drawThread(true);
   }, [selected, drawThread]);
 
-  // Keep the thread attached through resizes and font loading.
+  // The page arrives finished; the only load motion is the thread drawing itself once the web
+  // font has settled the headline. After that it just stays attached through resizes.
   useEffect(() => {
     const root = rootRef.current;
-    if (!root) return;
-    drawThread(false);
-    const observer = new ResizeObserver(() => drawThread(false));
-    observer.observe(root);
-    document.fonts?.ready.then(() => drawThread(false));
-    return () => observer.disconnect();
+    const svg = threadRef.current?.ownerSVGElement;
+    if (!root || !svg) return;
+    let observer: ResizeObserver | undefined;
+    let cancelled = false;
+    const attach = () => {
+      if (cancelled) return;
+      if (svg.hasAttribute('data-ready')) {
+        drawThread(false);
+      } else {
+        svg.setAttribute('data-ready', 'true');
+        drawThread(true);
+      }
+      observer = new ResizeObserver(() => drawThread(false));
+      observer.observe(root);
+    };
+    if (document.fonts) document.fonts.ready.then(attach);
+    else attach();
+    return () => {
+      cancelled = true;
+      observer?.disconnect();
+    };
   }, [drawThread]);
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {

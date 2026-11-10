@@ -16,6 +16,11 @@
   -webkit-user-select: none;
 }
 
+/*
+ * Steps are laid out as a sequence: earlier screens wait to the left, later ones to the right.
+ * Moving on slides the workflow forward, going back slides it back, then the camera settles on
+ * the part of the screen the caption is about. Transform and opacity only.
+ */
 .slide {
   position: absolute;
   inset: 0;
@@ -23,7 +28,15 @@
   transform-origin: var(--fx) var(--fy);
   transition:
     opacity var(--dur-component) var(--ease-in),
-    transform var(--dur-page) var(--ease-out);
+    transform var(--dur-page) var(--ease-in);
+}
+
+.slide[data-pos="before"] {
+  transform: translateX(-7%);
+}
+
+.slide[data-pos="after"] {
+  transform: translateX(7%);
 }
 
 .slide[data-active="true"] {
@@ -31,7 +44,7 @@
   transform: scale(var(--zoom));
   transition:
     opacity var(--dur-component) var(--ease-out),
-    transform 640ms var(--ease-out) 80ms; /* a slow settle reads as a camera move, not a jump */
+    transform 640ms var(--ease-out);
 }
 
 .slide img {

@@ -292,6 +292,22 @@ export const getProject = (slug: string): Project => {
   return project;
 };
 
-/** The two featured pieces: one piece of software, one website. */
-export const featuredSoftware = getProject('rowszeins-delight');
-export const featuredWebsite = getProject('thread-and-form');
+/**
+ * The one place that decides which projects lead the homepage: one piece of software and one
+ * website. They own the hero and the featured showcases, so the Selected Work gallery leaves
+ * them out and shows different work.
+ */
+export const heroProjects = {
+  software: getProject('rowszeins-delight'),
+  web: getProject('thread-and-form'),
+} as const;
+
+export const featuredSoftware = heroProjects.software;
+export const featuredWebsite = heroProjects.web;
+
+const heroSlugs = new Set(Object.values(heroProjects).map((project) => project.slug));
+
+export const isHeroProject = (slug: string) => heroSlugs.has(slug);
+
+/** Projects for the homepage's Selected Work gallery: everything except the hero pair. */
+export const galleryProjects = projects.filter((project) => !isHeroProject(project.slug));

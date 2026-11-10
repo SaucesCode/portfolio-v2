@@ -67,11 +67,49 @@ export function ProjectDialog({ project, children }: Props) {
       { duration: 480, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
     );
     for (const child of Array.from(sheet.children)) {
-      child.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, delay: 240, easing: 'ease-out', fill: 'backwards' });
+      child.animate([{ opacity: 0 }, { opacity: 1 }], {
+        duration: 220,
+        delay: 240,
+        easing: 'ease-out',
+        fill: 'backwards',
+      });
     }
   };
 
-  const close = () => dialogRef.current?.close();
+  /** Closing reverses the handoff: the sheet returns to the card it grew out of. */
+  const close = () => {
+    const dialog = dialogRef.current;
+    const sheet = sheetRef.current;
+    const card = triggerRef.current?.querySelector<HTMLElement>('[data-morph]');
+    if (!dialog?.open) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!sheet || !card || reduced || sheet.getAnimations().length) {
+      sheet?.getAnimations({ subtree: true }).forEach((animation) => animation.cancel());
+      dialog.close();
+      return;
+    }
+    const from = sheet.getBoundingClientRect();
+    const to = card.getBoundingClientRect();
+    for (const child of Array.from(sheet.children)) {
+      child.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: 'ease-in', fill: 'forwards' });
+    }
+    const flight = sheet.animate(
+      [
+        { transform: 'none' },
+        {
+          transform: `translate(${to.left - from.left}px, ${to.top - from.top}px) scale(${to.width / from.width}, ${to.height / from.height})`,
+        },
+      ],
+      { duration: 320, easing: 'cubic-bezier(0.55, 0, 0.25, 1)', fill: 'forwards' },
+    );
+    flight.finished.then(
+      () => {
+        dialog.close();
+        sheet.getAnimations({ subtree: true }).forEach((animation) => animation.cancel());
+      },
+      () => undefined,
+    );
+  };
 
   return (
     <>
@@ -91,6 +129,10 @@ export function ProjectDialog({ project, children }: Props) {
         className={styles.dialog}
         style={theme}
         aria-labelledby={titleId}
+        onCancel={(event) => {
+          event.preventDefault();
+          close();
+        }}
         onClose={() => {
           setOpen(false);
           triggerRef.current?.focus();

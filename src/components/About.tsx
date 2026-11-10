@@ -1,4 +1,5 @@
 import { site } from '@/data/site';
+import styles from './About.module.css';
 
 const principles = [
   {
@@ -41,7 +42,7 @@ export function About() {
 
       <ul className="grid gap-10 lg:col-span-6 lg:col-start-7 lg:pt-2">
         {principles.map((principle) => (
-          <li key={principle.title} className="border-t border-rule pt-5">
+          <li key={principle.title} className={`${styles.principle} border-t border-rule pt-5`}>
             <h3 className="font-semiwide text-xl leading-tight font-semibold tracking-[-0.01em]">{principle.title}</h3>
             <p className="mt-2 max-w-[56ch] text-graphite">{principle.body}</p>
           </li>

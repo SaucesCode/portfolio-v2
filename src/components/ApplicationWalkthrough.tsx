@@ -9,8 +9,6 @@ import styles from './ApplicationWalkthrough.module.css';
 interface Props {
   title: string;
   steps: WalkthroughStep[];
-  /** Fetch the first screen at high priority; use when the tour is above the fold. */
-  priority?: boolean;
 }
 
 const SWIPE_DISTANCE = 40;
@@ -19,7 +17,7 @@ const SWIPE_DISTANCE = 40;
  * A guided tour through real screens of an application. Each step crossfades in and the
  * "camera" settles on the part of the screen the caption talks about.
  */
-export function ApplicationWalkthrough({ title, steps, priority = false }: Props) {
+export function ApplicationWalkthrough({ title, steps }: Props) {
   const [index, setIndex] = useState(0);
   const swipeRef = useRef<{ x: number; y: number } | null>(null);
   const captionId = useId();
@@ -70,6 +68,7 @@ export function ApplicationWalkthrough({ title, steps, priority = false }: Props
             aria-label={`${i + 1} of ${steps.length}: ${item.title}`}
             aria-hidden={i !== index}
             data-active={i === index}
+            data-pos={i < index ? 'before' : i > index ? 'after' : 'current'}
             style={
               {
                 '--fx': `${item.focus.x}%`,
@@ -84,8 +83,7 @@ export function ApplicationWalkthrough({ title, steps, priority = false }: Props
               height={item.shot.height}
               sizes="(min-width: 1024px) 66vw, 94vw"
               alt={`${title}: ${item.title}`}
-              loading={i === 0 ? 'eager' : 'lazy'}
-              fetchPriority={i === 0 && priority ? 'high' : 'low'}
+              loading="lazy"
               draggable={false}
             />
           </div>

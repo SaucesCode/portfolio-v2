@@ -1,0 +1,59 @@
+/* Same capsule-and-knob language as the buttons; the copy icon is swapped for a tick on success. */
+.copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 2.75rem;
+  padding: 0.25rem 1.125rem 0.25rem 0.25rem;
+  border: 1.5px solid color-mix(in srgb, var(--wall) 40%, transparent);
+  border-radius: 999px;
+  color: var(--wall);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-micro) var(--ease-out),
+    transform var(--dur-micro) var(--ease-out);
+}
+
+.copy:hover {
+  border-color: var(--wall);
+}
+
+.copy:active {
+  transform: scale(0.97);
+}
+
+.knob {
+  display: grid;
+  place-items: center;
+  width: 2.125rem;
+  height: 2.125rem;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--wall);
+  color: var(--ink);
+  transition: background-color var(--dur-component) var(--ease-out);
+}
+
+.knob svg {
+  grid-area: 1 / 1;
+  transition: transform 360ms var(--ease-out);
+}
+
+.knob svg:last-child {
+  transform: translateY(170%);
+}
+
+.copy[data-state="copied"] .knob {
+  background: var(--signal);
+  color: var(--signal-ink);
+}
+
+.copy[data-state="copied"] .knob svg:first-child {
+  transform: translateY(-170%);
+}
+
+.copy[data-state="copied"] .knob svg:last-child {
+  transform: none;
+}

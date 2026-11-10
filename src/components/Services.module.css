@@ -1,0 +1,53 @@
+/* The stack line: Data, Logic, Interface, Design. The fill moves with transform only. */
+.stack {
+  max-width: 22rem;
+  margin-top: 2.5rem;
+}
+
+.track {
+  position: relative;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--rule);
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--signal);
+  transform-origin: left;
+  transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stops {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--graphite);
+}
+
+.stops li {
+  transition: color var(--dur-component) var(--ease-out);
+}
+
+.stops li[data-on="true"] {
+  color: var(--ink);
+}
+
+.note {
+  margin-top: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.service h3 {
+  transition: color var(--dur-micro) var(--ease-out);
+}
+
+.service[data-active="true"] h3 {
+  color: var(--signal);
+}

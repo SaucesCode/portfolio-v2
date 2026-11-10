@@ -1,10 +1,15 @@
 import { inquiryHref, site } from '@/data/site';
 import { ButtonLink } from './ButtonLink';
+import { CopyEmail } from './CopyEmail';
 import { ExternalLink } from './ExternalLink';
 
 export function Contact() {
   return (
-    <footer id="contact" aria-labelledby="contact-title" className="mt-28 bg-ink text-wall sm:mt-40 [&_:focus-visible]:outline-wall">
+    <footer
+      id="contact"
+      aria-labelledby="contact-title"
+      className="mt-28 bg-ink text-wall sm:mt-40 [&_:focus-visible]:outline-wall"
+    >
       <div className="mx-auto max-w-[90rem] px-4 pt-20 pb-10 sm:px-6 sm:pt-28 lg:px-10">
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-6">
           <h2
@@ -24,12 +29,15 @@ export function Contact() {
           </div>
         </div>
 
-        <a
-          href={inquiryHref}
-          className="font-wide mt-16 inline-block py-2 text-[clamp(1.125rem,0.6rem+2.6vw,2.75rem)] font-medium tracking-[-0.02em] break-all underline decoration-1 underline-offset-[0.2em] decoration-[color-mix(in_srgb,currentColor_35%,transparent)] transition-colors duration-[var(--dur-micro)] hover:decoration-current sm:mt-24 sm:break-normal"
-        >
-          {site.email}
-        </a>
+        <div className="mt-16 flex flex-wrap items-center gap-x-8 gap-y-4 sm:mt-24">
+          <a
+            href={inquiryHref}
+            className="font-wide inline-block py-2 text-[clamp(1.125rem,0.6rem+2.6vw,2.75rem)] font-medium tracking-[-0.02em] break-all underline decoration-1 underline-offset-[0.2em] decoration-[color-mix(in_srgb,currentColor_35%,transparent)] transition-colors duration-[var(--dur-micro)] hover:decoration-current sm:break-normal"
+          >
+            {site.email}
+          </a>
+          <CopyEmail email={site.email} />
+        </div>
 
         <div className="mt-16 flex flex-col gap-6 border-t border-[color-mix(in_srgb,var(--wall)_22%,transparent)] pt-6 text-[0.9375rem] sm:flex-row sm:items-center sm:justify-between">
           <p className="flex flex-wrap gap-x-6">

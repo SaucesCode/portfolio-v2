@@ -54,7 +54,7 @@ function Poster({ shot, sizes, hiddenMedia, priority, onReady }: PosterProps) {
     height: shot.height,
     sizes,
     alt: '',
-    loading: 'eager',
+    loading: priority ? 'eager' : 'lazy',
     fetchPriority: priority ? 'high' : 'auto',
   });
 

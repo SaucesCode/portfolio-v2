@@ -1,10 +1,10 @@
 'use client';
 
 import Image from 'next/image';
-import { ArrowDown, MoveVertical } from 'lucide-react';
+import { MoveVertical } from 'lucide-react';
 import { useState, type CSSProperties } from 'react';
 import { flushSync } from 'react-dom';
-import { categoryLabels, projects, type Category, type Project } from '@/data/projects';
+import { categoryLabels, galleryProjects, type Category, type Project } from '@/data/projects';
 import { ExternalLink } from './ExternalLink';
 import { ProjectDialog } from './ProjectDialog';
 import styles from './WorkGallery.module.css';
@@ -31,11 +31,12 @@ const slots = [
   'lg:col-span-6 md:mt-16',
 ];
 
-const count = (filter: Filter) => (filter === 'all' ? projects.length : projects.filter((p) => p.category === filter).length);
+const count = (filter: Filter) => (filter === 'all' ? galleryProjects.length : galleryProjects.filter((p) => p.category === filter).length);
 
 type Kind = 'software' | 'website' | 'other';
 
-const kindOf = (project: Project): Kind => (project.walkthrough ? 'software' : project.captures ? 'website' : 'other');
+const kindOf = (project: Project): Kind =>
+  project.captures ? 'website' : project.category === 'software' ? 'software' : 'other';
 
 /** The screenshot, matted when it is not 16:10, with an optional action chip resting on its lower edge. */
 function PosterFrame({ project, chip }: { project: Project; chip?: { icon: typeof MoveVertical; label: string } }) {
@@ -64,13 +65,6 @@ function PosterFrame({ project, chip }: { project: Project; chip?: { icon: typeo
 }
 
 function PosterAction({ project }: { project: Project }) {
-  if (project.walkthrough) {
-    return (
-      <a href={`#${project.slug}`} className="group block rounded-[var(--radius-frame)]" aria-label={`Take the guided tour of ${project.title}`}>
-        <PosterFrame project={project} chip={{ icon: ArrowDown, label: 'Take the guided tour' }} />
-      </a>
-    );
-  }
   if (project.captures) {
     return (
       <ProjectDialog project={project}>
@@ -85,7 +79,7 @@ function PosterAction({ project }: { project: Project }) {
 
 export function WorkGallery() {
   const [filter, setFilter] = useState<Filter>('all');
-  const visible = projects.filter((p) => filter === 'all' || p.category === filter);
+  const visible = galleryProjects.filter((p) => filter === 'all' || p.category === filter);
 
   const choose = (next: Filter) => {
     if (next === filter) return;

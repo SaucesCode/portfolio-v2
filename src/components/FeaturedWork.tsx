@@ -29,8 +29,8 @@ export function FeaturedWork() {
         className="grid scroll-mt-24 gap-8 lg:grid-cols-12 lg:gap-6"
       >
         {/* The work comes first on small screens; on large screens the label hangs to its left. */}
-        <div className="enter-hang lg:col-span-9 lg:col-start-4 lg:row-start-1">
-          <ApplicationWalkthrough title={featuredSoftware.title} steps={steps} priority />
+        <div className="lg:col-span-9 lg:col-start-4 lg:row-start-1">
+          <ApplicationWalkthrough title={featuredSoftware.title} steps={steps} />
         </div>
         <WallLabel
           project={featuredSoftware}
