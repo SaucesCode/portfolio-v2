@@ -14,7 +14,8 @@
 .headline {
   grid-column: 1 / -1;
   grid-row: 1;
-  font-size: clamp(2.5rem, 1rem + 5.4vw, 4.5rem);
+  font-size: min(clamp(2.5rem, 1rem + 5.4vw, 4.5rem), 10.6vw);
+  overflow-wrap: anywhere;
   line-height: 1;
   letter-spacing: -0.035em;
 }
@@ -46,6 +47,12 @@
   cursor: default;
 }
 
+@media (max-width: 420px) {
+  .window[data-role="support"] {
+    grid-column: 3 / -1;
+  }
+}
+
 .controls {
   grid-column: 1 / -1;
   grid-row: 5;
@@ -69,7 +76,7 @@
   .headline {
     grid-column: 1 / span 8;
     align-self: end;
-    font-size: clamp(3.25rem, 0.9rem + 3.6vw, 4.75rem);
+    font-size: min(clamp(3.25rem, 0.9rem + 3.6vw, 4.75rem), 6.2vw);
   }
 
   .copy {
@@ -95,9 +102,10 @@
   .controls {
     grid-column: 7 / span 6;
     grid-row: 3;
-    grid-template-columns: auto minmax(0, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem 1.5rem;
     margin-top: 1.25rem;
   }
 
@@ -139,8 +147,37 @@
 }
 
 .lineInner {
+  position: relative;
   display: inline-block;
   text-wrap: balance;
+}
+
+/*
+ * The connection sequence, beat one: a signal rule is drawn under the lit line. It is the start
+ * of the dimension line that then reaches across to the project. Transform only.
+ */
+.lineInner::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.06em;
+  width: 1.5em;
+  height: max(3px, 0.06em);
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-component) var(--ease-out);
+}
+
+[data-lit="true"] > .lineInner::after {
+  transform: scaleX(1);
+  animation: rule-in 380ms var(--ease-out) 60ms backwards;
+}
+
+@keyframes rule-in {
+  from {
+    transform: scaleX(0);
+  }
 }
 
 /* Windows ------------------------------------------------------------------ */
@@ -178,7 +215,88 @@
   }
 }
 
+/*
+ * Beat two: four registration marks start a little outside the primary frame and close onto its
+ * corners, the way a print is lined up. They are tiny, move with transform and opacity only, and
+ * never cover or hide the screenshot. During a handoff they travel with the window.
+ */
+.marks {
+  position: absolute;
+  inset: -7px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 160ms var(--ease-out);
+}
+
+.window[data-role="primary"] .marks {
+  opacity: 1;
+}
+
+.marks i {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 0 solid var(--signal);
+}
+
+/*
+ * Only the primary frame's marks register, so nothing moves outside the supporting frame near
+ * the screen edge. After a handoff they register again once the new primary has landed.
+ */
+.window[data-role="primary"] .marks i {
+  animation: register 460ms cubic-bezier(0.22, 1, 0.36, 1) 120ms backwards;
+}
+
+.hero[data-touched] .window[data-role="primary"] .marks i {
+  animation-delay: 440ms;
+}
+
+.marks i:nth-child(1) {
+  --mx: -12px;
+  --my: -12px;
+  top: 0;
+  left: 0;
+  border-top-width: 1.5px;
+  border-left-width: 1.5px;
+}
+
+.marks i:nth-child(2) {
+  --mx: 12px;
+  --my: -12px;
+  top: 0;
+  right: 0;
+  border-top-width: 1.5px;
+  border-right-width: 1.5px;
+}
+
+.marks i:nth-child(3) {
+  --mx: 12px;
+  --my: 12px;
+  right: 0;
+  bottom: 0;
+  border-right-width: 1.5px;
+  border-bottom-width: 1.5px;
+}
+
+.marks i:nth-child(4) {
+  --mx: -12px;
+  --my: 12px;
+  bottom: 0;
+  left: 0;
+  border-bottom-width: 1.5px;
+  border-left-width: 1.5px;
+}
+
+@keyframes register {
+  from {
+    opacity: 0;
+    transform: translate(var(--mx), var(--my));
+  }
+}
+
 .tag {
+  max-width: calc(100% - 1.25rem);
+  overflow: hidden;
   position: absolute;
   top: 0.625rem;
   left: 0.625rem;
@@ -231,8 +349,9 @@
 .switch {
   position: relative;
   display: inline-grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   justify-self: start;
+  max-width: 100%;
   padding: 0.25rem;
   border: 1px solid var(--rule);
   border-radius: 999px;
@@ -258,10 +377,11 @@
   position: relative;
   z-index: 1;
   min-height: 2.75rem;
-  padding: 0 1.25rem;
+  padding: 0 clamp(0.5rem, 4vw, 1.25rem);
   border-radius: 999px;
   color: var(--graphite);
-  font-size: 0.9375rem;
+  /* Capped against the viewport so the pair still fits when text is enlarged. */
+  font-size: min(0.9375rem, 4.6vw);
   font-weight: 600;
   cursor: pointer;
   transition: color var(--dur-component) var(--ease-out);
@@ -281,6 +401,7 @@
 }
 
 .caption {
+  flex: 1 1 16rem;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -308,7 +429,6 @@
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  flex: none;
   min-height: 2.75rem;
   font-weight: 600;
   text-decoration: underline;

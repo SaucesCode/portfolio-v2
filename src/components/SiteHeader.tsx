@@ -11,7 +11,7 @@ const links = [
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 bg-wall">
-      <div className="mx-auto flex h-16 max-w-[90rem] items-center justify-between gap-4 px-4 sm:px-6 lg:h-20 lg:px-10">
+      <div className="mx-auto flex min-h-16 max-w-[90rem] flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2 sm:px-6 lg:min-h-20 lg:px-10">
         <a
           href="#top"
           className="font-semiwide inline-flex min-h-11 items-center text-[0.9375rem] font-semibold tracking-[-0.01em] sm:text-[1.0625rem] lg:text-lg"

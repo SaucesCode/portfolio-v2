@@ -25,7 +25,8 @@
   color: var(--fg);
   font-weight: 600;
   line-height: 1.1;
-  white-space: nowrap;
+  max-width: 100%;
+  text-wrap: balance;
   transition:
     color var(--dur-component) var(--ease-out),
     transform var(--dur-micro) var(--ease-out);
@@ -146,5 +147,16 @@
 @media (hover: hover) {
   .small:hover::before {
     clip-path: circle(150% at calc(100% - 1.3rem) 50%);
+  }
+}
+
+/* On the narrowest phones the header button drops its knob so it shares a row with the name. */
+@media (max-width: 359px) {
+  .small {
+    padding: 0.25rem 1rem;
+  }
+
+  .small .knob {
+    display: none;
   }
 }

@@ -73,7 +73,7 @@ export function Services() {
                     {index > 0 && ' and '}
                     <a
                       href={anchorFor(project.slug)}
-                      className="inline-block py-2 font-medium text-ink underline decoration-1 underline-offset-4 decoration-[color-mix(in_srgb,currentColor_35%,transparent)] hover:decoration-current"
+                      className="inline-flex min-h-11 items-center font-medium text-ink underline decoration-1 underline-offset-4 decoration-[color-mix(in_srgb,currentColor_35%,transparent)] hover:decoration-current"
                     >
                       {project.title}
                     </a>

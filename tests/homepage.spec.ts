@@ -205,15 +205,44 @@ test.describe('Hero: two disciplines', () => {
 });
 
 test.describe('First load', () => {
-  test('the hero arrives finished, with no entrance animation on its text or screenshots', async ({ page }) => {
+  test('the hero arrives finished: text and screenshots are never animated or hidden', async ({ page }) => {
     await page.goto('/', { waitUntil: 'commit' });
     await page.locator('#intro-title').waitFor();
-    const running = await page.evaluate(() =>
-      [...document.querySelectorAll('#intro-title, #intro-title *, [data-role], [data-role] *')].flatMap((el) =>
-        el.getAnimations().map((animation) => (animation as CSSAnimation).animationName ?? 'script'),
+    const state = await page.evaluate(() =>
+      [...document.querySelectorAll('#intro-title, #intro-title span, [data-role], [data-role] img')].map((el) => ({
+        animations: el.getAnimations().length,
+        opacity: getComputedStyle(el).opacity,
+        clip: getComputedStyle(el).clipPath,
+      })),
+    );
+    for (const item of state) expect(item).toEqual({ animations: 0, opacity: '1', clip: 'none' });
+    await expect(page.locator('[data-id="software"]')).toHaveAttribute('data-role', 'primary');
+    await expect(page.locator('[data-id="web"]')).toHaveAttribute('data-role', 'support');
+  });
+
+  test('the entrance is only small marks and a rule, and it ends within a second', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'commit' });
+    await page.locator('[data-role="primary"] i').first().waitFor({ state: 'attached' });
+    const durations = await page.evaluate(() =>
+      [...document.querySelectorAll('[data-role="primary"] i')].flatMap((mark) =>
+        mark.getAnimations().map((a) => Number(a.effect!.getComputedTiming().endTime)),
       ),
     );
-    expect(running).toEqual([]);
+    for (const end of durations) expect(end).toBeLessThanOrEqual(650);
+    const sizes = await page.locator('[data-role="primary"] i').evaluateAll((marks) => marks.map((m) => m.getBoundingClientRect().width));
+    expect(sizes).toHaveLength(4);
+    for (const size of sizes) expect(size).toBeLessThanOrEqual(16);
+  });
+
+  test('a choice made during the entrance wins immediately', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'commit' });
+    const web = page.getByRole('radio', { name: new RegExp(featuredWebsite.title) });
+    await web.click();
+    await expect(web).toHaveAttribute('aria-checked', 'true');
+    await expect(page.locator('[data-id="web"]')).toHaveAttribute('data-role', 'primary');
+    await expect
+      .poll(() => page.locator('[data-role]').evaluateAll((els) => els.map((el) => `${el.getAnimations().length}|${getComputedStyle(el).transform}`)))
+      .toEqual(['0|none', '0|none']);
   });
 
   test('only the hero screenshots are fetched eagerly', async ({ page }) => {
@@ -445,6 +474,69 @@ test.describe('Services and contact', () => {
     await contact.getByRole('button', { name: 'Copy address' }).click();
     await expect(contact.getByRole('button', { name: 'Address copied' })).toBeVisible();
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(site.email);
+  });
+});
+
+test.describe('Responsive boundaries', () => {
+  const widths = [320, 344, 375, 430, 600, 768, 912, 1024, 1366, 1920];
+
+  test('no overflow and no collisions in the header or hero at any width', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Widths are set explicitly; one project is enough.');
+    test.setTimeout(90_000);
+    await page.goto('/');
+    for (const width of widths) {
+      await page.setViewportSize({ width, height: width < 768 ? 780 : 900 });
+      const report = await page.evaluate(() => {
+        const vw = document.documentElement.clientWidth;
+        const box = (el: Element) => el.getBoundingClientRect();
+        const hit = (a: DOMRect, b: DOMRect) => !(a.right <= b.left + 1 || b.right <= a.left + 1 || a.bottom <= b.top + 1 || b.bottom <= a.top + 1);
+        const visible = (el: Element) => box(el).width > 0 && getComputedStyle(el).display !== 'none';
+        const header = [...document.querySelectorAll('header > div > *')].filter(visible).map(box);
+        const frames = [...document.querySelectorAll('[data-role] > span:first-child')].map(box);
+        const text = [...document.querySelectorAll('#intro-title span span, #main-content > section p')].filter(visible).map(box);
+        const controls = [...document.querySelectorAll('#main-content > section a, #main-content > section button')].filter(visible).map(box);
+        return {
+          overflow: document.documentElement.scrollWidth - vw,
+          headerCollision: header.some((a, i) => header.some((b, j) => j > i && hit(a, b))),
+          frameOffscreen: frames.some((f) => f.left < 0 || f.right > vw),
+          frameOverText: frames.some((f) => text.some((t) => hit(f, t))),
+          controlsOverFrames: controls.some((c) => frames.some((f) => hit(c, f))),
+          controlCollision: controls.some((a, i) => controls.some((b, j) => j > i && hit(a, b))),
+        };
+      });
+      expect(report, `at ${width}px`).toEqual({
+        overflow: 0,
+        headerCollision: false,
+        frameOffscreen: false,
+        frameOverText: false,
+        controlsOverFrames: false,
+        controlCollision: false,
+      });
+    }
+  });
+
+  test('the preview dialog is usable on a small phone', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'Small-screen dialog check.');
+    await page.setViewportSize({ width: 344, height: 640 });
+    await page.goto('/');
+    const project = galleryProjects.find((p) => p.captures)!;
+    await page.getByRole('button', { name: `View the full ${project.title} page` }).click();
+    const dialog = page.getByRole('dialog', { name: project.title });
+    await expect(dialog).toBeVisible();
+    const close = dialog.getByRole('button', { name: 'Close preview' });
+    // Measure once the sheet has finished growing out of its card.
+    await expect.poll(() => dialog.evaluate((el) => el.getAnimations({ subtree: true }).length)).toBe(0);
+    await expect(close).toBeInViewport();
+    const closeBox = (await close.boundingBox())!;
+    expect(closeBox.height).toBeGreaterThanOrEqual(44);
+    const fits = await dialog.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return r.left >= 0 && r.right <= window.innerWidth && r.top >= 0 && r.bottom <= window.innerHeight;
+    });
+    expect(fits).toBe(true);
+    await expect(dialog.getByRole('slider')).toHaveAttribute('aria-disabled', 'false', { timeout: 20_000 });
+    await close.click();
+    await expect(dialog).toBeHidden();
   });
 });
 

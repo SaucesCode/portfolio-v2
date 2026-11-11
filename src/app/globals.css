@@ -84,6 +84,14 @@
     text-rendering: optimizeLegibility;
   }
 
+  /* Long words break instead of pushing the page sideways when text is enlarged. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    overflow-wrap: anywhere;
+  }
+
   ::selection {
     background: var(--signal);
     color: var(--signal-ink);
@@ -109,16 +117,6 @@
 
 @utility font-narrow {
   font-variation-settings: "wdth" 84;
-}
-
-::view-transition-group(*) {
-  animation-duration: 320ms;
-  animation-timing-function: var(--ease-in-out);
-}
-
-::view-transition-old(*),
-::view-transition-new(*) {
-  animation-duration: 200ms;
 }
 
 @media (prefers-reduced-motion: reduce) {

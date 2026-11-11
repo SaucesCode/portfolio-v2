@@ -14,7 +14,7 @@ export function Contact() {
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-6">
           <h2
             id="contact-title"
-            className="font-wide text-[clamp(2.25rem,1.2rem+4vw,5rem)] leading-[0.98] font-medium tracking-[-0.035em] text-balance lg:col-span-7"
+            className="font-wide text-[min(clamp(2.25rem,1.2rem+4vw,5rem),11.5vw)] leading-[0.98] font-medium tracking-[-0.035em] text-balance lg:col-span-7"
           >
             Have something to build?
           </h2>

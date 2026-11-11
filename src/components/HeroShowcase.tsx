@@ -103,14 +103,14 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
       end.setAttribute('cy', String(by));
       if (!animate || reducedMotion()) return;
       path.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], {
-        duration: 460,
-        delay: 200,
+        duration: 420,
+        delay: 160,
         easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
         fill: 'backwards',
       });
       for (const [dot, delay] of [
-        [start, 220],
-        [end, 680],
+        [start, 120],
+        [end, 560],
       ] as const) {
         dot.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, delay, easing: 'ease-out', fill: 'backwards' });
       }
@@ -123,6 +123,7 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
     const rects = {} as Record<Discipline, DOMRect>;
     for (const id of order) rects[id] = windows.current[id]!.getBoundingClientRect();
     firstRects.current = rects;
+    rootRef.current?.setAttribute('data-touched', '');
     setSelected(next);
   };
 
@@ -254,6 +255,13 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
               {id === 'software' && <span className={styles.demo}>Demonstration data</span>}
             </span>
             <span className={styles.tag}>{artifact.label}</span>
+            {/* Registration marks: the corners a printer lines up before the work is trimmed. */}
+            <span className={styles.marks} aria-hidden>
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
           </div>
         );
       })}

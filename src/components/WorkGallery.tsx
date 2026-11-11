@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { MoveVertical } from 'lucide-react';
-import { useState, type CSSProperties } from 'react';
+import { useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { categoryLabels, galleryProjects, type Category, type Project } from '@/data/projects';
 import { ExternalLink } from './ExternalLink';
@@ -79,16 +79,44 @@ function PosterAction({ project }: { project: Project }) {
 
 export function WorkGallery() {
   const [filter, setFilter] = useState<Filter>('all');
+  const listRef = useRef<HTMLUListElement>(null);
   const visible = galleryProjects.filter((p) => filter === 'all' || p.category === filter);
 
+  /**
+   * Filtering moves the cards that stay to their new places (FLIP) and lets new ones arrive.
+   * Only the cards animate, with transform and opacity, and each move starts from where the card
+   * is on screen, so quick successive choices never jump.
+   */
   const choose = (next: Filter) => {
     if (next === filter) return;
+    const list = listRef.current;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    // View transitions animate each piece to its new place; browsers without them just swap.
-    if (!reduced && 'startViewTransition' in document) {
-      document.startViewTransition(() => flushSync(() => setFilter(next)));
-    } else {
-      setFilter(next);
+    if (!list || reduced) return setFilter(next);
+
+    const before = new Map<string, DOMRect>();
+    for (const item of Array.from(list.children) as HTMLElement[]) before.set(item.dataset.slug!, item.getBoundingClientRect());
+    flushSync(() => setFilter(next));
+
+    for (const item of Array.from(list.children) as HTMLElement[]) {
+      item.getAnimations().forEach((animation) => animation.cancel());
+      const from = before.get(item.dataset.slug!);
+      const to = item.getBoundingClientRect();
+      if (!from) {
+        item.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], {
+          duration: 320,
+          delay: 80,
+          easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+          fill: 'backwards',
+        });
+      } else if (from.left !== to.left || from.top !== to.top || from.width !== to.width) {
+        item.animate(
+          [
+            { transformOrigin: '0 0', transform: `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width})` },
+            { transformOrigin: '0 0', transform: 'none' },
+          ],
+          { duration: 420, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+        );
+      }
     }
   };
 
@@ -133,13 +161,13 @@ export function WorkGallery() {
         {status}
       </p>
 
-      <ul className="mt-12 grid gap-x-6 gap-y-14 sm:mt-14 md:grid-cols-2 md:gap-x-8 lg:grid-cols-12 lg:gap-x-10 lg:gap-y-20">
+      <ul ref={listRef} className="mt-12 grid gap-x-6 gap-y-14 sm:mt-14 md:grid-cols-2 md:gap-x-8 lg:grid-cols-12 lg:gap-x-10 lg:gap-y-20">
         {visible.map((project, index) => (
           <li
             key={project.slug}
             data-category={project.category}
             className={slots[index % slots.length]}
-            style={{ viewTransitionName: `work-${project.slug}` } as CSSProperties}
+            data-slug={project.slug}
           >
             <article id={`work-${project.slug}`} aria-labelledby={`tile-${project.slug}`} className="scroll-mt-24">
               <PosterAction project={project} />
@@ -156,11 +184,11 @@ export function WorkGallery() {
                   </p>
                 </div>
                 <p className="mt-2 max-w-[52ch]">{project.summary}</p>
-                <div className="mt-3 flex flex-col gap-1 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
+                <div className="mt-3 flex flex-col gap-1 lg:flex-row lg:flex-wrap lg:items-start lg:justify-between lg:gap-x-6">
                   <p className="max-w-[48ch] text-[0.875rem] leading-snug text-graphite lg:pt-2.5">
                     {project.provenance}.{project.note ? ` ${project.note}` : ''}
                   </p>
-                  <p className="flex flex-wrap gap-x-5 lg:shrink-0">
+                  <p className="flex flex-wrap gap-x-5">
                     {project.links.map((link) => (
                       <ExternalLink key={link.href} href={link.href}>
                         {link.label}
