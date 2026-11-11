@@ -205,33 +205,50 @@ test.describe('Hero: two disciplines', () => {
 });
 
 test.describe('First load', () => {
-  test('the hero arrives finished: text and screenshots are never animated or hidden', async ({ page }) => {
+  test('hero text and screenshots are visible from the first frame and only ever transformed', async ({ page }) => {
     await page.goto('/', { waitUntil: 'commit' });
     await page.locator('#intro-title').waitFor();
     const state = await page.evaluate(() =>
-      [...document.querySelectorAll('#intro-title, #intro-title span, [data-role], [data-role] img')].map((el) => ({
-        animations: el.getAnimations().length,
+      [...document.querySelectorAll('#intro-title, #intro-title > span, [data-role], [data-role] img')].map((el) => ({
         opacity: getComputedStyle(el).opacity,
         clip: getComputedStyle(el).clipPath,
+        animates: [...new Set(el.getAnimations().flatMap((a) => (a.effect as KeyframeEffect).getKeyframes().flatMap((k) => Object.keys(k))))]
+          .filter((key) => !['offset', 'easing', 'composite', 'computedOffset'].includes(key))
+          .join(','),
       })),
     );
-    for (const item of state) expect(item).toEqual({ animations: 0, opacity: '1', clip: 'none' });
+    for (const item of state) {
+      expect(item.opacity).toBe('1');
+      expect(item.clip).toBe('none');
+      expect(['', 'transform']).toContain(item.animates);
+    }
     await expect(page.locator('[data-id="software"]')).toHaveAttribute('data-role', 'primary');
     await expect(page.locator('[data-id="web"]')).toHaveAttribute('data-role', 'support');
   });
 
-  test('the entrance is only small marks and a rule, and it ends within a second', async ({ page }) => {
+  test('the timed entrance is over within a second and a half and leaves no transform behind', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'On phones the unfold follows scrolling instead of a timer.');
     await page.goto('/', { waitUntil: 'commit' });
-    await page.locator('[data-role="primary"] i').first().waitFor({ state: 'attached' });
-    const durations = await page.evaluate(() =>
-      [...document.querySelectorAll('[data-role="primary"] i')].flatMap((mark) =>
-        mark.getAnimations().map((a) => Number(a.effect!.getComputedTiming().endTime)),
+    await page.locator('[data-role="primary"]').waitFor();
+    const ends = await page.evaluate(() =>
+      [...document.querySelectorAll('[data-role], #intro-title > span, [data-role="primary"] i')].flatMap((el) =>
+        el.getAnimations().map((a) => Number(a.effect!.getComputedTiming().endTime)),
       ),
     );
-    for (const end of durations) expect(end).toBeLessThanOrEqual(650);
-    const sizes = await page.locator('[data-role="primary"] i').evaluateAll((marks) => marks.map((m) => m.getBoundingClientRect().width));
-    expect(sizes).toHaveLength(4);
-    for (const size of sizes) expect(size).toBeLessThanOrEqual(16);
+    expect(ends.length).toBeGreaterThan(0);
+    for (const end of ends) expect(end).toBeLessThanOrEqual(1500);
+    await expect
+      .poll(() => page.locator('[data-role]').evaluateAll((els) => els.map((el) => getComputedStyle(el).transform)), { timeout: 4000 })
+      .toEqual(['none', 'none']);
+  });
+
+  test('on phones the unfold follows scrolling and settles once the windows are in view', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'Phone-only behaviour.');
+    await page.goto('/');
+    const scrollDriven = await page.locator('[data-role="primary"]').evaluate((el) => el.getAnimations().some((a) => a.timeline !== document.timeline));
+    test.skip(!scrollDriven, 'This browser has no scroll timelines; the timed entrance is used instead.');
+    await page.locator('[data-role="primary"]').evaluate((el) => el.scrollIntoView({ block: 'start', behavior: 'instant' }));
+    await expect.poll(() => page.locator('[data-role="primary"]').evaluate((el) => getComputedStyle(el).transform)).toMatch(/^(none|matrix\(1, 0, 0, 1, 0, 0\))$/);
   });
 
   test('a choice made during the entrance wins immediately', async ({ page }) => {
@@ -484,8 +501,22 @@ test.describe('Responsive boundaries', () => {
     test.skip(isMobile, 'Widths are set explicitly; one project is enough.');
     test.setTimeout(90_000);
     await page.goto('/');
+    await page.evaluate(() => Promise.allSettled(document.getAnimations().filter((x) => x.timeline === document.timeline).map((x) => x.finished)));
     for (const width of widths) {
       await page.setViewportSize({ width, height: width < 768 ? 780 : 900 });
+      // Overflow is measured with motion live; geometry is measured with everything at rest,
+      // because scroll-driven pieces below the fold wait off-position by design.
+      const liveOverflow = await page.evaluate(() => {
+        document.getElementById('still')?.remove();
+        return document.documentElement.scrollWidth - document.documentElement.clientWidth;
+      });
+      expect(liveOverflow, `live overflow at ${width}px`).toBe(0);
+      await page.evaluate(() => {
+        const still = document.createElement('style');
+        still.id = 'still';
+        still.textContent = '*,*::before,*::after{animation:none!important}';
+        document.head.appendChild(still);
+      });
       const report = await page.evaluate(() => {
         const vw = document.documentElement.clientWidth;
         const box = (el: Element) => el.getBoundingClientRect();

@@ -120,6 +120,113 @@
   }
 }
 
+/* ---------------------------------------------------------------------------------------------
+ * The unfold. On arrival the two real project windows are already on screen, lying in isometric
+ * projection like drawings on a drafting table, the storefront stacked over the dashboard. Then,
+ * as one gesture, both stand up: the dashboard swings flat into the primary frame, the storefront
+ * rises to the supporting position, and the headline lines draw back to the margin. Engineering
+ * drawing becomes finished experience.
+ *
+ * Text and screenshots are fully visible throughout. Only transform is animated, so it runs on the
+ * compositor from first paint even while the page is still starting up. A choice made mid-flight
+ * cancels it and the handoff takes over from wherever the windows are.
+ * ------------------------------------------------------------------------------------------- */
+.hero[data-entrance] .window {
+  animation-duration: 1100ms;
+  animation-timing-function: cubic-bezier(0.3, 0.9, 0.25, 1);
+  animation-fill-mode: backwards;
+}
+
+.hero[data-entrance] .window[data-id="software"] {
+  animation-name: unfold-software-small;
+}
+
+.hero[data-entrance] .window[data-id="web"] {
+  animation-name: unfold-web-small;
+}
+
+.hero[data-entrance] .lineSoftware,
+.hero[data-entrance] .lineWeb {
+  animation: 900ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.hero[data-entrance] .lineSoftware {
+  animation-name: line-software;
+}
+
+.hero[data-entrance] .lineWeb {
+  animation-name: line-web;
+  animation-delay: 70ms;
+}
+
+@keyframes line-software {
+  from {
+    transform: translateX(7%);
+  }
+}
+
+@keyframes line-web {
+  from {
+    transform: translateX(13%);
+  }
+}
+
+/* Phones and tablets: shallower angles and a shorter rise. */
+@keyframes unfold-software-small {
+  0% {
+    transform: perspective(900px) translate(8%, 6%) rotateX(46deg) rotateZ(-22deg) scale(0.86);
+  }
+}
+
+@keyframes unfold-web-small {
+  0% {
+    transform: perspective(900px) translate(-40%, 30%) rotateX(46deg) rotateZ(-22deg) scale(1.3);
+  }
+}
+
+/*
+ * On phones the windows sit below the first screen, so a timed entrance would play unseen.
+ * There the unfold is driven by scrolling instead: the drawings stand up as they come into view.
+ */
+@supports (animation-timeline: view()) {
+  @media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+    .hero[data-entrance] .window {
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 38%;
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero[data-entrance] .window[data-id="software"] {
+    animation-name: unfold-software;
+  }
+
+  .hero[data-entrance] .window[data-id="web"] {
+    animation-name: unfold-web;
+  }
+}
+
+@keyframes unfold-software {
+  0% {
+    transform: perspective(1600px) translate(-24%, 4%) rotateX(56deg) rotateZ(-34deg) scale(0.86);
+  }
+  60% {
+    transform: perspective(1600px) translate(-3%, 0%) rotateX(12deg) rotateZ(-6deg) scale(0.99);
+  }
+}
+
+@keyframes unfold-web {
+  0% {
+    transform: perspective(1600px) translate(-150%, 40%) rotateX(56deg) rotateZ(-34deg) scale(1.7);
+  }
+  60% {
+    transform: perspective(1600px) translate(-16%, 2%) rotateX(12deg) rotateZ(-6deg) scale(1.1);
+  }
+}
+
 /* Headline ---------------------------------------------------------------- */
 
 .lineSoftware,
@@ -171,7 +278,11 @@
 
 [data-lit="true"] > .lineInner::after {
   transform: scaleX(1);
-  animation: rule-in 380ms var(--ease-out) 60ms backwards;
+  animation: rule-in 380ms var(--ease-out) 760ms backwards;
+}
+
+.hero[data-touched] [data-lit="true"] > .lineInner::after {
+  animation-delay: 60ms;
 }
 
 @keyframes rule-in {
@@ -244,7 +355,7 @@
  * the screen edge. After a handoff they register again once the new primary has landed.
  */
 .window[data-role="primary"] .marks i {
-  animation: register 460ms cubic-bezier(0.22, 1, 0.36, 1) 120ms backwards;
+  animation: register 460ms cubic-bezier(0.22, 1, 0.36, 1) 900ms backwards;
 }
 
 .hero[data-touched] .window[data-role="primary"] .marks i {

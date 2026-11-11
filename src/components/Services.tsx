@@ -32,17 +32,11 @@ export function Services() {
           conversation to launch.
         </p>
 
-        {/* One line from data to design; pointing at a service lights the stretch it covers. */}
-        <div className={styles.stack} aria-hidden>
-          <div className={styles.track}>
-            <span
-              className={styles.fill}
-              style={{ transform: `translateX(${(from / last) * 100}%) scaleX(${(to - from) / last})` }}
-            />
-          </div>
-          <ol className={styles.stops}>
+        {/* The stack, from data to design. Pointing at a service raises the layers it covers, in order. */}
+        <div className={styles.stack} aria-hidden data-idle={!active}>
+          <ol className={styles.layers}>
             {stackStops.map((stop, i) => (
-              <li key={stop} data-on={i >= from && i <= to}>
+              <li key={stop} data-on={i >= from && i <= to} style={{ transitionDelay: `${Math.max(0, i - from) * 70}ms` }}>
                 {stop}
               </li>
             ))}

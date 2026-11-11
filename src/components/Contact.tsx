@@ -8,15 +8,20 @@ export function Contact() {
     <footer
       id="contact"
       aria-labelledby="contact-title"
-      className="mt-28 bg-ink text-wall sm:mt-40 [&_:focus-visible]:outline-wall"
+      className="mt-28 overflow-x-clip bg-ink text-wall sm:mt-40 [&_:focus-visible]:outline-wall"
     >
       <div className="mx-auto max-w-[90rem] px-4 pt-20 pb-10 sm:px-6 sm:pt-28 lg:px-10">
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-6">
           <h2
             id="contact-title"
-            className="font-wide text-[min(clamp(2.25rem,1.2rem+4vw,5rem),11.5vw)] leading-[0.98] font-medium tracking-[-0.035em] text-balance lg:col-span-7"
+            className="font-wide text-[min(clamp(2.25rem,1.2rem+4vw,5rem),11.5vw)] leading-[0.98] font-medium tracking-[-0.035em] lg:col-span-7"
           >
-            Have something to build?
+            <span className="block" data-reveal="from-left">
+              Have something
+            </span>{' '}
+            <span className="block" data-reveal="from-right">
+              to build?
+            </span>
           </h2>
           <div className="max-w-[46ch] lg:col-span-4 lg:col-start-9 lg:self-end">
             <p className="text-lg leading-relaxed">

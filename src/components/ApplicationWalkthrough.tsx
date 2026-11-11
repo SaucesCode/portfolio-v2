@@ -86,6 +86,7 @@ export function ApplicationWalkthrough({ title, steps }: Props) {
               loading="lazy"
               draggable={false}
             />
+            <span className={styles.focus} aria-hidden />
           </div>
         ))}
         <span className={styles.badge}>Demonstration data</span>

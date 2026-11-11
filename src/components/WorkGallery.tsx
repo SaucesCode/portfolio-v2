@@ -124,7 +124,7 @@ export function WorkGallery() {
     filter === 'all' ? `Showing all ${visible.length} projects` : `Showing ${visible.length} projects in ${categoryLabels[filter]}`;
 
   return (
-    <section id="work" aria-labelledby="work-title" className="mx-auto mt-24 max-w-[90rem] scroll-mt-20 px-4 sm:mt-32 sm:px-6 lg:mt-40 lg:px-10">
+    <section id="work" aria-labelledby="work-title" className="mx-auto mt-24 max-w-[90rem] scroll-mt-20 overflow-x-clip px-4 sm:mt-32 sm:px-6 lg:mt-40 lg:px-10">
       <div className="grid gap-6 border-t border-rule pt-10 sm:pt-14 lg:grid-cols-12 lg:items-end lg:gap-6">
         <div className="lg:col-span-5">
           <h2
@@ -169,7 +169,12 @@ export function WorkGallery() {
             className={slots[index % slots.length]}
             data-slug={project.slug}
           >
-            <article id={`work-${project.slug}`} aria-labelledby={`tile-${project.slug}`} className="scroll-mt-24">
+            <article
+              id={`work-${project.slug}`}
+              aria-labelledby={`tile-${project.slug}`}
+              className="scroll-mt-24"
+              data-reveal={index % 2 === 0 ? 'hang-left' : 'hang-right'}
+            >
               <PosterAction project={project} />
               <div className="mt-5 sm:mt-6">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">

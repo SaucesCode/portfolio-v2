@@ -7,12 +7,14 @@ interface Props {
   titleId: string;
   size?: 'large' | 'regular';
   className?: string;
+  /** Scroll-reveal style, see globals.css. */
+  reveal?: 'label-left' | 'label-right';
 }
 
 /** A gallery wall label: category, title, medium and date, provenance, a short description and links. */
-export function WallLabel({ project, titleId, size = 'regular', className }: Props) {
+export function WallLabel({ project, titleId, size = 'regular', className, reveal }: Props) {
   return (
-    <div className={className}>
+    <div className={className} data-reveal={reveal}>
       <p className="text-[0.9375rem] font-medium text-signal">{categoryLabels[project.category]}</p>
       <h3
         id={titleId}

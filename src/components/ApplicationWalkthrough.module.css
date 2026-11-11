@@ -47,6 +47,48 @@
     transform 640ms var(--ease-out);
 }
 
+/*
+ * After a step slides in and the camera settles, a ring lands on the part of the screen the
+ * caption is about, the way you would point at it in a live demo. One shot per step.
+ */
+.focus {
+  position: absolute;
+  top: var(--fy);
+  left: var(--fx);
+  width: 4.5rem;
+  height: 4.5rem;
+  margin: -2.25rem 0 0 -2.25rem;
+  border: 2px solid var(--signal);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .slide[data-active="true"] .focus {
+    animation: point 1100ms var(--ease-out) 520ms backwards;
+  }
+}
+
+@keyframes point {
+  0% {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+
 .slide img {
   display: block;
   width: 100%;

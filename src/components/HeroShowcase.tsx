@@ -173,8 +173,9 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
     drawThread(true);
   }, [selected, drawThread]);
 
-  // The page arrives finished; the only load motion is the thread drawing itself once the web
-  // font has settled the headline. After that it just stays attached through resizes.
+  // The unfold is CSS, so it starts with the first paint and runs off the main thread.
+  // Once the windows have landed (or a choice has interrupted them) the dimension line is drawn,
+  // and from then on it simply stays attached through resizes.
   useEffect(() => {
     const root = rootRef.current;
     const svg = threadRef.current?.ownerSVGElement;
@@ -192,8 +193,17 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
       observer = new ResizeObserver(() => drawThread(false));
       observer.observe(root);
     };
-    if (document.fonts) document.fonts.ready.then(attach);
-    else attach();
+    const landed = () =>
+      Promise.allSettled(
+        order.flatMap(
+          (id) =>
+            windows.current[id]
+              ?.getAnimations()
+              .filter((animation) => animation.timeline === document.timeline)
+              .map((animation) => animation.finished) ?? [],
+        ),
+      );
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(landed).then(attach);
     return () => {
       cancelled = true;
       observer?.disconnect();
@@ -209,7 +219,7 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div ref={rootRef} className={styles.hero} data-active={selected}>
+    <div ref={rootRef} className={styles.hero} data-active={selected} data-entrance>
       <h1 id="intro-title" className={styles.headline}>
         {order.map((id) => (
           <span key={id} className={id === 'software' ? styles.lineSoftware : styles.lineWeb} data-lit={selected === id}>

@@ -18,7 +18,11 @@ export function FeaturedWork() {
   if (!steps || !captures) throw new Error('Featured projects need a walkthrough and full-length captures.');
 
   return (
-    <section id="featured" aria-labelledby="featured-title" className="mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-10">
+    <section
+      id="featured"
+      aria-labelledby="featured-title"
+      className="mx-auto max-w-[90rem] overflow-x-clip px-4 sm:px-6 lg:px-10"
+    >
       <h2 id="featured-title" className="sr-only">
         Featured work
       </h2>
@@ -29,7 +33,7 @@ export function FeaturedWork() {
         className="grid scroll-mt-24 gap-8 lg:grid-cols-12 lg:gap-6"
       >
         {/* The work comes first on small screens; on large screens the label hangs to its left. */}
-        <div className="lg:col-span-9 lg:col-start-4 lg:row-start-1">
+        <div data-reveal="frame" className="lg:col-span-9 lg:col-start-4 lg:row-start-1">
           <ApplicationWalkthrough title={featuredSoftware.title} steps={steps} />
         </div>
         <WallLabel
@@ -37,6 +41,7 @@ export function FeaturedWork() {
           size="large"
           titleId={`${featuredSoftware.slug}-title`}
           className="lg:col-span-3 lg:col-start-1 lg:row-start-1"
+          reveal="label-left"
         />
       </article>
 
@@ -45,7 +50,7 @@ export function FeaturedWork() {
         aria-labelledby={`${featuredWebsite.slug}-title`}
         className="mt-24 grid scroll-mt-24 gap-8 sm:mt-36 lg:mt-44 lg:grid-cols-12 lg:gap-6"
       >
-        <div className="lg:col-span-9 lg:row-start-1">
+        <div data-reveal="frame" className="lg:col-span-9 lg:row-start-1">
           <FullLengthViewer title={featuredWebsite.title} captures={captures} sizes={websiteSizes} />
         </div>
         <WallLabel
@@ -53,6 +58,7 @@ export function FeaturedWork() {
           size="large"
           titleId={`${featuredWebsite.slug}-title`}
           className="lg:col-span-3 lg:col-start-10 lg:row-start-1"
+          reveal="label-right"
         />
       </article>
     </section>

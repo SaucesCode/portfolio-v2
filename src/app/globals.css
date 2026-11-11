@@ -105,6 +105,12 @@
   html:has(dialog[open]) {
     overflow: hidden;
   }
+
+  /* Pieces that travel in from the side while scrolling must never widen the page. */
+  main > section,
+  footer {
+    overflow-x: clip;
+  }
 }
 
 @utility font-wide {
@@ -117,6 +123,105 @@
 
 @utility font-narrow {
   font-variation-settings: "wdth" 84;
+}
+
+/*
+ * Scroll reveals. Each kind of thing arrives in its own way, driven by its position in the
+ * viewport (a CSS scroll timeline), so the motion follows the visitor's own scrolling and never
+ * runs on a timer. Transform only, apart from the wall labels which also fade. Browsers without
+ * scroll timelines, and visitors who prefer reduced motion, see everything in place.
+ */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+
+    /* Featured frames are set down: they rise and grow to full size. */
+    [data-reveal='frame'] {
+      animation-name: reveal-frame;
+      transform-origin: 50% 100%;
+    }
+
+    /* Their wall labels slide in from the margin they hang on. */
+    [data-reveal='label-left'] {
+      animation-name: reveal-label-left;
+    }
+
+    [data-reveal='label-right'] {
+      animation-name: reveal-label-right;
+    }
+
+    /* Gallery pieces are hung: each swings level from a slight tilt, alternating sides. */
+    [data-reveal='hang-left'] {
+      animation-name: reveal-hang-left;
+      transform-origin: 0 0;
+    }
+
+    [data-reveal='hang-right'] {
+      animation-name: reveal-hang-right;
+      transform-origin: 100% 0;
+      animation-range: entry 0% cover 36%;
+    }
+
+    /* The closing headline comes together from both sides, the hero's opening gesture in reverse. */
+    [data-reveal='from-left'] {
+      animation-name: reveal-from-left;
+      animation-range: entry 0% cover 24%;
+    }
+
+    [data-reveal='from-right'] {
+      animation-name: reveal-from-right;
+      animation-range: entry 0% cover 24%;
+    }
+  }
+}
+
+@keyframes reveal-frame {
+  from {
+    transform: translateY(72px) scale(0.9);
+  }
+}
+
+@keyframes reveal-label-left {
+  from {
+    opacity: 0.15;
+    transform: translateX(-48px);
+  }
+}
+
+@keyframes reveal-label-right {
+  from {
+    opacity: 0.15;
+    transform: translateX(48px);
+  }
+}
+
+@keyframes reveal-hang-left {
+  from {
+    transform: translateY(56px) rotate(-2.2deg) scale(0.95);
+  }
+}
+
+@keyframes reveal-hang-right {
+  from {
+    transform: translateY(88px) rotate(2.2deg) scale(0.95);
+  }
+}
+
+@keyframes reveal-from-left {
+  from {
+    transform: translateX(-12%);
+  }
+}
+
+@keyframes reveal-from-right {
+  from {
+    transform: translateX(12%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
