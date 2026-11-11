@@ -40,3 +40,41 @@ export async function renderSocialImage() {
     socialImageSize,
   );
 }
+
+interface CaseImage {
+  title: string;
+  /** One line under the title saying what the work is. */
+  line: string;
+  shot: string;
+  colours: { ground: string; ink: string; muted: string };
+}
+
+/** A case study's share image: the title and what it is, beside the work itself. */
+export async function renderCaseImage({ title, line, shot, colours }: CaseImage) {
+  const image = await dataUri(shot);
+  return new ImageResponse(
+    (
+      <div style={{ display: 'flex', width: '100%', height: '100%', background: colours.ground, color: colours.ink, padding: 64 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', width: 420, justifyContent: 'space-between' }}>
+          <div style={{ fontSize: 24, fontWeight: 600, color: colours.muted }}>Case study</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div style={{ fontSize: 64, lineHeight: 1, letterSpacing: -2.5, fontWeight: 600 }}>{title}</div>
+            <div style={{ fontSize: 26, lineHeight: 1.3, color: colours.muted }}>{line}</div>
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 600 }}>{site.name}</div>
+        </div>
+        <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'flex-end' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element -- next/og renders plain img elements */}
+          <img
+            src={image}
+            width={608}
+            height={380}
+            alt=""
+            style={{ borderRadius: 4, boxShadow: '0 30px 60px -24px rgba(20,22,25,0.55)' }}
+          />
+        </div>
+      </div>
+    ),
+    socialImageSize,
+  );
+}

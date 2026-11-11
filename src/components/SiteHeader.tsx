@@ -1,33 +1,52 @@
+import Link from 'next/link';
 import { inquiryHref, site } from '@/data/site';
 import { ButtonLink } from './ButtonLink';
 
-const links = [
-  { href: '#featured', label: 'Work' },
-  { href: '#services', label: 'Services' },
-  { href: '#about', label: 'About' },
-  { href: '#contact', label: 'Contact' },
+const sections = [
+  { id: 'featured', label: 'Work' },
+  { id: 'services', label: 'Services' },
+  { id: 'about', label: 'About' },
+  { id: 'contact', label: 'Contact' },
 ];
 
-export function SiteHeader() {
+const linkClass =
+  'inline-flex min-h-11 items-center text-[0.9375rem] font-medium text-graphite transition-colors duration-[var(--dur-micro)] hover:text-ink';
+
+const wordmarkClass =
+  'font-semiwide inline-flex min-h-11 items-center text-[0.9375rem] font-semibold tracking-[-0.01em] sm:text-[1.0625rem] lg:text-lg';
+
+/**
+ * On the homepage the links jump within the page. Elsewhere they lead back to the same sections
+ * of the homepage, except Contact, which every page ends with.
+ */
+export function SiteHeader({ onHome = true }: { onHome?: boolean }) {
+  const href = (id: string) => (onHome || id === 'contact' ? `#${id}` : `/#${id}`);
+
   return (
-    <header className="sticky top-0 z-40 bg-wall">
+    <header className="sticky top-0 z-40 bg-wall [view-transition-name:site-header]">
       <div className="mx-auto flex min-h-16 max-w-[90rem] flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2 sm:px-6 lg:min-h-20 lg:px-10">
-        <a
-          href="#top"
-          className="font-semiwide inline-flex min-h-11 items-center text-[0.9375rem] font-semibold tracking-[-0.01em] sm:text-[1.0625rem] lg:text-lg"
-        >
-          {site.name}
-        </a>
+        {onHome ? (
+          <a href="#top" className={wordmarkClass}>
+            {site.name}
+          </a>
+        ) : (
+          <Link href="/" className={wordmarkClass}>
+            {site.name}
+          </Link>
+        )}
         <nav aria-label="Primary" className="flex items-center gap-2 sm:gap-6">
           <ul className="hidden items-center gap-6 md:flex">
-            {links.map((link) => (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  className="inline-flex min-h-11 items-center text-[0.9375rem] font-medium text-graphite transition-colors duration-[var(--dur-micro)] hover:text-ink"
-                >
-                  {link.label}
-                </a>
+            {sections.map((section) => (
+              <li key={section.id}>
+                {href(section.id).startsWith('/') ? (
+                  <Link href={href(section.id)} className={linkClass}>
+                    {section.label}
+                  </Link>
+                ) : (
+                  <a href={href(section.id)} className={linkClass}>
+                    {section.label}
+                  </a>
+                )}
               </li>
             ))}
           </ul>

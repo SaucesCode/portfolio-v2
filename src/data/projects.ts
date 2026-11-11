@@ -70,6 +70,8 @@ export interface Project {
   captures?: { desktop: FullLengthCapture; phone: FullLengthCapture };
   walkthrough?: WalkthroughStep[];
   brand?: BrandTheme;
+  /** Path of the project's case study page, for the projects that have one. */
+  caseStudy?: string;
 }
 
 const desktopPoster = (slug: string): Shot => ({ src: `/work/${slug}/desktop-poster.jpg`, width: 1440, height: 900 });
@@ -106,6 +108,7 @@ export const projects: Project[] = [
       github('Rowszein-s-Delight'),
     ],
     poster: appShot('recipes'),
+    caseStudy: '/work/rowszeins-delight',
     walkthrough: [
       {
         shot: appShot('dashboard'),
@@ -162,6 +165,7 @@ export const projects: Project[] = [
     links: [{ href: 'https://saucescode.github.io/thread-and-form/', label: 'Visit the live site' }, github('thread-and-form')],
     poster: desktopPoster('thread-and-form'),
     captures: captures('thread-and-form', 7458, 15318),
+    caseStudy: '/work/thread-and-form',
   },
   {
     slug: 'quickaid',
@@ -311,3 +315,14 @@ export const isHeroProject = (slug: string) => heroSlugs.has(slug);
 
 /** Projects for the homepage's Selected Work gallery: everything except the hero pair. */
 export const galleryProjects = projects.filter((project) => !isHeroProject(project.slug));
+
+export type CaseStudyProject = Project & { caseStudy: string };
+
+/** Projects with a case study page, in the order the pages link to each other. */
+export const caseStudies = projects.filter((project): project is CaseStudyProject => Boolean(project.caseStudy));
+
+export const getCaseStudy = (slug: string): CaseStudyProject => {
+  const project = caseStudies.find((p) => p.slug === slug);
+  if (!project) throw new Error(`No case study for: ${slug}`);
+  return project;
+};

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { categoryLabels, featuredSoftware, featuredWebsite, galleryProjects, heroProjects, projects } from '../src/data/projects';
+import { caseStudies, categoryLabels, featuredSoftware, featuredWebsite, galleryProjects, heroProjects, projects } from '../src/data/projects';
 import { site } from '../src/data/site';
 
 const viewerSlider = (page: Page) =>
@@ -51,7 +51,8 @@ test.describe('Identity and SEO', () => {
 
   test('sitemap lists only routes that exist', async ({ request }) => {
     const sitemap = await (await request.get('/sitemap.xml')).text();
-    expect(sitemap.match(/<loc>/g)).toHaveLength(1);
+    // The homepage plus one entry per case study (checked in detail in case-studies.spec.ts).
+    expect(sitemap.match(/<loc>/g)).toHaveLength(1 + caseStudies.length);
     expect(await (await request.get('/robots.txt')).text()).toContain('Sitemap:');
   });
 });

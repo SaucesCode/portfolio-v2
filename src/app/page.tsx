@@ -4,6 +4,7 @@ import { FeaturedWork } from '@/components/FeaturedWork';
 import { Intro } from '@/components/Intro';
 import { Services } from '@/components/Services';
 import { SiteHeader } from '@/components/SiteHeader';
+import { SkipLink } from '@/components/SkipLink';
 import { WorkGallery } from '@/components/WorkGallery';
 import { categoryLabels, projects } from '@/data/projects';
 import { site } from '@/data/site';
@@ -36,12 +37,7 @@ const workListJsonLd = {
 export default function HomePage() {
   return (
     <div id="top">
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-[2px] focus:bg-ink focus:px-4 focus:py-3 focus:font-semibold focus:text-wall"
-      >
-        Skip to main content
-      </a>
+      <SkipLink />
       <SiteHeader />
       <main id="main-content">
         <Intro />

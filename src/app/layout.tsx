@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Archivo, Newsreader, Plus_Jakarta_Sans } from 'next/font/google';
+import { InstantHistoryScroll } from '@/components/InstantHistoryScroll';
 import { site } from '@/data/site';
 import { getBaseUrl } from '@/lib/seo';
 import './globals.css';
@@ -119,9 +120,12 @@ const personJsonLd = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${archivo.variable} ${jakarta.variable} ${newsreader.variable}`}>
+    // data-scroll-behavior lets Next.js switch smooth scrolling off while it changes pages, so a
+    // new page opens at its top instead of scrolling there; in-page links still scroll smoothly.
+    <html lang="en" data-scroll-behavior="smooth" className={`${archivo.variable} ${jakarta.variable} ${newsreader.variable}`}>
       <body>
         {children}
+        <InstantHistoryScroll />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd).replace(/</g, '\\u003c') }}

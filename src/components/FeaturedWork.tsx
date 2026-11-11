@@ -1,6 +1,7 @@
 import { featuredSoftware, featuredWebsite } from '@/data/projects';
 import { ApplicationWalkthrough } from './ApplicationWalkthrough';
 import { FullLengthViewer } from './FullLengthViewer';
+import { morphName } from './Morph';
 import { WallLabel } from './WallLabel';
 
 const websiteSizes = {
@@ -34,7 +35,11 @@ export function FeaturedWork() {
       >
         {/* The work comes first on small screens; on large screens the label hangs to its left. */}
         <div data-reveal="frame" className="lg:col-span-9 lg:col-start-4 lg:row-start-1">
-          <ApplicationWalkthrough title={featuredSoftware.title} steps={steps} />
+          <ApplicationWalkthrough
+            title={featuredSoftware.title}
+            steps={steps}
+            transitionName={morphName(featuredSoftware.slug)}
+          />
         </div>
         <WallLabel
           project={featuredSoftware}
@@ -51,7 +56,12 @@ export function FeaturedWork() {
         className="mt-24 grid scroll-mt-24 gap-8 sm:mt-36 lg:mt-44 lg:grid-cols-12 lg:gap-6"
       >
         <div data-reveal="frame" className="lg:col-span-9 lg:row-start-1">
-          <FullLengthViewer title={featuredWebsite.title} captures={captures} sizes={websiteSizes} />
+          <FullLengthViewer
+            title={featuredWebsite.title}
+            captures={captures}
+            sizes={websiteSizes}
+            transitionName={morphName(featuredWebsite.slug)}
+          />
         </div>
         <WallLabel
           project={featuredWebsite}

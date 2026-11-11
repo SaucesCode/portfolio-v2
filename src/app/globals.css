@@ -224,9 +224,54 @@
   }
 }
 
+/*
+ * Page changes. A project's frame on the homepage and the hero of its case study are the same
+ * object, so following the link moves it into place (see Morph.tsx). The rest of the page
+ * crossfades quickly underneath, and the header stays put as the fixed point of reference.
+ */
+::view-transition-group(.morph) {
+  animation-duration: var(--dur-page);
+  animation-timing-function: var(--ease-in-out);
+}
+
+::view-transition-group(site-header),
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+::view-transition-old(site-header) {
+  display: none;
+}
+
+::view-transition-old(root) {
+  animation: 160ms var(--ease-in) both vt-fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 240ms var(--ease-out) 80ms both vt-fade-in;
+}
+
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 
   *,

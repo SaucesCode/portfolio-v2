@@ -14,6 +14,7 @@ import {
 } from 'react';
 import type { FullLengthCapture, Shot } from '@/data/projects';
 import styles from './FullLengthViewer.module.css';
+import { Morph } from './Morph';
 
 type Device = 'desktop' | 'phone';
 type Mode = 'auto' | Device;
@@ -31,6 +32,8 @@ interface Props {
   sizes: Record<Device, string>;
   /** Fetch the poster at high priority; use for the piece above the fold. */
   priority?: boolean;
+  /** Shared view-transition name for the device frames, see Morph. */
+  transitionName?: string;
 }
 
 interface PosterProps {
@@ -90,7 +93,7 @@ const describePosition = (p: number) => {
   return `${Math.round(p * 100)}% down the page`;
 };
 
-export function FullLengthViewer({ title, captures, sizes, priority = false }: Props) {
+export function FullLengthViewer({ title, captures, sizes, priority = false, transitionName }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   const railRef = useRef<HTMLDivElement>(null);
   const readoutRef = useRef<HTMLSpanElement>(null);
@@ -253,48 +256,50 @@ export function FullLengthViewer({ title, captures, sizes, priority = false }: P
       aria-label={`Full-page preview of ${title}`}
     >
       <div className={styles.body}>
-        <div className={styles.stage}>
-          {DEVICES.map((option) => {
-            const capture = captures[option];
-            return (
-              <div
-                key={option}
-                className={styles.frame}
-                data-device={option}
-                data-loaded={loaded[option]}
-                style={{ '--r': visibleShare(capture) } as CSSProperties}
-                onPointerDown={onPagePointerDown}
-                onPointerMove={onPointerMove}
-                onPointerUp={endDrag}
-                onPointerCancel={endDrag}
-              >
-                {postered[option] && (
-                  <Image
-                    data-page
-                    data-device={option}
-                    className={styles.page}
-                    src={capture.full.src}
-                    width={capture.full.width}
-                    height={capture.full.height}
+        <Morph name={transitionName}>
+          <div className={styles.stage}>
+            {DEVICES.map((option) => {
+              const capture = captures[option];
+              return (
+                <div
+                  key={option}
+                  className={styles.frame}
+                  data-device={option}
+                  data-loaded={loaded[option]}
+                  style={{ '--r': visibleShare(capture) } as CSSProperties}
+                  onPointerDown={onPagePointerDown}
+                  onPointerMove={onPointerMove}
+                  onPointerUp={endDrag}
+                  onPointerCancel={endDrag}
+                >
+                  {postered[option] && (
+                    <Image
+                      data-page
+                      data-device={option}
+                      className={styles.page}
+                      src={capture.full.src}
+                      width={capture.full.width}
+                      height={capture.full.height}
+                      sizes={sizes[option]}
+                      alt={`Full-length screenshot of the ${title} ${option} homepage`}
+                      loading="lazy"
+                      fetchPriority="low"
+                      draggable={false}
+                      onLoad={() => setLoaded((state) => ({ ...state, [option]: true }))}
+                    />
+                  )}
+                  <Poster
+                    shot={capture.poster}
                     sizes={sizes[option]}
-                    alt={`Full-length screenshot of the ${title} ${option} homepage`}
-                    loading="lazy"
-                    fetchPriority="low"
-                    draggable={false}
-                    onLoad={() => setLoaded((state) => ({ ...state, [option]: true }))}
+                    hiddenMedia={option === 'desktop' ? PHONE_QUERY : DESKTOP_QUERY}
+                    priority={priority}
+                    onReady={markPostered[option]}
                   />
-                )}
-                <Poster
-                  shot={capture.poster}
-                  sizes={sizes[option]}
-                  hiddenMedia={option === 'desktop' ? PHONE_QUERY : DESKTOP_QUERY}
-                  priority={priority}
-                  onReady={markPostered[option]}
-                />
-              </div>
-            );
-          })}
-        </div>
+                </div>
+              );
+            })}
+          </div>
+        </Morph>
 
         <div
           ref={railRef}

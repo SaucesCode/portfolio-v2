@@ -1,7 +1,16 @@
 import type { MetadataRoute } from 'next';
+import { caseStudies } from '@/data/projects';
 import { getBaseUrl } from '@/lib/seo';
 
-// Only routes that exist. Add case-study routes here as they are built.
+// Only routes that exist: the homepage and the case studies listed in the project registry.
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [{ url: `${getBaseUrl()}/`, changeFrequency: 'monthly', priority: 1 }];
+  const baseUrl = getBaseUrl();
+  return [
+    { url: `${baseUrl}/`, changeFrequency: 'monthly', priority: 1 },
+    ...caseStudies.map((project) => ({
+      url: `${baseUrl}${project.caseStudy}`,
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+    })),
+  ];
 }
