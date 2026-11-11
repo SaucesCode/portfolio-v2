@@ -82,7 +82,8 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
       const lineRects = range.getClientRects();
       const text = lineRects[lineRects.length - 1] ?? line.getBoundingClientRect();
       // While the handoff plays, measure the frame's destination rather than its moving position.
-      const moving = frame.getAnimations();
+      // Only time-based animations can be seeked to their end; scroll-driven ones have no end time.
+      const moving = frame.getAnimations().filter((animation) => animation.timeline === document.timeline);
       moving.forEach((a) => a.pause());
       const saved = moving.map((a) => a.currentTime);
       moving.forEach((a) => (a.currentTime = (a.effect?.getComputedTiming().endTime as number) ?? 0));
