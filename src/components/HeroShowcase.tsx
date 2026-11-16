@@ -94,10 +94,31 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
       });
       const ax = text.right - box.left + 14;
       const ay = text.bottom - box.top - text.height * 0.32;
-      const bx = rect.left - box.left;
-      const by = rect.top - box.top + 22;
-      const elbow = Math.max(ax + 24, Math.min(bx - 24, ax + 48));
-      path.setAttribute('d', `M ${ax} ${ay} H ${elbow} L ${bx} ${by}`);
+      const frameLeft = rect.left - box.left;
+      const frameTop = rect.top - box.top;
+      let bx: number;
+      let by: number;
+      if (ax + 48 <= frameLeft) {
+        // The text ends before the window: run out, then angle into its left edge.
+        bx = frameLeft;
+        by = frameTop + 22;
+        const elbow = Math.max(ax + 24, Math.min(bx - 24, ax + 48));
+        path.setAttribute('d', `M ${ax} ${ay} H ${elbow} L ${bx} ${by}`);
+      } else {
+        // The headline reaches over the window's column, so an angled line would cut back through the
+        // words. Run past the end of every headline line, then drop straight into the window's top edge.
+        const textRight = Math.max(
+          ...Object.values(lines.current).map((node) => {
+            if (!node) return 0;
+            const lineRange = document.createRange();
+            lineRange.selectNodeContents(node);
+            return Math.max(...Array.from(lineRange.getClientRects(), (r) => r.right));
+          }),
+        );
+        bx = Math.min(Math.max(ax + 24, textRight - box.left + 24), rect.right - box.left - 24);
+        by = frameTop;
+        path.setAttribute('d', `M ${ax} ${ay} H ${bx} V ${by}`);
+      }
       start.setAttribute('cx', String(ax));
       start.setAttribute('cy', String(ay));
       end.setAttribute('cx', String(bx));

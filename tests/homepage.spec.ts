@@ -170,6 +170,45 @@ test.describe('Hero: two disciplines', () => {
     expect(gap).toBeLessThan(40);
   });
 
+  test('the dimension line never crosses the headline and ends on the main window', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'The line is drawn from tablet-landscape width up.');
+    const measure = () =>
+      page.evaluate(() => {
+        const path = document.querySelector('svg[data-ready] path') as SVGPathElement;
+        const ctm = path.ownerSVGElement!.getScreenCTM()!;
+        const total = path.getTotalLength();
+        const points = Array.from({ length: 120 }, (_, i) => {
+          const p = path.getPointAtLength((total * i) / 119).matrixTransform(ctm);
+          return { x: p.x, y: p.y };
+        });
+        const words = [...document.querySelectorAll('#intro-title > span > span')].flatMap((line) => {
+          const range = document.createRange();
+          range.selectNodeContents(line);
+          return [...range.getClientRects()];
+        });
+        // Points within a few pixels of the start dot sit just after the last word by design.
+        const crossings = points
+          .filter((p) => Math.hypot(p.x - points[0].x, p.y - points[0].y) > 8)
+          .filter((p) => words.some((r) => p.x > r.left - 2 && p.x < r.right + 2 && p.y > r.top + 2 && p.y < r.bottom - 2)).length;
+        const frame = document.querySelector('[data-role="primary"]')!.getBoundingClientRect();
+        const end = points[points.length - 1];
+        const onEdge =
+          end.x >= frame.left - 2 && end.x <= frame.right + 2 && end.y >= frame.top - 2 && end.y <= frame.bottom + 2 &&
+          Math.min(Math.abs(end.x - frame.left), Math.abs(end.y - frame.top)) <= 2;
+        return { crossings, onEdge };
+      });
+    for (const width of [1024, 1280, 1440, 1920]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/');
+      await expect(page.locator('svg[data-ready]')).toBeAttached();
+      await page.waitForTimeout(900);
+      expect(await measure(), `software at ${width}px`).toEqual({ crossings: 0, onEdge: true });
+      await page.getByRole('radio', { name: new RegExp(featuredWebsite.title) }).click();
+      await page.waitForTimeout(900);
+      expect(await measure(), `website at ${width}px`).toEqual({ crossings: 0, onEdge: true });
+    }
+  });
+
   test('works as a radio group from the keyboard', async ({ page }) => {
     await page.goto('/');
     const software = page.getByRole('radio', { name: new RegExp(featuredSoftware.title) });
