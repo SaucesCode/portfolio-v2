@@ -7,6 +7,11 @@
 .stage {
   position: relative;
   aspect-ratio: 1440 / 900;
+  /* Leaves room for the header and the caption beside the controls, so Next stays on screen. The
+     explicit width matters: the slides are absolutely positioned, so without it the stage would shrink to nothing. */
+  width: 100%;
+  max-width: calc((100svh - 12.5rem) * 1.6);
+  margin-left: auto;
   overflow: hidden;
   border-radius: var(--radius-frame);
   background: var(--chalk);

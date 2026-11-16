@@ -82,6 +82,14 @@
   }
 }
 
+/* From 1280px the products fit on one row under their heading row, the taller strip of the two. */
+@media (min-width: 80rem) {
+  :global(html[data-js]) .tryRow {
+    min-height: 6rem;
+    margin-top: 0.5rem;
+  }
+}
+
 /* The live demo sits over the screenshot and fades in only once it has rendered. */
 .live {
   position: absolute;
@@ -121,7 +129,8 @@
   .headline {
     grid-column: 1 / span 8;
     align-self: end;
-    font-size: min(clamp(3.25rem, 0.9rem + 3.6vw, 4.75rem), 6.2vw);
+    /* Also bounded by height, so short laptop screens keep room for the demo below. */
+    font-size: min(clamp(3.25rem, 0.9rem + 3.6vw, 4.75rem), 6.2vw, 8.5svh);
   }
 
   .copy {
@@ -138,10 +147,17 @@
     margin: 0 0 0.375rem;
   }
 
+  /*
+   * The main window takes the height left after the header, headline row, switch and demo buttons
+   * (about 34.5rem), so on short screens everything fits without scrolling. It never drops below half
+   * its column, and on tall screens it fills the column as before.
+   */
   .window[data-role="primary"] {
     grid-column: 7 / span 6;
     grid-row: 2;
-    margin: 2rem 0 0;
+    justify-self: end;
+    width: max(50%, min(100%, calc((100svh - 34.5rem) * 1.6)));
+    margin: 1.5rem 0 0;
   }
 
   .tryRow {
@@ -156,7 +172,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 1rem 1.5rem;
-    margin-top: 1.25rem;
+    margin-top: 0.75rem;
   }
 
   .thread {

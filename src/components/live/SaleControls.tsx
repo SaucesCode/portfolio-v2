@@ -9,7 +9,13 @@ import styles from './LiveControls.module.css';
 export function SaleControls({ demo, announce }: { demo: RowszeinDemo; announce: (message: string) => void }) {
   return (
     <div role="group" aria-label="Try Rowszein’s Delight" className={styles.controls}>
-      <p className={styles.prompt}>Record a sale:</p>
+      {/* Reset sits beside the heading, so the three products keep one row even in a narrow column. */}
+      <div className={styles.heading}>
+        <p className={styles.prompt}>Record a sale:</p>
+        <button type="button" className={styles.reset} onClick={() => announce(demo.reset())}>
+          Reset demo
+        </button>
+      </div>
       <div className={styles.options}>
         {demoProducts.map((product) => {
           const attempt = recordSale(demo.state, product.id);
@@ -23,9 +29,10 @@ export function SaleControls({ demo, announce }: { demo: RowszeinDemo; announce:
                 // explains why instead of doing nothing.
                 aria-disabled={!attempt.ok}
                 aria-describedby={attempt.ok ? undefined : reasonId}
+                aria-label={`Sell 1 ${product.name} for ${formatPeso(product.priceCentavos)}`}
                 onClick={() => announce(demo.sell(product.id))}
               >
-                Sell 1 {product.name} <span className={styles.price}>{formatPeso(product.priceCentavos)}</span>
+                {product.name} <span className={styles.price}>₱{product.priceCentavos / 100}</span>
               </button>
               {!attempt.ok && (
                 <span id={reasonId} className={styles.reason}>
@@ -35,9 +42,6 @@ export function SaleControls({ demo, announce }: { demo: RowszeinDemo; announce:
             </span>
           );
         })}
-        <button type="button" className={styles.reset} onClick={() => announce(demo.reset())}>
-          Reset demo
-        </button>
       </div>
     </div>
   );

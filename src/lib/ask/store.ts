@@ -64,16 +64,19 @@ export function upstashStore(url: string, token: string): CounterStore {
   };
 }
 
-let shared: CounterStore | undefined;
+let memory: CounterStore | undefined;
+let upstash: CounterStore | undefined;
 
 /**
  * The store the route uses. Upstash when configured (either the Upstash or the Vercel KV variable
- * names), the in-process store only when asked for explicitly, and otherwise none, which turns the
- * assistant off rather than running without limits.
+ * names), the in-process store when asked for or under `next dev`, and otherwise none, which turns
+ * the assistant off rather than running without limits.
  */
 export function storeFromEnv(): CounterStore | null {
-  if (process.env.ASSISTANT_STORE === 'memory') return (shared ??= memoryStore());
+  if (process.env.ASSISTANT_STORE === 'memory') return (memory ??= memoryStore());
   const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
-  return url && token ? (shared ??= upstashStore(url, token)) : null;
+  if (url && token) return (upstash ??= upstashStore(url, token));
+  // `next dev` on this machine has no Upstash connection, and nothing to protect, so it counts in memory.
+  return process.env.NODE_ENV === 'development' ? (memory ??= memoryStore()) : null;
 }
