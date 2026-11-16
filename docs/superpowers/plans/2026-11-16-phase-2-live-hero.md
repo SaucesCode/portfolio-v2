@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Make the hero's main window interactive. Visitors record sales in a Rowszein's Delight dashboard that follows the real app's stock and profit rules, or restyle the Thread & Form hero from its real theme tokens.
+**Goal:** Refresh Rowszein's Delight from its latest version, then make the hero's main window interactive. Visitors record sales in a Rowszein's Delight dashboard that follows the real app's stock and profit rules, or restyle the Thread & Form hero from its real theme tokens.
 
 **Architecture:** The sale rules are a pure TypeScript module, ported from the Rowszein's Delight backend and tested on their own. Both demos are client components, code-split with `next/dynamic` and mounted after hydration, when the browser is idle. Until a demo is ready, the frame shows today's static screenshot at the same size, so first paint and LCP don't change. Each demo is laid out at a fixed 16:10 design size in container-query units, so it scales with the frame the way the screenshot does. Its controls sit full size in a strip under the main window. A tiny inline script records hero choices made before hydration, so an early tap is never lost.
 
@@ -30,6 +30,40 @@
 3. Repeated selling until an ingredient runs out must disable that product with a reason, not throw, and must leave every number unchanged. Test in Task 1 (logic) and Task 3 (UI).
 4. The live layer must never be visible before it has rendered (no blank or half-styled frame), including with fonts still loading. Test in Task 5: the frame always shows either the image or a rendered demo.
 5. With JavaScript disabled, the hero must look exactly like today's. Test in Task 5 with `javaScriptEnabled: false`.
+
+---
+
+## Part A: refresh Rowszein's Delight from its latest version
+
+The walkthrough and case-study screens come from repo commit `96bda28` (11 Nov). The latest `main` (`26f0f63`) adds online orders (checkout, order status, owner Orders), shop settings, meet-up orders, partner items, boxes and an analytics page, and changes the sale logic. The owner wants almost all of it shown.
+
+**Constraints for Part A:**
+- Work only in the scratch clone `scratchpad/rowszein-latest`. Never touch `Desktop/Rowszein-s-Delight`.
+- Ports: Django on **8010**, Vite on **5180**. The repo's `vite.config` proxies to 8000, so use a scratch-only `vite.capture.config.ts` that changes the proxy target and port. **Never bind or call 8000 or 5173**; they belong to another private app.
+- SQLite through `DATABASE_URL=sqlite:///…` in the scratch folder. `EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend`, so no email is ever sent. `CSRF_TRUSTED_ORIGINS` and `CORS_ALLOWED_ORIGINS` set to `http://localhost:5180`.
+- All data is fictional and labelled: users `demo-owner` and `demo-staff`; customers named "Demo Customer 1…"; product descriptions ending "(demo product)"; the shop notice reads "Demonstration data". Partner items use an invented partner ("Demo Partner Bakery").
+- Stop both servers when capturing ends (kill by port: 8010 and 5180 only).
+
+### Task A1: Run the latest app with full demo data
+- [ ] Create a venv and install `backend/requirements.txt`; `npm ci` in `frontend`.
+- [ ] Migrate; seed with a scratch script extending the earlier seed (same 6 donuts, recipes and ingredients), plus boxes, one partner with two items, three months of sales and expenses, shop settings (delivery info, notice, contact links, two meet-up places), and online orders in each status, including one meet-up order.
+- [ ] **Verify:** log in as demo-owner at 5180, and every owner route (`/dashboard /analytics /sales /sales/new /orders /orders/:id /ingredients /products /products/boxes /products/partners /recipes /profit-margins /expenses /settings`) renders with data and no console errors. The customer routes `/home` and `/order/:token` render.
+
+### Task A2: Capture
+- [ ] At 1440×900 and device scale 2, capture each owner route above, plus the customer shop and order status, to `public/work/rowszeins-delight/app-<name>.jpg` (JPEG quality 82; replacing same-named files). Also capture the phone shop at 390 wide.
+- [ ] **Check every capture by eye:** no real names, emails or phone numbers; only "Demo…" data.
+
+### Task A3: Update the tour and the case study
+- [ ] `projects.ts` walkthrough: 8 steps in this order: see the business at a glance (dashboard), take orders online (orders), record a sale, know what is running low (ingredients), cost every recipe, see what each product earns (profit margins), sell boxes and partner items (products/boxes), run the shop from settings. Write each step's `body` and `detail` from the current code, with no claims beyond it.
+- [ ] Case study "What the owner works with": add Orders, Analytics, Boxes and partners, and Shop settings cards. Add a short "What customers see" section with the shop, checkout and order status captures.
+- [ ] Update the provenance note to name the version and date captured.
+- [ ] **Tests:** the walkthrough step count and titles come from data; the existing walkthrough tests pass. Every `app-*.jpg` referenced exists.
+
+### Task A4: Re-verify the sale trace against the current code
+- [ ] Diff `backend/sales/services.py` and its tests between `96bda28` and `26f0f63`. Update `src/data/rowszein-trace.ts` wherever a step, table or test name changed. Every `test` name in the trace must exist in the current `backend/sales/tests*.py`; check this by grep and record the result in the commit message.
+- [ ] **Commit** each of A1–A4 separately (A1 commits only the seed script, under `docs/superpowers/scripts/` for reproducibility).
+
+The live dashboard in Task 3 is styled after the **new** owner panel captured in A2.
 
 ---
 
