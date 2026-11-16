@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Archivo, Newsreader, Plus_Jakarta_Sans } from 'next/font/google';
+import { Archivo, Newsreader, Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
 import { InstantHistoryScroll } from '@/components/InstantHistoryScroll';
 import { services } from '@/data/services';
 import { site } from '@/data/site';
@@ -17,7 +17,7 @@ const archivo = Archivo({
 // browsers only fetch them when a project preview actually renders text in them.
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  weight: ['800'],
+  weight: ['400', '600', '800'],
   variable: '--font-jakarta',
   display: 'swap',
   preload: false,
@@ -27,6 +27,17 @@ const newsreader = Newsreader({
   subsets: ['latin'],
   weight: ['500'],
   variable: '--font-newsreader',
+  display: 'swap',
+  preload: false,
+});
+
+// Thread & Form's display face for the live hero demo, which mounts after first paint. The case study
+// keeps its own preloaded instance; the files are the same, so the browser fetches them once.
+const playfairLive = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['500'],
+  style: ['normal', 'italic'],
+  variable: '--font-playfair-live',
   display: 'swap',
   preload: false,
 });
@@ -131,7 +142,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     // data-scroll-behavior lets Next.js switch smooth scrolling off while it changes pages, so a
     // new page opens at its top instead of scrolling there; in-page links still scroll smoothly.
-    <html lang="en" data-scroll-behavior="smooth" className={`${archivo.variable} ${jakarta.variable} ${newsreader.variable}`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${archivo.variable} ${jakarta.variable} ${newsreader.variable} ${playfairLive.variable}`}>
       <body>
         {children}
         <InstantHistoryScroll />

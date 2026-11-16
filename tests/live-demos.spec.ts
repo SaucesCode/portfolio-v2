@@ -1,4 +1,6 @@
+import { statSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
+import { liveHero, palette, stylePresets, typePairs } from '../src/data/thread-and-form';
 import { demoProducts, type DemoIngredient } from '../src/data/rowszein-demo';
 import {
   costPerPieceCentavos,
@@ -64,5 +66,22 @@ test.describe('Rowszein demo logic', () => {
     expect(formatPeso(18_001_000)).toBe('₱180,010.00');
     expect(formatStock(toQuanta('4.983333333'), 'kg')).toBe('4.98 kg');
     expect(formatStock(toQuanta('344'), 'pcs')).toBe('344 pcs');
+  });
+});
+
+test.describe('Thread & Form demo data', () => {
+  test('every preset colour comes from the theme palette', () => {
+    const hexes = new Set(palette.map((swatch) => swatch.hex));
+    expect(stylePresets.map((preset) => preset.id)).toEqual(['paper', 'sand', 'blue', 'navy']);
+    for (const preset of stylePresets) {
+      for (const colour of [preset.ground, preset.ink, preset.muted, preset.accent]) expect(hexes, `${preset.id} ${colour}`).toContain(colour);
+    }
+    expect(typePairs.map((pair) => pair.id)).toEqual(['serif', 'sans']);
+  });
+
+  test('the live hero photo is small enough to load after first paint', () => {
+    const bytes = statSync(`public${liveHero.image.src}`).size;
+    expect(bytes).toBeGreaterThan(10_000);
+    expect(bytes).toBeLessThanOrEqual(120 * 1024);
   });
 });

@@ -192,3 +192,45 @@ export const patterns = [
   'size-guide-page',
   'shipping-returns-page',
 ];
+
+/** The theme's front-page hero (patterns/hero.php), rebuilt live in the homepage hero. */
+export const liveHero = {
+  tag: 'VOL. 01 / WINTER CAPSULE — PORTO ATELIER',
+  lineOne: 'A study in',
+  lineTwo: 'deliberate form.',
+  lead: 'Architectural silhouettes engineered from certified 320 GSM organic cotton twill and raw European flax linen. Cut with generous volume and crafted with quiet restraint to outlast seasonal trends.',
+  primary: 'Explore Collection',
+  secondary: 'The Studio Manifesto',
+  image: { src: '/work/thread-and-form/live-hero.jpg', width: 819, height: 1024 },
+};
+
+const hex = (slug: string) => palette.find((swatch) => swatch.slug === slug)!.hex;
+
+export interface StylePreset {
+  id: 'paper' | 'sand' | 'blue' | 'navy';
+  label: string;
+  ground: string;
+  ink: string;
+  muted: string;
+  accent: string;
+}
+
+/** Colour schemes a visitor can switch between, built only from the theme's own palette. */
+export const stylePresets: StylePreset[] = [
+  { id: 'paper', label: 'Paper', ground: hex('paper'), ink: hex('navy'), muted: hex('muted'), accent: hex('accent') },
+  { id: 'sand', label: 'Sand', ground: hex('sand'), ink: hex('navy'), muted: hex('muted'), accent: hex('accent') },
+  { id: 'blue', label: 'Blue', ground: hex('blue'), ink: hex('navy'), muted: hex('muted'), accent: hex('accent') },
+  { id: 'navy', label: 'Navy', ground: hex('navy'), ink: hex('paper'), muted: hex('line'), accent: hex('accent') },
+];
+
+export interface TypePair {
+  id: 'serif' | 'sans';
+  label: 'Serif' | 'Sans';
+  /** The display face, as theme.json's serif (Playfair Display) or sans (Plus Jakarta Sans). */
+  display: string;
+}
+
+export const typePairs: TypePair[] = [
+  { id: 'serif', label: 'Serif', display: 'var(--font-playfair-live), Georgia, serif' },
+  { id: 'sans', label: 'Sans', display: 'var(--font-jakarta), system-ui, sans-serif' },
+];
