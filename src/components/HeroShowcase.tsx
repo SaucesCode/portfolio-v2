@@ -3,8 +3,24 @@
 import Image from 'next/image';
 import { ArrowDown } from 'lucide-react';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import dynamic from 'next/dynamic';
 import { categoryLabels, featuredSoftware, featuredWebsite, type Shot } from '@/data/projects';
+import { stylePresets, typePairs } from '@/data/thread-and-form';
+import { SaleControls } from './live/SaleControls';
+import { StyleControls } from './live/StyleControls';
+import { useIdleMount } from './live/useIdleMount';
+import { useRowszeinDemo } from './live/useRowszeinDemo';
 import styles from './HeroShowcase.module.css';
+
+// The live demos are their own chunks, fetched only after first paint.
+const SoftwareLayer = dynamic(() => import('./live/LiveLayers').then((m) => m.SoftwareLayer), { ssr: false });
+const WebLayer = dynamic(() => import('./live/LiveLayers').then((m) => m.WebLayer), { ssr: false });
+
+/**
+ * Taps on the switch before hydration would be lost, so this runs while the page is still parsing:
+ * it remembers the last choice until the hero mounts and applies it.
+ */
+const EARLY_PICK = `(function(){var r=document.documentElement;document.addEventListener('click',function(e){if('heroHydrated' in r.dataset)return;var t=e.target,b=t&&t.closest&&t.closest('[data-hero-pick]');if(b)r.dataset.heroPick=b.getAttribute('data-hero-pick');},true);})();`;
 
 export type Discipline = 'software' | 'web';
 
@@ -33,7 +49,7 @@ const artifacts: Record<Discipline, Artifact> = {
   web: {
     id: 'web',
     option: 'Websites',
-    label: 'Web & Experiences',
+    label: 'Websites',
     title: featuredWebsite.title,
     medium: featuredWebsite.medium,
     shot: featuredWebsite.poster,
@@ -64,6 +80,14 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
   const firstRects = useRef<Record<Discipline, DOMRect> | null>(null);
   const captionRef = useRef<HTMLParagraphElement>(null);
   const current = artifacts[selected];
+  const idle = useIdleMount();
+  const demo = useRowszeinDemo();
+  const [preset, setPreset] = useState(stylePresets[0]);
+  const [type, setType] = useState(typePairs[0]);
+  const [liveReady, setLiveReady] = useState<Record<Discipline, boolean>>({ software: false, web: false });
+  const [announcement, setAnnouncement] = useState('');
+  const markSoftwareReady = useCallback(() => setLiveReady((ready) => ({ ...ready, software: true })), []);
+  const markWebReady = useCallback(() => setLiveReady((ready) => ({ ...ready, web: true })), []);
 
   /** Draws the dimension line from the end of the lit headline line to the primary frame's corner. */
   const drawThread = useCallback(
@@ -148,6 +172,19 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
     rootRef.current?.setAttribute('data-touched', '');
     setSelected(next);
   };
+
+  // A tap on the switch before hydration (kept by EARLY_PICK) wins as soon as the hero can act on it.
+  useEffect(() => {
+    const root = document.documentElement;
+    const pick = root.dataset.heroPick;
+    root.dataset.heroHydrated = '';
+    delete root.dataset.heroPick;
+    if (pick !== 'software' && pick !== 'web') return;
+    // Applied on the next frame, once the windows have laid out, so the handoff measures them.
+    const frame = requestAnimationFrame(() => choose(pick));
+    return () => cancelAnimationFrame(frame);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount, with the first render's choose
+  }, []);
 
   // The handoff itself: invert each window from its old on-screen rect, then play to its new slot.
   useLayoutEffect(() => {
@@ -242,6 +279,7 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
 
   return (
     <div ref={rootRef} className={styles.hero} data-active={selected} data-entrance>
+      <script dangerouslySetInnerHTML={{ __html: EARLY_PICK }} />
       <h1 id="intro-title" className={styles.headline}>
         {order.map((id) => (
           <span key={id} className={id === 'software' ? styles.lineSoftware : styles.lineWeb} data-lit={selected === id}>
@@ -284,7 +322,25 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
                 fetchPriority={id === 'software' ? 'high' : 'auto'}
                 draggable={false}
               />
-              {id === 'software' && <span className={styles.demo}>Demonstration data</span>}
+              {idle && (
+                <span
+                  className={styles.live}
+                  data-live={liveReady[id] ? 'ready' : 'loading'}
+                  data-live-id={id}
+                  inert={selected !== id}
+                >
+                  {id === 'software' ? (
+                    <SoftwareLayer state={demo.state} recent={demo.recent} onReady={markSoftwareReady} />
+                  ) : (
+                    <WebLayer preset={preset} type={type} onReady={markWebReady} />
+                  )}
+                </span>
+              )}
+              {liveReady[id] ? (
+                <span className={styles.demo}>Live demo · sample data, running in your browser</span>
+              ) : (
+                id === 'software' && <span className={styles.demo}>Demonstration data</span>
+              )}
             </span>
             <span className={styles.tag}>{artifact.label}</span>
             {/* Registration marks: the corners a printer lines up before the work is trimmed. */}
@@ -312,6 +368,7 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
               aria-checked={selected === id}
               aria-label={`${artifacts[id].label}: ${artifacts[id].title}`}
               tabIndex={selected === id ? 0 : -1}
+              data-hero-pick={id}
               onClick={() => choose(id)}
             >
               {artifacts[id].option}
@@ -329,6 +386,18 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
           </a>
         </p>
       </div>
+
+      <div className={styles.tryRow}>
+        {idle &&
+          (selected === 'software' ? (
+            <SaleControls demo={demo} announce={setAnnouncement} />
+          ) : (
+            <StyleControls preset={preset} type={type} onPreset={setPreset} onType={setType} announce={setAnnouncement} />
+          ))}
+      </div>
+      <p role="status" className="sr-only">
+        {announcement}
+      </p>
 
       <svg className={styles.thread} aria-hidden>
         <g ref={threadRef}>

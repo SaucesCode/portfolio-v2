@@ -99,7 +99,7 @@
   overflow: hidden;
 }
 
-.photo img {
+.page .photo img {
   display: block;
   width: 100%;
   height: 100%;

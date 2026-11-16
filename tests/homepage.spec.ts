@@ -584,7 +584,10 @@ test.describe('Responsive boundaries', () => {
         const visible = (el: Element) => box(el).width > 0 && getComputedStyle(el).display !== 'none';
         const header = [...document.querySelectorAll('header > div > *')].filter(visible).map(box);
         const frames = [...document.querySelectorAll('[data-role] > span:first-child')].map(box);
-        const text = [...document.querySelectorAll('#intro-title span span, #main-content > section p')].filter(visible).map(box);
+        // Text inside a window (the live demos) is part of that window's picture, not page text.
+        const text = [...document.querySelectorAll('#intro-title span span, #main-content > section p')]
+          .filter((el) => visible(el) && !el.closest('[data-role]'))
+          .map(box);
         const controls = [...document.querySelectorAll('#main-content > section a, #main-content > section button')].filter(visible).map(box);
         return {
           overflow: document.documentElement.scrollWidth - vw,

@@ -7,7 +7,7 @@ import styles from './LiveTheme.module.css';
  * The Thread & Form front-page hero (patterns/hero.php), rebuilt so its theme.json tokens can be
  * swapped live. One set of custom properties drives every colour and the display face.
  */
-export function LiveTheme({ preset, type }: { preset: StylePreset; type: TypePair }) {
+export function LiveTheme({ preset, type, onImageLoad }: { preset: StylePreset; type: TypePair; onImageLoad?: () => void }) {
   const tokens = {
     '--tf-ground': preset.ground,
     '--tf-ink': preset.ink,
@@ -42,7 +42,7 @@ export function LiveTheme({ preset, type }: { preset: StylePreset; type: TypePai
             height={liveHero.image.height}
             alt=""
             sizes="(min-width: 1024px) 20vw, 30vw"
-            loading="lazy"
+            onLoad={onImageLoad}
           />
         </div>
       </div>

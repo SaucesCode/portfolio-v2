@@ -88,7 +88,7 @@ test.describe('Thread & Form demo data', () => {
 
 test.describe('Live Rowszein demo in the hero', () => {
   test.skip(({ isMobile }) => isMobile, 'Interaction is covered on desktop; the phone layout is checked in the hero tests.');
-  const live = (page: import('@playwright/test').Page) => page.locator('[data-live="ready"][data-id="software"]');
+  const live = (page: import('@playwright/test').Page) => page.locator('[data-live="ready"][data-live-id="software"]');
   const controls = (page: import('@playwright/test').Page) => page.getByRole('group', { name: 'Try Rowszein’s Delight' });
 
   test('selling shows the low-stock alert and announces it', async ({ page }) => {
@@ -115,7 +115,7 @@ test.describe('Live Thread & Form demo in the hero', () => {
   const showWebsite = async (page: import('@playwright/test').Page) => {
     await page.goto('/');
     await page.getByRole('radio', { name: /Thread & Form/ }).click();
-    const live = page.locator('[data-live="ready"][data-id="web"]');
+    const live = page.locator('[data-live="ready"][data-live-id="web"]');
     await expect(live).toBeVisible();
     return { live, colours: page.getByRole('radiogroup', { name: 'Colour' }), type: page.getByRole('radiogroup', { name: 'Type' }) };
   };
@@ -141,5 +141,50 @@ test.describe('Live Thread & Form demo in the hero', () => {
     await page.keyboard.press('ArrowRight');
     await expect(colours.getByRole('radio', { name: 'Sand' })).toBeFocused();
     await expect(colours.getByRole('radio', { name: 'Sand' })).toHaveAttribute('aria-checked', 'true');
+  });
+});
+
+test.describe('Live hero behaviour', () => {
+  test('a tap made before the page has hydrated still wins', async ({ page }) => {
+    await page.route('**/_next/static/chunks/**', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await route.continue();
+    });
+    await page.goto('/', { waitUntil: 'commit' });
+    const web = page.getByRole('radio', { name: /Thread & Form/ });
+    await web.click();
+    await expect(web).toHaveAttribute('aria-checked', 'true', { timeout: 15_000 });
+    await expect(page.locator('[data-id="web"][data-role]')).toHaveAttribute('data-role', 'primary');
+  });
+
+  test('switching windows keeps sales and styling', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Covered on desktop.');
+    await page.goto('/');
+    const software = page.getByRole('radio', { name: /Rowszein/ });
+    const web = page.getByRole('radio', { name: /Thread & Form/ });
+    await expect(page.locator('[data-live="ready"][data-live-id="software"]')).toBeVisible();
+    const sell = page.getByRole('group', { name: 'Try Rowszein’s Delight' }).getByRole('button', { name: /Sell 1 Ube Cream/ });
+    await sell.click();
+    await sell.click();
+    await web.click();
+    await page.getByRole('radiogroup', { name: 'Colour' }).getByRole('radio', { name: 'Navy' }).click();
+    await software.click();
+    await expect(page.locator('[data-live="ready"][data-live-id="software"]')).toContainText('₱180,120.00');
+    await web.click();
+    await expect(page.getByRole('radiogroup', { name: 'Colour' }).getByRole('radio', { name: 'Navy' })).toHaveAttribute('aria-checked', 'true');
+  });
+
+  test('the main window says it is a live demo once live', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('[data-role="primary"]')).toContainText('Live demo · sample data, running in your browser');
+  });
+
+  test('without JavaScript the hero shows its screenshots and no live layer', async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+    await page.goto('/');
+    await expect(page.locator('[data-role] img')).toHaveCount(2);
+    await expect(page.locator('[data-live]')).toHaveCount(0);
+    await context.close();
   });
 });

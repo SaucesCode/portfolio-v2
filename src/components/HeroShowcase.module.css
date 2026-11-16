@@ -61,6 +61,37 @@
   margin-top: 1.5rem;
 }
 
+/* The live demo's controls, full size under the main window. Empty until the demo is ready. */
+.tryRow {
+  grid-column: 1 / -1;
+  grid-row: 6;
+  margin-top: 1rem;
+}
+
+/* The live demo sits over the screenshot and fades in only once it has rendered. */
+.live {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-component) cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.live[data-live='ready'] {
+  opacity: 1;
+}
+
+.window[data-role='support'] .live {
+  visibility: hidden;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live {
+    transition: none;
+  }
+}
+
 .thread {
   display: none;
 }
@@ -97,6 +128,11 @@
     grid-column: 7 / span 6;
     grid-row: 2;
     margin: 2rem 0 0;
+  }
+
+  .tryRow {
+    grid-column: 7 / span 6;
+    grid-row: 4;
   }
 
   .controls {
