@@ -6,6 +6,8 @@ export interface Service {
   examples: [string, string];
   /** The stretch of the stack this service covers, as indexes into `stackStops`. */
   span: [number, number];
+  /** Starting price in US dollars for a typical small project; unset when it is quoted per scope. */
+  fromUsd?: number;
 }
 
 /** The layers of a product, from what is stored to what is seen. */
@@ -19,6 +21,7 @@ export const services: Service[] = [
       'Tools built around how your team actually works: records, approvals, inventory, dashboards and reports, with roles and logins where they matter.',
     examples: ['rowszeins-delight', 'quickaid'],
     span: [0, 2],
+    fromUsd: 3500,
   },
   {
     id: 'backend',
@@ -35,6 +38,7 @@ export const services: Service[] = [
       'Block themes your team edits in the WordPress Site Editor, with no page builder and no pile of plugins to keep updated.',
     examples: ['thread-and-form', 'kinetix-athletics'],
     span: [1, 3],
+    fromUsd: 1200,
   },
   {
     id: 'websites',
@@ -43,5 +47,6 @@ export const services: Service[] = [
       'Marketing sites, product pages and campaign pages designed and built by the same person, so what launches is what you approved.',
     examples: ['valence-capital', 'nexus-ai'],
     span: [2, 3],
+    fromUsd: 500,
   },
 ];

@@ -1,6 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
 import { caseStudies, categoryLabels, featuredSoftware, featuredWebsite, galleryProjects, heroProjects, projects } from '../src/data/projects';
+import { services } from '../src/data/services';
 import { site } from '../src/data/site';
+import { formatUsd, terms } from '../src/data/terms';
 
 const viewerSlider = (page: Page) =>
   page.getByRole('slider', { name: `Scroll position in the ${featuredWebsite.title} page` });
@@ -47,10 +49,23 @@ test.describe('Identity and SEO', () => {
     expect(person.email).toBe(`mailto:${site.email}`);
     expect(person.jobTitle).toMatch(/software engineer/i);
     expect(person.makesOffer.length).toBeGreaterThan(0);
+    type OfferNode = { itemOffered: { name: string }; priceSpecification?: unknown };
+    const offerFor = (name: string) => person.makesOffer.find((o: OfferNode) => o.itemOffered.name === name);
+    for (const service of services.filter((s) => s.fromUsd)) {
+      expect(offerFor(service.name).priceSpecification).toEqual({ '@type': 'PriceSpecification', minPrice: service.fromUsd, priceCurrency: 'USD' });
+    }
+    expect(offerFor('APIs, databases and integrations').priceSpecification).toBeUndefined();
     const profile = graph.find((node) => node['@type'] === 'ProfilePage');
     expect(profile.mainEntity['@id']).toBe(person['@id']);
     const list = graph.find((node) => node['@type'] === 'ItemList');
     expect(list.itemListElement).toHaveLength(projects.length);
+  });
+
+  test('pricing copy is built from the service prices', () => {
+    expect(formatUsd(1200)).toBe('US$1,200');
+    const pricing = terms.find((t) => t.id === 'pricing')!;
+    for (const s of services.filter((s) => s.fromUsd)) expect(pricing.body).toContain(formatUsd(s.fromUsd!));
+    expect(terms.map((t) => t.id)).toEqual(['pricing', 'timeline', 'timezones', 'after-launch', 'payment']);
   });
 
   test('sitemap lists only routes that exist', async ({ request }) => {

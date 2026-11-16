@@ -6,6 +6,7 @@ export const site = {
   email: 'jamesspatrickdm@gmail.com',
   github: 'https://github.com/SaucesCode',
   githubHandle: 'SaucesCode',
+  availability: 'Currently taking on new projects, local and international.',
   linkedin: 'https://www.linkedin.com/in/james-patrick-de-mesa-93582424b/',
 } as const;
 

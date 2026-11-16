@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { caseStudies, getCaseStudy, isHeroProject } from '../src/data/projects';
 import { traceSteps } from '../src/data/rowszein-trace';
 import { site } from '../src/data/site';
+import { terms } from '../src/data/terms';
 
 const cases = [
   { slug: 'rowszeins-delight', cta: 'Need a system tailored to your business?', type: 'SoftwareApplication' },
@@ -130,6 +131,10 @@ test.describe('Case studies: content and SEO', () => {
 > `)).toBe(true);
     for (const project of caseStudies) expect(text).toContain(`[${project.title}](${site.url}${project.caseStudy})`);
     expect(text).toContain(site.email);
+    expect(text).toContain('## Working with me');
+    for (const term of terms) expect(text).toContain(term.body);
+    expect(text).toContain(site.availability);
+    expect(text).toContain('From US$3,500.');
   });
 
   test('a case study that does not exist returns 404', async ({ request }) => {
