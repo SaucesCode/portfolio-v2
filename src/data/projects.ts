@@ -87,7 +87,8 @@ const captures = (slug: string, desktopHeight: number, phoneHeight: number) => (
   },
 });
 
-const appShot = (name: string): Shot => ({ src: `/work/rowszeins-delight/app-${name}.jpg`, width: 1440, height: 900 });
+/** A Rowszein's Delight owner screen, captured at 2x from a 1440 x 900 window. */
+export const rowszeinScreen = (name: string): Shot => ({ src: `/work/rowszeins-delight/app-${name}.jpg`, width: 2880, height: 1800 });
 
 const github = (repo: string): ProjectLink => ({ href: `https://github.com/SaucesCode/${repo}`, label: 'View the code' });
 
@@ -102,52 +103,52 @@ export const projects: Project[] = [
     provenance: 'Personal project, built for a dessert shop’s daily operations',
     summary:
       'An owner panel that tracks ingredients, recipes, sales and expenses, then turns them into stock alerts, production costs and profit per product.',
-    note: 'The owner panel needs a login, so it is shown as a guided tour. The screens come from the real app running locally with demonstration data.',
+    note: 'The owner panel needs a login, so it is shown as a guided tour. The screens come from the latest published version, running locally with fictional demonstration data.',
     links: [
       { href: 'https://rowszeins-s-delight.vercel.app/', label: 'Visit the public shop' },
       github('Rowszein-s-Delight'),
     ],
-    poster: appShot('recipes'),
+    poster: rowszeinScreen('recipes'),
     caseStudy: '/work/rowszeins-delight',
     walkthrough: [
       {
-        shot: appShot('dashboard'),
+        shot: rowszeinScreen('dashboard'),
         title: 'See the business at a glance',
         body: 'Sales, expenses, profit and low-stock warnings for any period, with the best sellers beside the trend.',
         detail:
           'A Django REST endpoint aggregates sales and expenses for the chosen period; the React front end draws the trends with Recharts.',
-        focus: { x: 50, y: 30, zoom: 1.04 },
+        focus: { x: 52, y: 40, zoom: 1.06 },
       },
       {
-        shot: appShot('record-sale'),
+        shot: rowszeinScreen('record-sale'),
         title: 'Record a sale in seconds',
-        body: 'Add the products sold and the order total updates as you go.',
+        body: 'Pick the products sold; prices fill in from the catalogue and the order total updates as you go.',
         detail:
-          'Saving a sale deducts every ingredient from stock using each product’s recipe; editing or deleting a sale puts that stock back first. It all runs on the server, so stock and reports agree.',
-        focus: { x: 66, y: 46, zoom: 1.32 },
+          'Saving a sale takes every ingredient out of stock using each product’s recipe, in one database transaction. Editing or cancelling a sale reverses what it used and posts an adjustment, so stock and reports agree.',
+        focus: { x: 62, y: 60, zoom: 1.28 },
       },
       {
-        shot: appShot('inventory'),
+        shot: rowszeinScreen('inventory'),
         title: 'Know what is running low',
         body: 'Every ingredient shows its stock against a minimum, so reordering is never a guess.',
         detail:
           'An ingredient is flagged when its quantity reaches its minimum stock. Inventory value is quantity times cost per unit across the pantry.',
-        focus: { x: 56, y: 58, zoom: 1.24 },
+        focus: { x: 60, y: 62, zoom: 1.22 },
       },
       {
-        shot: appShot('recipes'),
+        shot: rowszeinScreen('recipes'),
         title: 'Cost every recipe',
         body: 'Each product’s recipe turns ingredient prices into a batch cost and a cost per piece.',
         detail:
           'Batch cost is the sum of each ingredient’s quantity times its cost per unit; cost per piece divides that by the recipe’s yield.',
-        focus: { x: 74, y: 58, zoom: 1.3 },
+        focus: { x: 70, y: 66, zoom: 1.26 },
       },
       {
-        shot: appShot('profit-margins'),
+        shot: rowszeinScreen('profit-margins'),
         title: 'See what each product earns',
         body: 'Selling price against production cost, with every margin rated good, fair or low.',
         detail: 'Margin is selling price minus cost per piece, divided by selling price, recalculated whenever a recipe or price changes.',
-        focus: { x: 56, y: 60, zoom: 1.2 },
+        focus: { x: 64, y: 42, zoom: 1.2 },
       },
     ],
   },
@@ -174,11 +175,12 @@ export const projects: Project[] = [
     medium: 'Applicant management system',
     year: 2025,
     classification: 'personal',
-    provenance: 'Personal project',
+    provenance: 'Personal project, built with one other contributor',
     summary:
       'A system for a social assistance programme: online applications, approvals, payout batches, an applicant map and analytics for staff.',
     note: 'Staff tools sit behind a login; the public site is shown.',
     links: [{ href: 'https://quick-aid-geomappingv1.vercel.app/', label: 'Visit the public site' }, github('QuickAid-Geomapping')],
+    caseStudy: '/work/quickaid',
     poster: desktopPoster('quickaid'),
   },
   {

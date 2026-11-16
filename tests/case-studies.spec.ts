@@ -6,6 +6,7 @@ import { site } from '../src/data/site';
 const cases = [
   { slug: 'rowszeins-delight', cta: 'Need a system tailored to your business?', type: 'SoftwareApplication' },
   { slug: 'thread-and-form', cta: 'Have a website idea worth building?', type: 'CreativeWork' },
+  { slug: 'quickaid', cta: 'Have data that belongs on a map?', type: 'SoftwareApplication' },
 ].map((entry) => ({ ...entry, project: getCaseStudy(entry.slug) }));
 
 const jsonLdGraphs = (page: Page) =>
@@ -123,11 +124,9 @@ test.describe('Case studies: content and SEO', () => {
 test.describe('Case studies: navigation', () => {
   test('the homepage links to both case studies, and back and forward work', async ({ page }) => {
     await page.goto('/');
+    // Featured projects carry the link on their wall label, the others on their gallery card.
     for (const project of caseStudies) {
-      await expect(page.locator(`#${project.slug}`).getByRole('link', { name: `Read the case study: ${project.title}` })).toHaveAttribute(
-        'href',
-        project.caseStudy,
-      );
+      await expect(page.getByRole('link', { name: `Read the case study: ${project.title}` })).toHaveAttribute('href', project.caseStudy);
     }
 
     const first = caseStudies[0];
@@ -275,5 +274,55 @@ test.describe('Case studies without JavaScript', () => {
     }
     await page.goto('/work/rowszeins-delight');
     for (const step of traceSteps) await expect(page.getByText(step.title)).toBeVisible();
+  });
+});
+
+test.describe('QuickAid: where a point on the map comes from', () => {
+  const region = (page: Page) => page.getByRole('region', { name: 'Where a point on the map comes from' });
+
+  test('the overview draws every reference point inside the area, with an accessible summary', async ({ page }) => {
+    await page.goto('/work/quickaid');
+    const map = region(page).getByRole('img', { name: /Map of the 168 barangay reference points/ });
+    await expect(map).toBeVisible();
+    expect(await map.locator('circle[data-id]').count()).toBe(165);
+    await expect(map).toContainText('3 points about');
+  });
+
+  test('choosing a barangay with the keyboard updates the read-out and the close-up', async ({ page }) => {
+    await page.goto('/work/quickaid');
+    const area = region(page);
+    await expect(area.getByRole('heading', { level: 3, name: 'Bignay 2, Sariaya' })).toBeVisible();
+    const town = area.getByRole('combobox', { name: 'Municipality' });
+    await town.focus();
+    await town.selectOption('Dolores');
+    const barangay = area.getByRole('combobox', { name: 'Barangay' });
+    await barangay.selectOption({ label: 'Kinabuhayan' });
+    await expect(area.getByRole('heading', { level: 3, name: 'Kinabuhayan, Dolores' })).toBeVisible();
+    await expect(area.getByText(/° N, .*° E/)).toBeVisible();
+    await expect(area.getByRole('img', { name: /Close-up of Kinabuhayan/ }).locator('g circle')).toHaveCount(8);
+  });
+
+  test('a far-off reference point explains itself', async ({ page }) => {
+    await page.goto('/work/quickaid');
+    const area = region(page);
+    await area.getByRole('combobox', { name: 'Municipality' }).selectOption('Lucena City');
+    await area.getByRole('combobox', { name: 'Barangay' }).selectOption({ label: 'Barangay 5' });
+    await expect(area.getByText(/about 9\d km from Lucena City/)).toBeVisible();
+  });
+});
+
+test.describe('Thread & Form on phones', () => {
+  test('phones get the live demo’s own phone captures, desktops the desktop ones', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Widths are set explicitly.');
+    const sources = () =>
+      page.locator('main picture img').evaluateAll((imgs) => imgs.slice(0, 3).map((img) => (img as HTMLImageElement).currentSrc));
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/work/thread-and-form');
+    await page.locator('main picture img').nth(2).scrollIntoViewIfNeeded();
+    await expect.poll(async () => (await sources()).every((src) => /phone/.test(decodeURIComponent(src)))).toBe(true);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/work/thread-and-form');
+    await page.locator('main picture img').nth(2).scrollIntoViewIfNeeded();
+    await expect.poll(async () => (await sources()).every((src) => /desktop/.test(decodeURIComponent(src)))).toBe(true);
   });
 });

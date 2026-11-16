@@ -1,0 +1,177 @@
+/*
+ * QuickAid is dressed as a survey chart: a cool paper ground, the navy of QuickAid's own interface
+ * as ink, and three map colours for geocoding confidence. Headings use Archivo's narrow width,
+ * the way place names are set on a map. Tokens are set on the root so the shared header follows.
+ */
+:root:has(.page) {
+  --wall: #e5ebf0;
+  --chalk: #f5f8fa;
+  --ink: #0d2340;
+  --graphite: #45576c;
+  --rule: #c2cedb;
+  --map-high: #0d2340;
+  --map-medium: #3a6fb5;
+  --map-low: #c03a26;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:has(.page) {
+    --wall: #0b1727;
+    --chalk: #12223a;
+    --ink: #e6edf5;
+    --graphite: #9cafc4;
+    --rule: #26384f;
+    --map-high: #e6edf5;
+    --map-medium: #7eb0f0;
+    --map-low: #ff8a70;
+  }
+}
+
+.narrow {
+  font-variation-settings: "wdth" 84;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+/* The route: application to payout as stops along one line ------------------- */
+.route {
+  position: relative;
+  display: grid;
+  gap: 2.5rem;
+  margin-top: 3rem;
+}
+
+.route::before {
+  content: "";
+  position: absolute;
+  top: 0.75rem;
+  bottom: 0.75rem;
+  left: 0.6875rem;
+  border-left: 3px solid var(--ink);
+}
+
+.stop {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  column-gap: 1.25rem;
+}
+
+.stop::before {
+  content: "";
+  grid-row: 1 / span 3;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0.15rem;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--wall);
+}
+
+.stop:first-child::before {
+  background: var(--ink);
+}
+
+.stopIndex {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--graphite);
+  font-variant-numeric: tabular-nums;
+}
+
+.stopTitle {
+  margin-top: 0.125rem;
+  font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  line-height: 1.15;
+}
+
+.stopBody {
+  grid-column: 2;
+  margin-top: 0.5rem;
+  max-width: 58ch;
+  line-height: 1.6;
+}
+
+@media (min-width: 1024px) {
+  .route {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  .route::before {
+    top: 0.6875rem;
+    bottom: auto;
+    left: 0.75rem;
+    right: 0.75rem;
+    border-left: 0;
+    border-top: 3px solid var(--ink);
+  }
+
+  .stop {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0;
+  }
+
+  .stop::before {
+    grid-row: auto;
+    margin: 0 0 1rem;
+  }
+
+  .stopBody {
+    grid-column: 1;
+  }
+}
+
+/* Hero: the form as it appears at both sizes --------------------------------- */
+.formPair {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.formWide {
+  border-radius: var(--radius-frame);
+  overflow: hidden;
+  box-shadow: var(--shadow-hang);
+  background: var(--chalk);
+}
+
+.formPhone {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .formPair {
+    padding-right: 7rem;
+  }
+
+  .formPhone {
+    display: block;
+    position: absolute;
+    right: 0;
+    bottom: -2.5rem;
+    width: 11.5rem;
+    border: 5px solid var(--ink);
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: var(--shadow-hang);
+    background: var(--chalk);
+  }
+}
+
+@media (min-width: 1024px) {
+  .formPair {
+    padding-right: 10rem;
+  }
+
+  .formPhone {
+    width: 14.5rem;
+  }
+}
+
+.formWide img,
+.formPhone img {
+  display: block;
+  width: 100%;
+  height: auto;
+}

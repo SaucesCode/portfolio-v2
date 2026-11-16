@@ -5,6 +5,7 @@ import { MoveVertical } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { categoryLabels, galleryProjects, type Category, type Project } from '@/data/projects';
+import { CaseStudyLink } from './CaseStudyLink';
 import { ExternalLink } from './ExternalLink';
 import { ProjectDialog } from './ProjectDialog';
 import styles from './WorkGallery.module.css';
@@ -194,6 +195,7 @@ export function WorkGallery() {
                     {project.provenance}.{project.note ? ` ${project.note}` : ''}
                   </p>
                   <p className="flex flex-wrap gap-x-5">
+                    <CaseStudyLink project={project} />
                     {project.links.map((link) => (
                       <ExternalLink key={link.href} href={link.href}>
                         {link.label}

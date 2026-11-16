@@ -1,0 +1,336 @@
+/*
+ * Colours come from the QuickAid page tokens (--map-high, --map-medium, --map-low), so the
+ * component follows that page's palette in light and dark mode.
+ */
+.geo {
+  display: grid;
+  gap: 2.5rem;
+}
+
+@media (min-width: 1024px) {
+  .geo {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: 3rem;
+    align-items: start;
+  }
+}
+
+/* Overview ---------------------------------------------------------------- */
+.overview {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--chalk);
+  padding: 0.5rem;
+}
+
+.map {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: var(--font-sans);
+}
+
+.graticule path {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.graticule text {
+  fill: var(--graphite);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.townLabel {
+  fill: var(--ink);
+  font-size: 22px;
+  font-weight: 600;
+  font-variation-settings: "wdth" 84;
+  paint-order: stroke;
+  stroke: var(--chalk);
+  stroke-width: 6px;
+  stroke-linejoin: round;
+}
+
+.point {
+  cursor: pointer;
+  stroke: var(--chalk);
+  stroke-width: 1.5;
+}
+
+.point[data-confidence="high"] {
+  fill: var(--map-high);
+}
+
+.point[data-confidence="medium"] {
+  fill: var(--map-medium);
+}
+
+.point[data-confidence="low"] {
+  fill: var(--map-low);
+}
+
+.point[data-selected="true"] {
+  stroke: var(--ink);
+  stroke-width: 3;
+}
+
+.ring {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 3;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.offMap path {
+  fill: none;
+  stroke: var(--map-low);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.offMap text {
+  fill: var(--ink);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.offMap[data-selected="true"] path {
+  stroke: var(--signal);
+  stroke-width: 5;
+}
+
+.scale path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.scale text {
+  fill: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.close .scale text {
+  font-size: 11px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  padding: 0.75rem 0.5rem 0.25rem;
+  font-size: 0.875rem;
+}
+
+.legendTitle {
+  font-weight: 600;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.legendItem::before {
+  content: "";
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: var(--map-high);
+}
+
+.legendItem[data-confidence="medium"]::before {
+  background: var(--map-medium);
+}
+
+.legendItem[data-confidence="low"]::before {
+  background: var(--map-low);
+}
+
+.count {
+  color: var(--graphite);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Panel ------------------------------------------------------------------- */
+.panel {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.75rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.field select {
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border: 1.5px solid var(--rule);
+  border-radius: 6px;
+  background: var(--chalk);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 500;
+}
+
+.field select:hover {
+  border-color: var(--ink);
+}
+
+.place {
+  font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+  line-height: 1.1;
+  font-weight: 600;
+  font-variation-settings: "wdth" 84;
+  letter-spacing: -0.01em;
+}
+
+.facts {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.875rem;
+  font-size: 0.9375rem;
+}
+
+.facts dt {
+  color: var(--graphite);
+}
+
+.coords {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.confidence {
+  max-width: 46ch;
+}
+
+.warning {
+  margin-top: 0.875rem;
+  max-width: 50ch;
+  padding-left: 0.875rem;
+  border-left: 3px solid var(--map-low);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.closeFigure {
+  max-width: 24rem;
+}
+
+.close {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--chalk);
+  font-family: var(--font-sans);
+}
+
+.closeGrid line {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.offsetBox {
+  fill: color-mix(in srgb, var(--signal) 8%, transparent);
+  stroke: var(--signal);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+
+.samples circle {
+  fill: var(--signal);
+  stroke: var(--chalk);
+  stroke-width: 1.5;
+}
+
+.reference line {
+  stroke: var(--ink);
+  stroke-width: 2.5;
+}
+
+.closeCaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem 1rem;
+  margin-top: 0.625rem;
+  font-size: 0.8125rem;
+  color: var(--graphite);
+}
+
+.closeCaption span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.closeCaption span::before {
+  content: "";
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.keyReference::before {
+  background:
+    linear-gradient(var(--ink), var(--ink)) center / 100% 2px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) center / 2px 100% no-repeat;
+}
+
+.keyBox::before {
+  border: 1.5px dashed var(--signal);
+}
+
+.keySample::before {
+  border-radius: 50%;
+  background: var(--signal);
+}
+
+/* Choosing a barangay: the ring and the sampled positions settle into place. */
+@media (prefers-reduced-motion: no-preference) {
+  .ring {
+    animation: ring-in var(--dur-component) var(--ease-out);
+  }
+
+  .samples circle {
+    animation: sample-in var(--dur-component) var(--ease-out) backwards;
+  }
+
+  .offsetBox {
+    animation: box-in var(--dur-component) var(--ease-out);
+  }
+}
+
+@keyframes ring-in {
+  from {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+}
+
+@keyframes sample-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes box-in {
+  from {
+    opacity: 0;
+  }
+}

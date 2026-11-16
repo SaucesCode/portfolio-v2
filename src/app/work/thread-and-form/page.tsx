@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image, { getImageProps } from 'next/image';
 import Link from 'next/link';
 import { Playfair_Display } from 'next/font/google';
 import type { CSSProperties } from 'react';
@@ -7,8 +7,17 @@ import { ButtonLink } from '@/components/ButtonLink';
 import { Contact } from '@/components/Contact';
 import { ExternalLink } from '@/components/ExternalLink';
 import { Morph, morphName } from '@/components/Morph';
-import { getCaseStudy } from '@/data/projects';
-import { fontSizes, frontPage, palette, patterns, spacing, templateParts, templates } from '@/data/thread-and-form';
+import { getCaseStudy, type Shot } from '@/data/projects';
+import {
+  fontSizes,
+  frontPage,
+  palette,
+  patterns,
+  phoneFirstScreen,
+  spacing,
+  templateParts,
+  templates,
+} from '@/data/thread-and-form';
 import { caseStudyJsonLd, caseStudyMetadata, jsonLdScript } from '@/lib/case-study';
 import styles from './thread-and-form.module.css';
 
@@ -88,6 +97,35 @@ const limits = [
 
 const sectionTitle = `${styles.display} text-[clamp(2rem,1.5rem+1.8vw,3.25rem)] leading-[1.05]`;
 
+/** Phone captures of a front-page part are shown at most this tall, relative to their width. */
+const PHONE_CAP = 1.3;
+
+interface ArtDirectedProps {
+  desktop: Shot;
+  phone: Shot;
+  desktopSizes: string;
+  phoneSizes: string;
+  alt: string;
+  eager?: boolean;
+}
+
+/**
+ * Real captures at both sizes: below 768 px the phone capture of the same page is used, so phone
+ * visitors read the theme at the size it was designed for instead of a shrunken desktop layout.
+ */
+function ArtDirected({ desktop, phone, desktopSizes, phoneSizes, alt, eager = false }: ArtDirectedProps) {
+  const loading = eager ? 'eager' : 'lazy';
+  const { props: wide } = getImageProps({ ...desktop, alt, sizes: desktopSizes, loading, fetchPriority: eager ? 'high' : undefined });
+  const { props: narrow } = getImageProps({ ...phone, alt, sizes: phoneSizes, loading });
+  return (
+    <picture>
+      <source media="(max-width: 767px)" srcSet={narrow.srcSet} sizes={narrow.sizes} width={phone.width} height={phone.height} />
+      {/* eslint-disable-next-line jsx-a11y/alt-text -- alt is passed through getImageProps */}
+      <img {...wide} />
+    </picture>
+  );
+}
+
 export default function ThreadAndFormCaseStudy() {
   return (
     <div className={`${styles.page} ${playfair.variable}`}>
@@ -133,18 +171,19 @@ export default function ThreadAndFormCaseStudy() {
           <figure>
             <Morph name={morphName(project.slug)}>
               <div className={styles.bleed}>
-                <Image
-                  src={captures.desktop.poster.src}
-                  width={captures.desktop.poster.width}
-                  height={captures.desktop.poster.height}
-                  sizes="100vw"
-                  alt="The Thread & Form homepage on a desktop screen: the headline “A study in deliberate form.” beside a photograph of a model in a navy overshirt and pale trousers, with a product card for The Everyday Overshirt."
-                  preload
+                <ArtDirected
+                  desktop={captures.desktop.poster}
+                  phone={phoneFirstScreen}
+                  desktopSizes="100vw"
+                  phoneSizes="min(72vw, 300px)"
+                  alt="The Thread & Form homepage as it first appears, with the headline “A study in deliberate form.” and buttons to explore the collection and read the studio manifesto."
+                  eager
                 />
               </div>
             </Morph>
             <figcaption className="mx-auto max-w-[90rem] px-4 pt-3 text-[0.9375rem] text-graphite sm:px-6 lg:px-10">
-              The live demo’s homepage at desktop width.
+              <span className="md:hidden">The live demo’s first screen on a phone.</span>
+              <span className="hidden md:inline">The live demo’s homepage at desktop width.</span>
             </figcaption>
           </figure>
         </header>
@@ -173,16 +212,18 @@ export default function ThreadAndFormCaseStudy() {
             <p className="mt-4 text-lg leading-relaxed">
               The front-page template is nothing but a header, a footer and a stack of block patterns. Here is the live
               demo’s front page cut along those seams, top to bottom. Each piece can be moved, removed or reused on another
-              page from the Site Editor.
+              page from the Site Editor. On a phone, each piece is shown as the demo itself looks on a phone.
             </p>
           </div>
           <ol className={styles.slices}>
             {frontPage.map((slice, i) => {
               const height = slice.bottom - slice.top;
+              const capped = slice.phone.height > slice.phone.width * PHONE_CAP;
               const crop = {
                 '--w': full.width,
                 '--h': height,
                 '--offset': `${(-slice.top / height) * 100}%`,
+                '--phone-ratio': Math.min(slice.phone.height / slice.phone.width, PHONE_CAP),
               } as CSSProperties;
               return (
                 <li key={slice.slug} className={styles.slice}>
@@ -196,14 +237,13 @@ export default function ThreadAndFormCaseStudy() {
                     </p>
                     <p className={styles.sliceText}>{slice.description}</p>
                   </div>
-                  <div className={styles.window} style={crop}>
-                    <Image
-                      src={full.src}
-                      width={full.width}
-                      height={full.height}
-                      sizes="(min-width: 1440px) 900px, (min-width: 1024px) 62vw, 92vw"
+                  <div className={styles.window} style={crop} data-capped={capped}>
+                    <ArtDirected
+                      desktop={full}
+                      phone={slice.phone}
+                      desktopSizes="(min-width: 1440px) 900px, (min-width: 1024px) 62vw, 92vw"
+                      phoneSizes="92vw"
                       alt={`The ${slice.name.toLowerCase()} section of the Thread & Form front page.`}
-                      loading="lazy"
                     />
                   </div>
                   {slice.slug === 'thread-and-form/hero' && (

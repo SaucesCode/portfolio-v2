@@ -48,6 +48,18 @@
   }
 }
 
+/* On phones the hero is the demo's own first screen, held in a phone-shaped frame. */
+@media (max-width: 767px) {
+  .bleed {
+    width: min(72vw, 18.75rem);
+    margin-inline: auto;
+    border: 5px solid var(--ink);
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: var(--shadow-hang);
+  }
+}
+
 /* The exploded front page ---------------------------------------------------- */
 .slices {
   display: grid;
@@ -131,6 +143,29 @@
   width: 100%;
   height: auto;
   max-width: none;
+}
+
+/*
+ * Phones get each part's own phone capture at nearly real size, shown from the top and capped in
+ * height so one long section cannot take over the page; a fade marks where it continues.
+ */
+@media (max-width: 767px) {
+  .window {
+    aspect-ratio: 1 / var(--phone-ratio);
+  }
+
+  .window img {
+    top: 0;
+  }
+
+  .window[data-capped="true"]::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 4.5rem;
+    background: linear-gradient(to bottom, transparent, var(--chalk));
+    pointer-events: none;
+  }
 }
 
 .excluded {

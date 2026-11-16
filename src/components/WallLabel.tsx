@@ -1,7 +1,6 @@
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 import { categoryLabels, type Project } from '@/data/projects';
 import { cn } from '@/lib/utils';
+import { CaseStudyLink } from './CaseStudyLink';
 import { ExternalLink } from './ExternalLink';
 
 interface Props {
@@ -34,21 +33,7 @@ export function WallLabel({ project, titleId, size = 'regular', className, revea
       </p>
       <p className={cn('mt-4 max-w-[42ch]', size === 'large' ? 'text-[1.0625rem]' : 'text-base')}>{project.summary}</p>
       {project.note && <p className="mt-3 max-w-[42ch] text-[0.875rem] leading-snug text-graphite">{project.note}</p>}
-      {project.caseStudy && (
-        <Link
-          href={project.caseStudy}
-          aria-label={`Read the case study: ${project.title}`}
-          className="group mt-5 inline-flex min-h-11 items-center gap-2 font-semibold text-signal transition-colors duration-[var(--dur-micro)] hover:text-signal-hover"
-        >
-          Read the case study
-          <ArrowRight
-            aria-hidden
-            size={17}
-            strokeWidth={2.25}
-            className="transition-transform duration-[var(--dur-micro)] ease-out group-hover:translate-x-1"
-          />
-        </Link>
-      )}
+      <CaseStudyLink project={project} className="mt-5" />
       <p className={cn('flex flex-wrap gap-x-5', project.caseStudy ? 'mt-1' : 'mt-3')}>
         {project.links.map((link) => (
           <ExternalLink key={link.href} href={link.href}>

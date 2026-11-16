@@ -6,12 +6,32 @@ import { ButtonLink } from '@/components/ButtonLink';
 import { Contact } from '@/components/Contact';
 import { ExternalLink } from '@/components/ExternalLink';
 import { Morph, morphName } from '@/components/Morph';
-import { getCaseStudy } from '@/data/projects';
+import { getCaseStudy, rowszeinScreen, type WalkthroughStep } from '@/data/projects';
 import { caseStudyJsonLd, caseStudyMetadata, jsonLdScript } from '@/lib/case-study';
 
 const project = getCaseStudy('rowszeins-delight');
-// The dashboard opens the page; the other screens follow in the workflow section.
-const [hero, ...screens] = project.walkthrough ?? [];
+// The dashboard opens the page; the rest of the routine follows in the workflow section, grouped
+// the way the owner uses it: selling, stock, costing and money.
+const [hero, recordSale, inventory, recipes, margins] = project.walkthrough ?? [];
+
+type Screen = Pick<WalkthroughStep, 'shot' | 'title' | 'body' | 'detail'>;
+
+const salesList: Screen = {
+  shot: rowszeinScreen('sales'),
+  title: 'Review every sale',
+  body: 'Sales are grouped by day with their items and totals, and can be searched and filtered by date.',
+  detail:
+    'The totals under the list come from the posted ledger entries. Gross sales, adjustments and cancellations are reported separately, so an edited sale never silently rewrites an earlier day.',
+};
+
+const expenses: Screen = {
+  shot: rowszeinScreen('expenses'),
+  title: 'Track where the money goes',
+  body: 'Expenses by category and day, with search, date filters and export.',
+  detail: 'Expenses export as CSV or PDF, and together with sales they feed the profit figures on the dashboard.',
+};
+
+const screens = [recordSale, salesList, inventory, recipes, margins, expenses].filter((screen): screen is Screen => Boolean(screen));
 
 const copy = {
   title: 'Rowszein’s Delight: a business system for a dessert shop',
@@ -67,7 +87,7 @@ const limits = [
   'The project’s own documentation says it is not represented as secure or production-ready. Production deployment checks and several session and security findings are still open.',
   'The owner panel is built for desktop. Its mobile layout is planned but not done.',
   'Automated backend tests cover the sales and stock engine only. Accounts, products, recipes, expenses and the dashboard have none yet, and a full lint run still reports errors.',
-  'The screenshots on this page come from an earlier version of the interface, running locally with demonstration data. The interface has been reworked since.',
+  'The screenshots show the latest published version, running locally with fictional demonstration data. Newer interface work that has not been published is not shown.',
 ];
 
 const sectionTitle = 'font-semiwide text-[clamp(1.75rem,1.4rem+1.2vw,2.5rem)] leading-[1.05] font-semibold tracking-[-0.025em]';
@@ -122,7 +142,7 @@ export default function RowszeinCaseStudy() {
                   width={hero.shot.width}
                   height={hero.shot.height}
                   sizes="(min-width: 1440px) 1360px, 94vw"
-                  alt="The Rowszein’s Delight owner dashboard: sales, expenses and profit for the period, a sales trend chart, best-selling products and low-stock warnings."
+                  alt="The Rowszein’s Delight business overview for the year: net sales, total expenses, net profit and low-stock count, a monthly trend chart, the top five products, and a warning that one ingredient is running low."
                   preload
                   className="block h-auto w-full"
                 />
@@ -132,8 +152,8 @@ export default function RowszeinCaseStudy() {
               </div>
             </Morph>
             <figcaption className="mt-3 max-w-[70ch] text-[0.9375rem] text-graphite">
-              The owner’s dashboard: {hero.body.charAt(0).toLowerCase() + hero.body.slice(1)} From the app running locally
-              with demonstration data.
+              The owner’s dashboard: {hero.body.charAt(0).toLowerCase() + hero.body.slice(1)} From the latest published
+              version, running locally with fictional demonstration data.
             </figcaption>
           </figure>
         </header>
@@ -166,8 +186,8 @@ export default function RowszeinCaseStudy() {
             What the owner works with
           </h2>
           <p className="mt-4 max-w-[60ch] text-lg leading-relaxed text-graphite">
-            Beyond the dashboard, four screens cover the daily routine. The note under each one says what the code
-            does behind it.
+            Beyond the dashboard, six screens cover the daily routine: selling, stock, costing and money. The note
+            under each one says what the code does behind it.
           </p>
           <div className="mt-12 grid gap-x-6 gap-y-16 lg:grid-cols-2 lg:gap-y-24">
             {screens.map((screen) => (
