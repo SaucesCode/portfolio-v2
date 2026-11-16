@@ -85,3 +85,27 @@ test.describe('Thread & Form demo data', () => {
     expect(bytes).toBeLessThanOrEqual(120 * 1024);
   });
 });
+
+test.describe('Live Rowszein demo in the hero', () => {
+  test.skip(({ isMobile }) => isMobile, 'Interaction is covered on desktop; the phone layout is checked in the hero tests.');
+  const live = (page: import('@playwright/test').Page) => page.locator('[data-live="ready"][data-id="software"]');
+  const controls = (page: import('@playwright/test').Page) => page.getByRole('group', { name: 'Try Rowszein’s Delight' });
+
+  test('selling shows the low-stock alert and announces it', async ({ page }) => {
+    await page.goto('/');
+    await expect(live(page)).toBeVisible();
+    for (let i = 0; i < 5; i++) await controls(page).getByRole('button', { name: /Sell 1 Ube Cream/ }).click();
+    await expect(live(page)).toContainText('All-purpose flour');
+    await expect(page.getByRole('status').filter({ hasText: 'Sold 1 Ube Cream' })).toContainText('All-purpose flour is now low.');
+  });
+
+  test('net sales add up and reset restores the start', async ({ page }) => {
+    await page.goto('/');
+    await expect(live(page)).toBeVisible();
+    for (let i = 0; i < 3; i++) await controls(page).getByRole('button', { name: /Sell 1 Classic Glazed/ }).click();
+    await expect(live(page)).toContainText('₱180,115.00');
+    await controls(page).getByRole('button', { name: 'Reset demo' }).click();
+    await expect(live(page)).toContainText('₱180,010.00');
+    await expect(live(page)).not.toContainText('running low');
+  });
+});
