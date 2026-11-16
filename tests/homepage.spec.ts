@@ -574,6 +574,29 @@ test.describe('Services and contact', () => {
 });
 
 test.describe('Responsive boundaries', () => {
+  test('the hero and the tour fit on common laptop screens without scrolling to reach their controls', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Laptop and desktop heights.');
+    for (const [width, height] of [[1280, 720], [1280, 800], [1366, 768], [1440, 900], [1536, 864], [1920, 1080]]) {
+      await page.setViewportSize({ width, height });
+      await page.goto('/');
+      await expect(page.locator('[data-live="ready"]').first()).toBeAttached({ timeout: 10_000 });
+      const heroBottom = await page.evaluate(() => {
+        const last = [...document.querySelectorAll('[class*="tryRow"] button, [role="radiogroup"][aria-label="Show a discipline"]')];
+        return Math.max(...last.map((el) => el.getBoundingClientRect().bottom));
+      });
+      expect(heroBottom, `hero controls at ${width}x${height}`).toBeLessThanOrEqual(height);
+      const stageWidth = await page.locator('[aria-label^="Guided tour of"] [tabindex="0"]').evaluate((el) => el.getBoundingClientRect().width);
+      expect(stageWidth, `tour screen width at ${width}x${height}`).toBeGreaterThan(600);
+      const tourOverflow = await page.evaluate(() => {
+        const header = document.querySelector('header')!.getBoundingClientRect().height;
+        const tour = document.querySelector('[aria-label^="Guided tour of"]')!;
+        const nav = tour.querySelector('nav')!;
+        return nav.getBoundingClientRect().bottom - tour.getBoundingClientRect().top - (innerHeight - header);
+      });
+      expect(tourOverflow, `tour controls at ${width}x${height}`).toBeLessThanOrEqual(0);
+    }
+  });
+
   test('the header stays on one row on phones', async ({ page }) => {
     await page.goto('/');
     const banner = page.getByRole('banner');

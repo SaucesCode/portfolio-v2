@@ -11,6 +11,14 @@
   font-weight: 600;
 }
 
+/* "Record a sale:" with Reset beside it, on its own row above the products. */
+.heading {
+  display: flex;
+  flex-basis: 100%;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+}
+
 .options {
   display: flex;
   flex-wrap: wrap;
@@ -42,7 +50,7 @@
 }
 
 .chip {
-  padding: 0 1rem;
+  padding: 0 0.875rem;
   border: 1px solid var(--rule);
   background: var(--chalk, transparent);
 }
