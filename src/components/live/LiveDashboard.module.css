@@ -1,3 +1,10 @@
+/* cqi units resolve against the nearest ancestor container, so the container wraps the panel. */
+.shell {
+  container-type: inline-size;
+  position: absolute;
+  inset: 0;
+}
+
 /*
  * The Rowszein's Delight owner panel in miniature. Colours are sampled from the captured app; every
  * size is in container units, so the panel scales with its window exactly like a screenshot.
@@ -14,9 +21,7 @@
   --rz-ok: #2f6b4f;
   --rz-track: #ffe5ee;
 
-  container-type: inline-size;
-  position: absolute;
-  inset: 0;
+  height: 100%;
   display: grid;
   grid-template-columns: 19% 1fr;
   overflow: hidden;

@@ -188,3 +188,19 @@ test.describe('Live hero behaviour', () => {
     await context.close();
   });
 });
+
+test.describe('Live demo scale', () => {
+  test('demo text scales with its window, not the viewport', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Checked at desktop width.');
+    await page.goto('/');
+    const layer = page.locator('[data-live="ready"][data-live-id="software"]');
+    await expect(layer).toBeVisible();
+    const ratio = await layer.evaluate((el) => {
+      const item = el.querySelector('aside li')!;
+      return parseFloat(getComputedStyle(item).fontSize) / el.getBoundingClientRect().width;
+    });
+    // The panel's base size is 1.45% of the window; the viewport fallback was about three times that.
+    expect(ratio).toBeGreaterThan(0.01);
+    expect(ratio).toBeLessThan(0.02);
+  });
+});
