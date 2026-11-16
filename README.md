@@ -2,7 +2,7 @@
 
 The portfolio of **James Patrick De Mesa**, a full-stack software engineer in the Philippines who builds web applications, business systems, WordPress themes and websites.
 
-**Live site: [saucescode.xyz](https://saucescode.xyz)**
+**Live site: [saucescode.xyz](https://www.saucescode.xyz)**
 
 The site's job is to show working software instead of describing it. Visitors can step through a guided tour of a real business app, scroll live websites at full length inside the page, and read case studies that follow the data from the database to the screen.
 
@@ -10,9 +10,9 @@ The site's job is to show working software instead of describing it. Visitors ca
 
 - **Homepage.** One featured app (Rowszein's Delight, a dessert shop's back office) shown as a step-by-step walkthrough, one featured website (Thread & Form, a WordPress block theme) in a full-length scrolling preview, a filterable gallery of the remaining work, services, and contact.
 - **Case studies** at `/work/*`:
-  - [Rowszein's Delight](https://saucescode.xyz/work/rowszeins-delight): a Django REST and React system that ties recipes to stock. Includes an interactive trace of one sale moving through a single database transaction.
-  - [Thread & Form](https://saucescode.xyz/work/thread-and-form): an editorial WordPress block theme, with its front page taken apart section by section and its design tokens read straight from `theme.json`.
-  - [QuickAid](https://saucescode.xyz/work/quickaid): an applicant system for a social assistance programme. Includes an interactive map showing how each application is placed in its barangay rather than at a home address.
+  - [Rowszein's Delight](https://www.saucescode.xyz/work/rowszeins-delight): a Django REST and React system that ties recipes to stock. Includes an interactive trace of one sale moving through a single database transaction.
+  - [Thread & Form](https://www.saucescode.xyz/work/thread-and-form): an editorial WordPress block theme, with its front page taken apart section by section and its design tokens read straight from `theme.json`.
+  - [QuickAid](https://www.saucescode.xyz/work/quickaid): an applicant system for a social assistance programme. Includes an interactive map showing how each application is placed in its barangay rather than at a home address.
 
 ### How the proof is kept honest
 
@@ -81,7 +81,7 @@ Generated at build time from the data above:
 - Canonical URLs, Open Graph and Twitter tags, and a social image for every page
 - `sitemap.xml` with last-updated dates for case studies, and `robots.txt`
 - JSON-LD structured data: `Person` with services offered, `ProfilePage`, `WebSite`, an `ItemList` of all work, and for each case study an `Article`, the software or creative work it describes, its source code, and a breadcrumb
-- [`/llms.txt`](https://saucescode.xyz/llms.txt): a plain-text summary of the site for language models
+- [`/llms.txt`](https://www.saucescode.xyz/llms.txt): a plain-text summary of the site for language models
 
 ## Testing
 
@@ -99,7 +99,7 @@ Pushes to `main` deploy to production on Vercel at `saucescode.xyz`. Other branc
 
 ## Contact
 
-- Site: [saucescode.xyz](https://saucescode.xyz)
+- Site: [saucescode.xyz](https://www.saucescode.xyz)
 - Email: [jamesspatrickdm@gmail.com](mailto:jamesspatrickdm@gmail.com)
 - LinkedIn: [James Patrick De Mesa](https://www.linkedin.com/in/james-patrick-de-mesa-93582424b/)
 - GitHub: [@SaucesCode](https://github.com/SaucesCode)

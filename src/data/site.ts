@@ -1,6 +1,6 @@
 export const site = {
   name: 'James Patrick De Mesa',
-  url: 'https://saucescode.xyz',
+  url: 'https://www.saucescode.xyz',
   role: 'Full-stack software engineer',
   country: 'Philippines',
   email: 'jamesspatrickdm@gmail.com',
