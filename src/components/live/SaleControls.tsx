@@ -19,7 +19,9 @@ export function SaleControls({ demo, announce }: { demo: RowszeinDemo; announce:
               <button
                 type="button"
                 className={styles.chip}
-                disabled={!attempt.ok}
+                // aria-disabled, not disabled: the button keeps focus when it runs out, and a press
+                // explains why instead of doing nothing.
+                aria-disabled={!attempt.ok}
                 aria-describedby={attempt.ok ? undefined : reasonId}
                 onClick={() => announce(demo.sell(product.id))}
               >

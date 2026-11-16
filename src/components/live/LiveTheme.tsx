@@ -14,11 +14,11 @@ import styles from "./LiveTheme.module.css";
 export function LiveTheme({
   preset,
   type,
-  onImageLoad,
+  onImageSettled,
 }: {
   preset: StylePreset;
   type: TypePair;
-  onImageLoad?: () => void;
+  onImageSettled?: () => void;
 }) {
   const tokens = {
     "--tf-ground": preset.ground,
@@ -57,7 +57,8 @@ export function LiveTheme({
               height={liveHero.image.height}
               alt=""
               sizes="(min-width: 1024px) 20vw, 30vw"
-              onLoad={onImageLoad}
+              onLoad={onImageSettled}
+              onError={onImageSettled}
             />
           </div>
         </div>

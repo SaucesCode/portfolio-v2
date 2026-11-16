@@ -204,3 +204,114 @@ test.describe('Live demo scale', () => {
     expect(ratio).toBeLessThan(0.02);
   });
 });
+
+test.describe('Live hero review fixes', () => {
+  const tryRow = (page: import('@playwright/test').Page) => page.locator('[class*="tryRow"]');
+
+  test('the hero does not move when the live demo arrives, or when switching', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'commit' });
+    await page.locator('#intro-title').waitFor();
+    const before = await page.locator('#intro-title').evaluate((el) => el.getBoundingClientRect().top + scrollY);
+    await expect(page.locator('[data-live="ready"]').first()).toBeAttached({ timeout: 10_000 });
+    await page.waitForTimeout(400);
+    const after = await page.locator('#intro-title').evaluate((el) => el.getBoundingClientRect().top + scrollY);
+    expect(Math.abs(after - before)).toBeLessThanOrEqual(1);
+    const softwareRow = (await tryRow(page).boundingBox())!.height;
+    await page.getByRole('radio', { name: /Thread & Form/ }).click();
+    await expect(page.getByRole('radiogroup', { name: 'Colour' })).toBeVisible();
+    expect((await tryRow(page).boundingBox())!.height).toBeCloseTo(softwareRow, 0);
+  });
+
+  test('without JavaScript the controls row takes no space', async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+    await page.goto('/');
+    const box = await page.locator('[class*="tryRow"]').evaluate((el) => {
+      const style = getComputedStyle(el);
+      return el.getBoundingClientRect().height + parseFloat(style.marginTop);
+    });
+    expect(box).toBe(0);
+    await context.close();
+  });
+
+  test('controls appear only once their live demo is showing', async ({ page }) => {
+    await page.route('**/live-hero.jpg*', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await route.continue();
+    });
+    await page.route('**/_next/image?url=%2Fwork%2Fthread-and-form%2Flive-hero.jpg*', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await route.continue();
+    });
+    await page.goto('/');
+    await expect(page.locator('[data-live="ready"][data-live-id="software"]')).toBeAttached();
+    await page.getByRole('radio', { name: /Thread & Form/ }).click();
+    for (let i = 0; i < 15; i++) {
+      const controls = await page.getByRole('radiogroup', { name: 'Colour' }).count();
+      const ready = await page.locator('[data-live="ready"][data-live-id="web"]').count();
+      expect(controls === 0 || ready === 1, `poll ${i}`).toBe(true);
+      await page.waitForTimeout(100);
+    }
+  });
+
+  test('a demo is marked ready only after its fonts have loaded', async ({ page }) => {
+    await page.route('**/*.woff2', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 900));
+      await route.continue();
+    });
+    await page.addInitScript(() => {
+      new MutationObserver((records) => {
+        for (const record of records) {
+          const el = record.target as HTMLElement;
+          if (el.dataset?.live === 'ready' && !(window as unknown as { __fontsAtReady?: number }).__fontsAtReady) {
+            (window as unknown as { __fontsAtReady: number }).__fontsAtReady =
+              [...document.fonts].filter((font) => font.status === 'loading').length + 1;
+          }
+        }
+      }).observe(document, { subtree: true, attributes: true, attributeFilter: ['data-live'] });
+    });
+    await page.goto('/');
+    await expect(page.locator('[data-live="ready"]').first()).toBeAttached({ timeout: 10_000 });
+    // Stored as count + 1 so that "no font still loading" reads as 1.
+    expect(await page.evaluate(() => (window as unknown as { __fontsAtReady: number }).__fontsAtReady)).toBe(1);
+  });
+
+  test('a failed demo download leaves the hero and its screenshots in place', async ({ page, request }) => {
+    const html = await (await request.get('/')).text();
+    const initial = new Set([...html.matchAll(/\/_next\/static\/chunks\/[^"']+\.js/g)].map((m) => m[0]));
+    await page.route('**/_next/static/chunks/**', (route) =>
+      initial.has(new URL(route.request().url()).pathname) ? route.continue() : route.abort(),
+    );
+    await page.goto('/');
+    await page.waitForTimeout(3000);
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.locator('[data-role] img')).toHaveCount(2);
+    await expect(page.getByText(/Application error/i)).toHaveCount(0);
+  });
+
+  test('the main window always shows its screenshot or a ready demo', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'commit' });
+    await page.locator('[data-role="primary"]').waitFor();
+    for (let i = 0; i < 25; i++) {
+      const state = await page.locator('[data-role="primary"]').evaluate((el) => {
+        const img = el.querySelector('img')!;
+        const live = el.querySelector('[data-live]') as HTMLElement | null;
+        return { image: getComputedStyle(img).opacity === '1', live: live?.dataset.live ?? 'none', liveOpacity: live ? getComputedStyle(live).opacity : '0' };
+      });
+      expect(state.image || state.live === 'ready', `poll ${i}`).toBe(true);
+      if (state.live !== 'ready') expect(state.liveOpacity, `poll ${i}`).toBe('0');
+      await page.waitForTimeout(100);
+    }
+  });
+
+  test('selling out keeps focus on the button and says why', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Keyboard behaviour is checked on desktop.');
+    await page.goto('/');
+    const button = page.getByRole('group', { name: 'Try Rowszein’s Delight' }).getByRole('button', { name: /Sell 1 Classic Glazed/ });
+    await button.focus();
+    for (let i = 0; i < 65; i++) await page.keyboard.press('Enter');
+    await expect(button).toBeFocused();
+    await expect(button).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.getByRole('status').filter({ hasText: 'Not enough' })).toContainText('all-purpose flour');
+  });
+});

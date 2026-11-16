@@ -6,6 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type Keyboar
 import dynamic from 'next/dynamic';
 import { categoryLabels, featuredSoftware, featuredWebsite, type Shot } from '@/data/projects';
 import { stylePresets, typePairs } from '@/data/thread-and-form';
+import { LiveBoundary } from './live/LiveBoundary';
 import { SaleControls } from './live/SaleControls';
 import { StyleControls } from './live/StyleControls';
 import { useIdleMount } from './live/useIdleMount';
@@ -20,7 +21,7 @@ const WebLayer = dynamic(() => import('./live/LiveLayers').then((m) => m.WebLaye
  * Taps on the switch before hydration would be lost, so this runs while the page is still parsing:
  * it remembers the last choice until the hero mounts and applies it.
  */
-const EARLY_PICK = `(function(){var r=document.documentElement;document.addEventListener('click',function(e){if('heroHydrated' in r.dataset)return;var t=e.target,b=t&&t.closest&&t.closest('[data-hero-pick]');if(b)r.dataset.heroPick=b.getAttribute('data-hero-pick');},true);})();`;
+const EARLY_PICK = `(function(){var r=document.documentElement;r.dataset.js='';document.addEventListener('click',function(e){if('heroHydrated' in r.dataset)return;var t=e.target,b=t&&t.closest&&t.closest('[data-hero-pick]');if(b)r.dataset.heroPick=b.getAttribute('data-hero-pick');},true);})();`;
 
 export type Discipline = 'software' | 'web';
 
@@ -176,12 +177,14 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
   // A tap on the switch before hydration (kept by EARLY_PICK) wins as soon as the hero can act on it.
   useEffect(() => {
     const root = document.documentElement;
-    const pick = root.dataset.heroPick;
     root.dataset.heroHydrated = '';
-    delete root.dataset.heroPick;
-    if (pick !== 'software' && pick !== 'web') return;
-    // Applied on the next frame, once the windows have laid out, so the handoff measures them.
-    const frame = requestAnimationFrame(() => choose(pick));
+    // Read on the next frame, once the windows have laid out, so the handoff measures them. Reading
+    // inside the frame also survives React's development double-run, which cancels the first frame.
+    const frame = requestAnimationFrame(() => {
+      const pick = root.dataset.heroPick;
+      delete root.dataset.heroPick;
+      if (pick === 'software' || pick === 'web') choose(pick);
+    });
     return () => cancelAnimationFrame(frame);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount, with the first render's choose
   }, []);
@@ -329,11 +332,13 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
                   data-live-id={id}
                   inert={selected !== id}
                 >
-                  {id === 'software' ? (
-                    <SoftwareLayer state={demo.state} recent={demo.recent} onReady={markSoftwareReady} />
-                  ) : (
-                    <WebLayer preset={preset} type={type} onReady={markWebReady} />
-                  )}
+                  <LiveBoundary>
+                    {id === 'software' ? (
+                      <SoftwareLayer state={demo.state} recent={demo.recent} onReady={markSoftwareReady} />
+                    ) : (
+                      <WebLayer preset={preset} type={type} onReady={markWebReady} />
+                    )}
+                  </LiveBoundary>
                 </span>
               )}
               {liveReady[id] ? (
@@ -388,7 +393,7 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
       </div>
 
       <div className={styles.tryRow}>
-        {idle &&
+        {liveReady[selected] &&
           (selected === 'software' ? (
             <SaleControls demo={demo} announce={setAnnouncement} />
           ) : (

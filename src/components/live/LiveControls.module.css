@@ -47,21 +47,21 @@
   background: var(--chalk, transparent);
 }
 
-.chip:hover:not(:disabled),
+.chip:hover:not([aria-disabled='true']),
 .reset:hover,
 .swatch:hover,
 .toggle:hover {
   border-color: var(--ink);
 }
 
-.chip:active:not(:disabled),
+.chip:active:not([aria-disabled='true']),
 .reset:active,
 .swatch:active,
 .toggle:active {
   transform: scale(0.97);
 }
 
-.chip:disabled {
+.chip[aria-disabled='true'] {
   cursor: not-allowed;
   opacity: 0.55;
 }

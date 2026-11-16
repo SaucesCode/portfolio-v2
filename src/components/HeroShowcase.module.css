@@ -61,11 +61,25 @@
   margin-top: 1.5rem;
 }
 
-/* The live demo's controls, full size under the main window. Empty until the demo is ready. */
+/*
+ * The live demo's controls, full size under the main window, shown once the demo is ready. With
+ * JavaScript (flagged before first paint) the row's space is reserved at the taller strip's height,
+ * so neither its arrival nor switching demos moves anything; without it, the row takes no space.
+ */
 .tryRow {
   grid-column: 1 / -1;
   grid-row: 6;
+}
+
+:global(html[data-js]) .tryRow {
+  min-height: 14.5rem;
   margin-top: 1rem;
+}
+
+@media (min-width: 37.5rem) {
+  :global(html[data-js]) .tryRow {
+    min-height: 8rem;
+  }
 }
 
 /* The live demo sits over the screenshot and fades in only once it has rendered. */
