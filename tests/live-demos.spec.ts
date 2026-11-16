@@ -109,3 +109,37 @@ test.describe('Live Rowszein demo in the hero', () => {
     await expect(live(page)).not.toContainText('running low');
   });
 });
+
+test.describe('Live Thread & Form demo in the hero', () => {
+  test.skip(({ isMobile }) => isMobile, 'Interaction is covered on desktop; the phone layout is checked in the hero tests.');
+  const showWebsite = async (page: import('@playwright/test').Page) => {
+    await page.goto('/');
+    await page.getByRole('radio', { name: /Thread & Form/ }).click();
+    const live = page.locator('[data-live="ready"][data-id="web"]');
+    await expect(live).toBeVisible();
+    return { live, colours: page.getByRole('radiogroup', { name: 'Colour' }), type: page.getByRole('radiogroup', { name: 'Type' }) };
+  };
+
+  test('a colour preset restyles the whole hero', async ({ page }) => {
+    const { live, colours } = await showWebsite(page);
+    await colours.getByRole('radio', { name: 'Navy' }).click();
+    await expect(live.locator('[data-theme-ground]')).toHaveCSS('background-color', 'rgb(17, 20, 26)');
+    await expect(page.getByRole('status').filter({ hasText: 'Thread & Form restyled' })).toContainText('Navy, Serif.');
+  });
+
+  test('the type choice swaps the display face', async ({ page }) => {
+    const { live, type } = await showWebsite(page);
+    await type.getByRole('radio', { name: 'Sans' }).click();
+    const family = await live.locator('[data-theme-headline]').evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(family).toMatch(/Jakarta/i);
+  });
+
+  test('swatches work as a radio group from the keyboard', async ({ page }) => {
+    const { colours } = await showWebsite(page);
+    const paper = colours.getByRole('radio', { name: 'Paper' });
+    await paper.focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(colours.getByRole('radio', { name: 'Sand' })).toBeFocused();
+    await expect(colours.getByRole('radio', { name: 'Sand' })).toHaveAttribute('aria-checked', 'true');
+  });
+});
