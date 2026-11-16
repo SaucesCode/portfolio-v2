@@ -352,7 +352,8 @@ test.describe('Application walkthrough', () => {
     await tour.getByRole('button', { name: 'Next' }).click();
     await tour.getByRole('button', { name: 'Next' }).click();
     const positions = await tour.locator('[data-pos]').evaluateAll((els) => els.map((el) => el.getAttribute('data-pos')));
-    expect(positions).toEqual(['before', 'before', 'current', 'after', 'after']);
+    const steps = featuredSoftware.walkthrough!.length;
+    expect(positions).toEqual(['before', 'before', 'current', ...Array<string>(steps - 3).fill('after')]);
   });
 
   test('step list jumps directly and the technical note opens', async ({ page, isMobile }) => {

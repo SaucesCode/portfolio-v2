@@ -11,8 +11,8 @@ import { caseStudyJsonLd, caseStudyMetadata, jsonLdScript } from '@/lib/case-stu
 
 const project = getCaseStudy('rowszeins-delight');
 // The dashboard opens the page; the rest of the routine follows in the workflow section, grouped
-// the way the owner uses it: selling, stock, costing and money.
-const [hero, recordSale, inventory, recipes, margins] = project.walkthrough ?? [];
+// the way the owner uses it: orders and selling, stock and costing, money, then the shop itself.
+const [hero, orders, recordSale, inventory, recipes, analytics, boxes, settings] = project.walkthrough ?? [];
 
 type Screen = Pick<WalkthroughStep, 'shot' | 'title' | 'body' | 'detail'>;
 
@@ -31,12 +31,28 @@ const expenses: Screen = {
   detail: 'Expenses export as CSV or PDF, and together with sales they feed the profit figures on the dashboard.',
 };
 
-const screens = [recordSale, salesList, inventory, recipes, margins, expenses].filter((screen): screen is Screen => Boolean(screen));
+const partners: Screen = {
+  shot: rowszeinScreen('partners'),
+  title: 'Pay partners what they are owed',
+  body: 'Each partner’s items, how many sold, and what the shop still owes them for any period, ready to download.',
+  detail: 'Payouts are recorded against the partner and can be voided with a reason, so the amount still owed is always computed, never typed in.',
+};
+
+const screens = [orders, recordSale, salesList, inventory, recipes, analytics, boxes, partners, expenses, settings].filter(
+  (screen): screen is Screen => Boolean(screen),
+);
+
+/** The customer's side: the public shop and the page an order sends them to. */
+const customerScreens = [
+  { shot: rowszeinScreen('shop'), alt: 'The Rowszein’s Delight shop: build a box of 6 or 12 from today’s donuts', caption: 'The shop. Customers fill a box from today’s donuts or pick a ready-made one; no account is needed.' },
+  { shot: rowszeinScreen('order-status'), alt: 'An order status page waiting for the shop to confirm', caption: 'After ordering, customers get their own status page that shows whether the shop has confirmed.' },
+];
+const phoneShop = { src: '/work/rowszeins-delight/app-shop-phone.jpg', width: 780, height: 1688 };
 
 const copy = {
   title: 'Rowszein’s Delight: a business system for a dessert shop',
   description:
-    'Case study: a Django REST and React system that links recipes to stock, so every recorded sale takes the right ingredients out of the pantry and every product knows its cost and margin.',
+    'Case study: a Django REST and React system for a dessert shop, with online orders, recipes linked to stock so every sale takes the right ingredients out of the pantry, and profit after partners and expenses.',
 };
 
 export const metadata = caseStudyMetadata(project, copy);
@@ -186,8 +202,8 @@ export default function RowszeinCaseStudy() {
             What the owner works with
           </h2>
           <p className="mt-4 max-w-[60ch] text-lg leading-relaxed text-graphite">
-            Beyond the dashboard, six screens cover the daily routine: selling, stock, costing and money. The note
-            under each one says what the code does behind it.
+            Beyond the dashboard, ten screens cover the routine: orders and selling, stock and costing, money, and the
+            shop itself. The note under each one says what the code does behind it.
           </p>
           <div className="mt-12 grid gap-x-6 gap-y-16 lg:grid-cols-2 lg:gap-y-24">
             {screens.map((screen) => (
@@ -212,6 +228,50 @@ export default function RowszeinCaseStudy() {
                 </figcaption>
               </figure>
             ))}
+          </div>
+        </section>
+
+        {/* What customers see --------------------------------------------- */}
+        <section aria-labelledby="customers-title" className="mx-auto mt-24 max-w-[90rem] px-4 sm:mt-36 sm:px-6 lg:px-10">
+          <h2 id="customers-title" className={sectionTitle}>
+            What customers see
+          </h2>
+          <p className="mt-4 max-w-[60ch] text-lg leading-relaxed text-graphite">
+            The same system runs the public shop, so an order placed on a phone lands in the owner’s Orders screen.
+          </p>
+          <div className="mt-12 grid items-start gap-x-6 gap-y-14 lg:grid-cols-12">
+            <div className="grid gap-14 lg:col-span-8">
+              {customerScreens.map((screen) => (
+                <figure key={screen.shot.src}>
+                  <div className="overflow-hidden rounded-[var(--radius-frame)] shadow-hang">
+                    <Image
+                      src={screen.shot.src}
+                      width={screen.shot.width}
+                      height={screen.shot.height}
+                      sizes="(min-width: 1024px) 60vw, 94vw"
+                      alt={screen.alt}
+                      loading="lazy"
+                      className="block h-auto w-full"
+                    />
+                  </div>
+                  <figcaption className="mt-4 max-w-[56ch] leading-relaxed">{screen.caption}</figcaption>
+                </figure>
+              ))}
+            </div>
+            <figure className="mx-auto w-full max-w-[20rem] lg:sticky lg:top-28 lg:col-span-4 lg:max-w-none">
+              <div className="overflow-hidden rounded-[1.75rem] shadow-hang">
+                <Image
+                  src={phoneShop.src}
+                  width={phoneShop.width}
+                  height={phoneShop.height}
+                  sizes="(min-width: 1024px) 26vw, 20rem"
+                  alt="The shop on a phone, with the demonstration-data notice"
+                  loading="lazy"
+                  className="block h-auto w-full"
+                />
+              </div>
+              <figcaption className="mt-4 leading-relaxed text-graphite">On a phone, at 390 pixels wide.</figcaption>
+            </figure>
           </div>
         </section>
 

@@ -106,8 +106,8 @@ export const projects: Project[] = [
     classification: 'personal',
     provenance: 'Personal project, built for a dessert shop’s daily operations',
     summary:
-      'An owner panel that tracks ingredients, recipes, sales and expenses, then turns them into stock alerts, production costs and profit per product.',
-    note: 'The owner panel needs a login, so it is shown as a guided tour. The screens come from the latest published version, running locally with fictional demonstration data.',
+      'An online shop and owner panel for a dessert shop: customers order boxes for delivery or a meet-up, and the owner runs orders, sales, stock, recipes, partners and profit in one place.',
+    note: 'The owner panel needs a login, so it is shown as a guided tour. The screens come from the version published on 16 Nov 2026, running locally with fictional demonstration data.',
     links: [
       { href: 'https://rowszein-s-delight.vercel.app/', label: 'Visit the public shop' },
       github('Rowszein-s-Delight'),
@@ -118,42 +118,66 @@ export const projects: Project[] = [
     walkthrough: [
       {
         shot: rowszeinScreen('dashboard'),
-        title: 'See the business at a glance',
-        body: 'Sales, expenses, profit and low-stock warnings for any period, with the best sellers beside the trend.',
+        title: 'See the day at a glance',
+        body: 'Today’s sales, new orders waiting for a reply, the latest sales and anything running low, on one screen.',
         detail:
-          'A Django REST endpoint aggregates sales and expenses for the chosen period; the React front end draws the trends with Recharts.',
-        focus: { x: 52, y: 40, zoom: 1.06 },
+          'A Django REST endpoint totals net sales, partner payouts and expenses for the chosen period; the React front end draws the trends with Recharts.',
+        focus: { x: 45, y: 42, zoom: 1.08 },
+      },
+      {
+        shot: rowszeinScreen('order-detail'),
+        title: 'Take orders online',
+        body: 'Customers fill a box or pick donuts in the shop, choose delivery or a meet-up, and the order waits here for a yes or no.',
+        detail:
+          'Confirming runs the same sale service as the till, with an idempotency key fixed per order, so a repeated confirm can never record a second sale. Declining sends the customer a short reason on their order page.',
+        focus: { x: 62, y: 40, zoom: 1.14 },
       },
       {
         shot: rowszeinScreen('record-sale'),
         title: 'Record a sale in seconds',
-        body: 'Pick the products sold; prices fill in from the catalogue and the order total updates as you go.',
+        body: 'Tap donuts or add a box; prices come from the collection and the total updates as you go.',
         detail:
           'Saving a sale takes every ingredient out of stock using each product’s recipe, in one database transaction. Editing or cancelling a sale reverses what it used and posts an adjustment, so stock and reports agree.',
-        focus: { x: 62, y: 60, zoom: 1.28 },
+        focus: { x: 62, y: 52, zoom: 1.2 },
       },
       {
         shot: rowszeinScreen('inventory'),
         title: 'Know what is running low',
-        body: 'Every ingredient shows its stock against a minimum, so reordering is never a guess.',
+        body: 'Every ingredient shows its stock against a restock level, so reordering is never a guess.',
         detail:
-          'An ingredient is flagged when its quantity reaches its minimum stock. Inventory value is quantity times cost per unit across the pantry.',
-        focus: { x: 60, y: 62, zoom: 1.22 },
+          'An ingredient is flagged when its quantity reaches its minimum. Deliveries and spoilage are recorded as stock adjustments with a reason, never by overwriting the number.',
+        focus: { x: 66, y: 55, zoom: 1.2 },
       },
       {
         shot: rowszeinScreen('recipes'),
         title: 'Cost every recipe',
-        body: 'Each product’s recipe turns ingredient prices into a batch cost and a cost per piece.',
+        body: 'Each donut’s recipe turns ingredient prices into a cost per piece and what the shop keeps.',
         detail:
           'Batch cost is the sum of each ingredient’s quantity times its cost per unit; cost per piece divides that by the recipe’s yield.',
-        focus: { x: 70, y: 66, zoom: 1.26 },
+        focus: { x: 62, y: 62, zoom: 1.18 },
       },
       {
-        shot: rowszeinScreen('profit-margins'),
-        title: 'See what each product earns',
-        body: 'Selling price against production cost, with every margin rated good, fair or low.',
-        detail: 'Margin is selling price minus cost per piece, divided by selling price, recalculated whenever a recipe or price changes.',
-        focus: { x: 64, y: 42, zoom: 1.2 },
+        shot: rowszeinScreen('analytics'),
+        title: 'See what the shop keeps',
+        body: 'Sales, what is owed to partners and what was spent, for any period, with best sellers and what each donut earns.',
+        detail:
+          'Profit is net sales minus partner payouts and expenses. Sold counts include cancellations and changes on the day they were made, so an edit never rewrites an earlier day.',
+        focus: { x: 40, y: 36, zoom: 1.12 },
+      },
+      {
+        shot: rowszeinScreen('boxes'),
+        title: 'Sell boxes and partner items',
+        body: 'Set box sizes and ready-made boxes, and sell a partner bakery’s items at their price plus the shop’s margin.',
+        detail:
+          'A box fills evenly between the flavours a customer picks, up to its flavour limit. Partner items carry their own payout, and what is owed is totalled per period.',
+        focus: { x: 56, y: 44, zoom: 1.12 },
+      },
+      {
+        shot: rowszeinScreen('settings'),
+        title: 'Run the shop from one page',
+        body: 'Delivery hours, towns and fees, meet-up places, notices and a pause switch, changed without touching code.',
+        detail: 'Shop settings are one revisioned record; customers see a change the next time they open the shop.',
+        focus: { x: 60, y: 45, zoom: 1.12 },
       },
     ],
   },
