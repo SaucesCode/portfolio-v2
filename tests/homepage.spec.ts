@@ -574,6 +574,17 @@ test.describe('Services and contact', () => {
 });
 
 test.describe('Responsive boundaries', () => {
+  test('the header stays on one row on phones', async ({ page }) => {
+    await page.goto('/');
+    const banner = page.getByRole('banner');
+    for (const width of [320, 360, 390, 430, 600]) {
+      await page.setViewportSize({ width, height: 800 });
+      expect((await banner.boundingBox())!.height, `header height at ${width}px`).toBeLessThanOrEqual(64.5);
+      await expect(banner.getByRole('link', { name: 'Contact' }).or(banner.getByRole('link', { name: 'Start a project' }))).toBeVisible();
+      await expect(banner.getByRole('button', { name: 'Ask about my work' })).toBeVisible();
+    }
+  });
+
   test('the header stays on one row at tablet and desktop widths', async ({ page, isMobile }) => {
     test.skip(isMobile, 'Section links are shown from tablet width up.');
     await page.setViewportSize({ width: 1440, height: 900 });

@@ -112,3 +112,75 @@ test.describe('POST /api/ask', () => {
     expect(Object.keys(line).sort()).toEqual(['event', 'ms', 'outcome', 'requestId', 'tokens']);
   });
 });
+
+test.describe('Ask about my work panel', () => {
+  type Page = import('@playwright/test').Page;
+  const answerWith = async (page: Page, status: number, json: unknown) =>
+    page.route('**/api/ask', (route) => route.fulfill({ status, json }));
+  const trigger = (page: Page) => page.getByRole('banner').getByRole('button', { name: 'Ask about my work' });
+  const panel = (page: Page) => page.getByRole('dialog', { name: 'Ask about my work' });
+
+  test('opens from the header or with /, and Escape returns focus', async ({ page, isMobile }) => {
+    await page.goto('/');
+    await trigger(page).click();
+    await expect(panel(page)).toBeVisible();
+    await expect(panel(page).getByRole('textbox', { name: 'Your question' })).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(panel(page)).toBeHidden();
+    await expect(trigger(page)).toBeFocused();
+    if (!isMobile) {
+      await page.locator('body').click({ position: { x: 5, y: 300 } });
+      await page.keyboard.press('/');
+      await expect(panel(page)).toBeVisible();
+    }
+  });
+
+  test('a suggested question shows the answer and its actions', async ({ page }) => {
+    await answerWith(page, 200, { answer: 'A WordPress site usually takes 3–5 weeks.', actions: [{ type: 'show_section', id: 'process' }] });
+    await page.goto('/');
+    await trigger(page).click();
+    await panel(page).getByRole('button', { name: 'How long does a website take?' }).click();
+    await expect(panel(page)).toContainText('A WordPress site usually takes 3–5 weeks.');
+    await panel(page).getByRole('button', { name: 'Show how working together goes' }).click();
+    await expect(panel(page)).toBeHidden();
+    await expect(page.locator('#process')).toBeInViewport();
+  });
+
+  test('from a case study, a section action leads back to the homepage', async ({ page }) => {
+    await answerWith(page, 200, { answer: 'Here is how it works.', actions: [{ type: 'show_section', id: 'process' }] });
+    await page.goto('/work/quickaid');
+    await trigger(page).click();
+    await panel(page).getByRole('textbox', { name: 'Your question' }).fill('How do projects run?');
+    await panel(page).getByRole('button', { name: 'Ask', exact: true }).click();
+    await panel(page).getByRole('button', { name: 'Show how working together goes' }).click();
+    await expect(page).toHaveURL(/\/#process$/);
+  });
+
+  test('a demo action switches the hero', async ({ page }) => {
+    await answerWith(page, 200, { answer: 'Try it here.', actions: [{ type: 'focus_demo', id: 'web' }] });
+    await page.goto('/');
+    await trigger(page).click();
+    await panel(page).getByRole('textbox', { name: 'Your question' }).fill('Show me a website');
+    await panel(page).getByRole('button', { name: 'Ask', exact: true }).click();
+    await panel(page).getByRole('button', { name: 'Try the website demo' }).click();
+    await expect(page.getByRole('radio', { name: /Thread & Form/ })).toHaveAttribute('aria-checked', 'true');
+  });
+
+  for (const [status, body, text] of [
+    [429, { state: 'limited', retryAfterSeconds: 240 }, 'Try again in 4 minutes'],
+    [503, { state: 'busy' }, 'busy today'],
+    [503, { state: 'off' }, 'switched off for now'],
+    [503, { state: 'error' }, 'Something went wrong'],
+    [400, { state: 'invalid', field: 'question', message: 'Keep it to 300 characters.' }, 'Keep it to 300 characters.'],
+  ] as const) {
+    test(`shows the ${body.state} state with a way to email`, async ({ page }) => {
+      await answerWith(page, status, body);
+      await page.goto('/');
+      await trigger(page).click();
+      await panel(page).getByRole('textbox', { name: 'Your question' }).fill('Hello');
+      await panel(page).getByRole('button', { name: 'Ask', exact: true }).click();
+      await expect(panel(page)).toContainText(text);
+      await expect(panel(page).getByRole('link', { name: /Email/ })).toHaveAttribute('href', /^mailto:/);
+    });
+  }
+});
