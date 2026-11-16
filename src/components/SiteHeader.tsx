@@ -5,7 +5,6 @@ import { ButtonLink } from './ButtonLink';
 const sections = [
   { id: 'featured', label: 'Work' },
   { id: 'services', label: 'Services' },
-  { id: 'working', label: 'Pricing' },
   { id: 'about', label: 'About' },
   { id: 'contact', label: 'Contact' },
 ];
@@ -35,11 +34,10 @@ export function SiteHeader({ onHome = true }: { onHome?: boolean }) {
             {site.name}
           </Link>
         )}
-        <nav aria-label="Primary" className="flex items-center gap-2 sm:gap-4 lg:gap-6">
-          <ul className="hidden items-center gap-4 md:flex lg:gap-6">
+        <nav aria-label="Primary" className="flex items-center gap-2 sm:gap-6">
+          <ul className="hidden items-center gap-6 md:flex">
             {sections.map((section) => (
-              // On tablets the "Start a project" button beside the list stands in for Contact, so the row fits.
-              <li key={section.id} className={section.id === 'contact' ? 'hidden lg:block' : undefined}>
+              <li key={section.id}>
                 {href(section.id).startsWith('/') ? (
                   <Link href={href(section.id)} className={linkClass}>
                     {section.label}

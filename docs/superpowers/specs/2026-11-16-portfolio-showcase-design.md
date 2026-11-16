@@ -2,6 +2,9 @@
 
 Date: 2026-11-16 · Status: awaiting owner approval · Owner: James Patrick De Mesa · Site: https://www.saucescode.xyz (Next.js 16, Vercel, repo `SaucesCode/portfolio-v2`)
 
+## Change log
+- **2026-11-16, owner decision after Phase 1 review:** the "Working with me" section, its "Pricing" nav link and every published price are removed, because public prices felt intimidating to clients. Prices are discussed per project and never appear on the site, in structured data, in `llms.txt` or in assistant answers. The non-price terms (timelines, time zones, after launch, payment) stay in `src/data/terms.ts`, which `llms.txt` and the assistant read. Sections below that describe the price list are superseded by this entry.
+
 ## Intent
 
 The portfolio itself is the proof. A visitor, whether a local business owner or an international client, should leave thinking "if he built this, he can build mine." The site already shows the work well once someone digs in. What it lacks:
@@ -16,7 +19,7 @@ AI is one strand of the message, not the whole of it: "I build complete, working
 
 1. Within the first screen, a visitor can *use* both kinds of work: record a sale in a business system, and restyle a website.
 2. A visitor can ask the site a question in plain language and the site answers from its own content *and acts on the page*.
-3. A client can find prices, timelines, working terms and a personal voice without emailing first.
+3. A client can find timelines, working terms and a personal voice without emailing first. Prices are discussed per project (see the change log).
 4. The gallery shows fewer projects at higher weight.
 5. The portfolio becomes a case study of its own.
 
@@ -138,15 +141,15 @@ The live primary frame must stay usable at 360px wide: the chips wrap, and the c
 ### What the visitor sees
 - A search-style trigger in the header: a field labelled **"Ask about my work"**, also opened with `/` or ⌘K/Ctrl+K, plus a short line in the hero's supporting area pointing to it. No floating bubble.
 - It opens as a panel: a modal on phones, a command-palette-style overlay on desktop. It has three suggested questions, an input (max 300 characters), and answers that stream in.
-- Answers are short (≤ 3 sentences) and may be followed by **action chips** the model chose, e.g. "Show me Rowszein's Delight", "See pricing", "Email James with this". Actions run when the visitor clicks a chip, not automatically. Exception: an explicit visitor request such as "show me…" may scroll straight away.
+- Answers are short (≤ 3 sentences) and may be followed by **action chips** the model chose, e.g. "Show me Rowszein's Delight", "See the work", "Email James with this". Actions run when the visitor clicks a chip, not automatically. Exception: an explicit visitor request such as "show me…" may scroll straight away.
 - A footer line: "Answers come from this site's content only. Questions are sent to Google's Gemini to answer, and this site doesn't keep them." On the free tier, Google may use submitted content to improve its products, so the panel must not claim otherwise. The input placeholder discourages personal details ("Don't include personal details").
 - Available on every page. On a case study, `show_section` and `focus_demo` go to the homepage and then act. (My call.)
-- It replies in the visitor's language: a question in Tagalog or Taglish gets a Tagalog or Taglish answer, with prices and terms quoted exactly as written. (My call, for the local audience.)
+- It replies in the visitor's language: a question in Tagalog or Taglish gets a Tagalog or Taglish answer, with terms quoted exactly as written. (My call, for the local audience.)
 
 ### Page actions (tools the model may call)
 | Tool | Effect on the page |
 |---|---|
-| `show_section(id)` | Scroll to a homepage section (`featured`, `work`, `services`, `working`, `about`, `contact`) and briefly highlight it |
+| `show_section(id)` | Scroll to a homepage section (`featured`, `work`, `services`, `about`, `contact`) and briefly highlight it |
 | `focus_demo('software' \| 'web')` | Scroll to the hero and hand the primary frame to that demo |
 | `open_project(slug)` | Go to the case study if one exists, otherwise to its gallery card or dialog |
 | `draft_inquiry(summary)` | Open a `mailto:` to the site email, with a subject and a body summarising the visitor's need |
@@ -155,7 +158,7 @@ Tools only *propose* client-side actions. Nothing server-side changes state, so 
 
 ### Grounding and honesty
 - The system prompt contains: who James is, services, projects (with provenance), terms (from `terms.ts`) and contact. All of it is built from the same data modules as `llms.txt`, at build time. No retrieval service is needed; the content is small.
-- Rules: answer only from the provided content. If something isn't covered, say so and offer `draft_inquiry`. Never quote a price, timeline or capability that isn't in the content. Never claim client work. Decline off-topic requests in one sentence. Write plainly with no marketing language.
+- Rules: answer only from the provided content. If something isn't covered, say so and offer `draft_inquiry`. Never state or estimate a price: pricing questions get "pricing depends on the project" plus `draft_inquiry`. Never quote a timeline or capability that isn't in the content. Never claim client work. Decline off-topic requests in one sentence. Write plainly with no marketing language.
 - **Model:** a current Gemini Flash-class model available on the free tier with function calling and streaming. Confirm the model id and the current free-tier limits in Google's documentation at build time, because Google changes them. Keep the provider call behind one small module, so switching provider later (e.g. to Claude) touches one file.
 
 ### Abuse protection (owner requirement: no one can abuse it)

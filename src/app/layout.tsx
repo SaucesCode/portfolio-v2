@@ -113,9 +113,6 @@ const personJsonLd = {
       makesOffer: services.map((service) => ({
         '@type': 'Offer',
         itemOffered: { '@type': 'Service', name: service.name, description: service.description },
-        ...(service.fromUsd && {
-          priceSpecification: { '@type': 'PriceSpecification', minPrice: service.fromUsd, priceCurrency: 'USD' },
-        }),
       })),
     },
     {

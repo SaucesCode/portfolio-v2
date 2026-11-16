@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { caseStudies, featuredSoftware, featuredWebsite, galleryCards, galleryProjects, heroProjects, moreExperiments, projects } from '../src/data/projects';
 import { services } from '../src/data/services';
 import { site } from '../src/data/site';
-import { formatUsd, terms } from '../src/data/terms';
+import { terms } from '../src/data/terms';
 
 const viewerSlider = (page: Page) =>
   page.getByRole('slider', { name: `Scroll position in the ${featuredWebsite.title} page` });
@@ -49,23 +49,18 @@ test.describe('Identity and SEO', () => {
     expect(person.email).toBe(`mailto:${site.email}`);
     expect(person.jobTitle).toMatch(/software engineer/i);
     expect(person.makesOffer.length).toBeGreaterThan(0);
-    type OfferNode = { itemOffered: { name: string }; priceSpecification?: unknown };
-    const offerFor = (name: string) => person.makesOffer.find((o: OfferNode) => o.itemOffered.name === name);
-    for (const service of services.filter((s) => s.fromUsd)) {
-      expect(offerFor(service.name).priceSpecification).toEqual({ '@type': 'PriceSpecification', minPrice: service.fromUsd, priceCurrency: 'USD' });
-    }
-    expect(offerFor('APIs, databases and integrations').priceSpecification).toBeUndefined();
+    // Prices are discussed per project, never published.
+    expect(JSON.stringify(blocks)).not.toMatch(/price/i);
+    expect(person.makesOffer).toHaveLength(services.length);
     const profile = graph.find((node) => node['@type'] === 'ProfilePage');
     expect(profile.mainEntity['@id']).toBe(person['@id']);
     const list = graph.find((node) => node['@type'] === 'ItemList');
     expect(list.itemListElement).toHaveLength(projects.length);
   });
 
-  test('pricing copy is built from the service prices', () => {
-    expect(formatUsd(1200)).toBe('US$1,200');
-    const pricing = terms.find((t) => t.id === 'pricing')!;
-    for (const s of services.filter((s) => s.fromUsd)) expect(pricing.body).toContain(formatUsd(s.fromUsd!));
-    expect(terms.map((t) => t.id)).toEqual(['pricing', 'timeline', 'timezones', 'after-launch', 'payment']);
+  test('working terms never state a price', () => {
+    expect(terms.map((t) => t.id)).toEqual(['timeline', 'timezones', 'after-launch', 'payment']);
+    for (const term of terms) expect(term.body).not.toMatch(/\$|US\$|USD|price/i);
   });
 
   test('sitemap lists only routes that exist', async ({ request }) => {
@@ -77,21 +72,12 @@ test.describe('Identity and SEO', () => {
 });
 
 test.describe('Homepage structure', () => {
-  test('working with me shows real prices and terms', async ({ page }) => {
-    await page.goto('/');
-    const section = page.locator('#working');
-    await expect(section.getByRole('heading', { level: 2, name: 'Working with me' })).toBeVisible();
-    for (const term of terms) await expect(section.getByRole('heading', { level: 3, name: term.title })).toBeAttached();
-    for (const s of services.filter((s) => s.fromUsd)) await expect(section.getByText(formatUsd(s.fromUsd!)).first()).toBeVisible();
-    await expect(section.getByRole('link', { name: /Start a project/ })).toHaveAttribute('href', /^mailto:/);
-  });
-
   test('leads with the proposition, then software and website work', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Systems your business runs on.Websites it’s found by.');
 
     const order = await page.evaluate(() =>
-      ['intro-title', 'featured', 'work', 'services', 'working', 'about', 'contact'].map(
+      ['intro-title', 'featured', 'work', 'services', 'about', 'contact'].map(
         (id) => document.getElementById(id)!.getBoundingClientRect().top,
       ),
     );
@@ -224,7 +210,6 @@ test.describe('Hero: two disciplines', () => {
       page.getByRole('link', { name: 'Explore my work' }),
       page.locator('#main-content section').first().getByRole('link', { name: 'Start a project' }),
       ...((await page.getByRole('radio').all()) as ReturnType<Page['getByRole']>[]),
-      page.locator('#working').getByRole('link', { name: /Start a project/ }),
       page.locator(`#work-${moreExperiments[0].slug} a`).first(),
     ];
     for (const control of controls) {
@@ -424,22 +409,6 @@ test.describe('Selected work gallery', () => {
     await expect(gallery.getByRole('button', { name: /^All work/ })).toHaveCount(0);
   });
 
-  test('starting prices fit inside their columns', async ({ page }) => {
-    for (const width of [1024, 1280, 1440]) {
-      await page.setViewportSize({ width, height: 900 });
-      await page.goto('/');
-      const overflow = await page.locator('#working ul > li').evaluateAll((items) =>
-        items.map((li) => {
-          const box = li.getBoundingClientRect();
-          return Math.max(...[...li.querySelectorAll('*')].map((el) => el.getBoundingClientRect().right)) - box.right;
-        }),
-      );
-      for (const px of overflow) expect(px, `at ${width}px`).toBeLessThanOrEqual(0.5);
-      const priceTops = await page.locator('#working ul > li > p:last-child').evaluateAll((ps) => ps.map((p) => Math.round(p.getBoundingClientRect().top)));
-      expect(new Set(priceTops).size, `prices line up at ${width}px`).toBe(1);
-    }
-  });
-
   test('service examples link to projects that exist on the page', async ({ page }) => {
     await page.goto('/');
     const hrefs = await page.locator('#services a[href^="#"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')!));
@@ -538,7 +507,8 @@ test.describe('Responsive boundaries', () => {
     await page.goto('/');
     const banner = page.getByRole('banner');
     const desktop = (await banner.boundingBox())!.height;
-    await expect(banner.getByRole('link', { name: 'Pricing' })).toHaveAttribute('href', '#working');
+    await expect(banner.getByRole('link', { name: 'Pricing' })).toHaveCount(0);
+    await expect(page.locator('#working')).toHaveCount(0);
     for (const width of [768, 800, 912, 1024, 1280]) {
       await page.setViewportSize({ width, height: 900 });
       expect((await banner.boundingBox())!.height, `header height at ${width}px`).toBeLessThanOrEqual(desktop + 0.5);

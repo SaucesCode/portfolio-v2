@@ -134,7 +134,7 @@ test.describe('Case studies: content and SEO', () => {
     expect(text).toContain('## Working with me');
     for (const term of terms) expect(text).toContain(term.body);
     expect(text).toContain(site.availability);
-    expect(text).toContain('From US$3,500.');
+    expect(text).not.toMatch(/US\$|USD/);
   });
 
   test('a case study that does not exist returns 404', async ({ request }) => {
@@ -185,7 +185,6 @@ test.describe('Case studies: navigation', () => {
     const nav = page.getByRole('navigation', { name: 'Primary' });
     await expect(nav.getByRole('link', { name: 'Work' })).toHaveAttribute('href', '/#featured');
     await expect(nav.getByRole('link', { name: 'Services' })).toHaveAttribute('href', '/#services');
-    await expect(nav.getByRole('link', { name: 'Pricing' })).toHaveAttribute('href', '/#working');
     await expect(nav.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '#contact');
     await nav.getByRole('link', { name: 'Services' }).click();
     await expect(page).toHaveURL(/\/#services$/);

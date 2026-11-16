@@ -1,7 +1,7 @@
 import { categoryLabels, caseStudies, getProject, projects, type Project } from '@/data/projects';
 import { services } from '@/data/services';
 import { site } from '@/data/site';
-import { formatUsd, terms } from '@/data/terms';
+import { terms } from '@/data/terms';
 import { getBaseUrl } from '@/lib/seo';
 
 // A plain-text map of the site for language models (https://llmstxt.org), built from the same
@@ -28,8 +28,7 @@ Stack: Django and Node.js on the server, PostgreSQL for data, React and Next.js 
 ${services
   .map((service) => {
     const examples = service.examples.map((slug) => getProject(slug).title).join(' and ');
-    const price = service.fromUsd ? ` From ${formatUsd(service.fromUsd)}.` : '';
-    return `- ${service.name}: ${service.description} Examples: ${examples}.${price}`;
+    return `- ${service.name}: ${service.description} Examples: ${examples}.`;
   })
   .join('\n')}
 

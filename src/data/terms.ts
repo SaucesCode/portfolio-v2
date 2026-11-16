@@ -1,27 +1,14 @@
-import { services } from './services';
-
 export interface Term {
-  id: 'pricing' | 'timeline' | 'timezones' | 'after-launch' | 'payment';
+  id: 'timeline' | 'timezones' | 'after-launch' | 'payment';
   title: string;
   body: string;
 }
 
-export const formatUsd = (amount: number) => `US$${amount.toLocaleString('en-US')}`;
-
-/** The starting price of a service, so the copy below can never disagree with the price list. */
-const from = (serviceId: string) => {
-  const price = services.find((service) => service.id === serviceId)?.fromUsd;
-  if (!price) throw new Error(`Service ${serviceId} has no starting price`);
-  return formatUsd(price);
-};
-
-/** How working together goes, in the owner's approved words. Read by the homepage, llms.txt and the assistant. */
+/**
+ * How working together goes, in the owner's approved words. Prices are discussed per project and never
+ * published. Read by llms.txt and, later, the site assistant.
+ */
 export const terms: Term[] = [
-  {
-    id: 'pricing',
-    title: 'How pricing works',
-    body: `Every project gets a fixed price, agreed before work starts, after a short call about what you need. As a guide, landing pages start at ${from('websites')}, WordPress sites at ${from('wordpress')}, and custom web apps and business systems at ${from('applications')}. Based in the Philippines? Ask for a local quote.`,
-  },
   {
     id: 'timeline',
     title: 'How long it takes',
