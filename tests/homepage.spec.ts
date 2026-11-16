@@ -331,13 +331,14 @@ test.describe('Application walkthrough', () => {
 
     await expect(caption).toHaveText(steps[0].title);
     await expect(tour.getByRole('button', { name: 'Previous' })).toBeDisabled();
-    await tour.getByRole('button', { name: 'Next' }).click();
+    // Next names the step it leads to, so the visitor knows what is coming without a full list.
+    await tour.getByRole('button', { name: `Next: ${steps[1].title}` }).click();
     await expect(caption).toHaveText(steps[1].title);
 
     await tour.locator('[tabindex="0"]').focus();
     await page.keyboard.press('End');
     await expect(caption).toHaveText(steps.at(-1)!.title);
-    await expect(tour.getByRole('button', { name: 'Next' })).toBeDisabled();
+    await expect(tour.getByRole('button', { name: /^Next/ })).toHaveCount(0);
     await page.keyboard.press('ArrowLeft');
     await expect(caption).toHaveText(steps.at(-2)!.title);
     await page.keyboard.press('Home');
@@ -356,14 +357,26 @@ test.describe('Application walkthrough', () => {
     expect(positions).toEqual(['before', 'before', 'current', ...Array<string>(steps - 3).fill('after')]);
   });
 
-  test('step list jumps directly and the technical note opens', async ({ page, isMobile }) => {
-    test.skip(isMobile, 'The step list is shown from tablet width up; phones use previous and next.');
+  test('shows one step at a time, with progress segments that jump and a note that opens', async ({ page }) => {
     await page.goto('/');
     const tour = tourOf(page);
-    await tour.getByRole('button', { name: steps[3].title }).click();
-    await expect(tour.getByRole('button', { name: steps[3].title })).toHaveAttribute('aria-current', 'step');
+    // Only the current step's title is on screen: no list of every step.
+    for (const later of steps.slice(2)) await expect(tour.getByText(later.title, { exact: true })).toHaveCount(0);
+    await expect(tour.getByText(`01 / ${String(steps.length).padStart(2, '0')}`)).toBeVisible();
+    const segment = tour.getByRole('button', { name: `Go to step 4: ${steps[3].title}` });
+    await segment.click();
+    await expect(tour.getByRole('heading', { level: 4 })).toHaveText(steps[3].title);
+    await expect(segment).toHaveAttribute('aria-current', 'step');
     await tour.getByText('How it works').click();
     await expect(tour.getByText(steps[3].detail)).toBeVisible();
+  });
+
+  test('the last step offers to start again', async ({ page }) => {
+    await page.goto('/');
+    const tour = tourOf(page);
+    await tour.getByRole('button', { name: `Go to step ${steps.length}: ${steps.at(-1)!.title}` }).click();
+    await tour.getByRole('button', { name: 'Start again' }).click();
+    await expect(tour.getByRole('heading', { level: 4 })).toHaveText(steps[0].title);
   });
 
   test('swipes between steps on touch screens', async ({ page, isMobile }) => {

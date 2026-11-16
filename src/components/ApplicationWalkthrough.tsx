@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import { useId, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react';
 import type { WalkthroughStep } from '@/data/projects';
 import styles from './ApplicationWalkthrough.module.css';
@@ -15,6 +15,8 @@ interface Props {
 }
 
 const SWIPE_DISTANCE = 40;
+
+const pad = (n: number) => String(n).padStart(2, '0');
 
 /**
  * A guided tour through real screens of an application. Each step crossfades in and the
@@ -91,6 +93,11 @@ export function ApplicationWalkthrough({ title, steps, transitionName }: Props) 
                 draggable={false}
               />
               <span className={styles.focus} aria-hidden />
+              {/* Every step stays in the page's text for search engines and AI crawlers, while visitors see one
+                  step at a time; screen readers already hear the live caption, so this copy is hidden from them. */}
+              <span className="sr-only" aria-hidden>
+                {item.title}. {item.body}
+              </span>
             </div>
           ))}
           <span className={styles.badge}>Demonstration data</span>
@@ -99,42 +106,58 @@ export function ApplicationWalkthrough({ title, steps, transitionName }: Props) 
 
       <div className={styles.below}>
         <div id={captionId} className={styles.caption} aria-live="polite">
-          <p className={styles.count}>
-            Step {index + 1} of {steps.length}
-          </p>
-          <h4 className={styles.title}>{step.title}</h4>
-          <p className={styles.body}>{step.body}</p>
-          <details className={styles.detail}>
-            <summary>How it works</summary>
-            <p>{step.detail}</p>
-          </details>
+          {/* Keyed by step, so each new caption slides in once. */}
+          <div key={index} className={styles.enter}>
+            <p className="sr-only">
+              Step {index + 1} of {steps.length}
+            </p>
+            <h4 className={styles.title}>{step.title}</h4>
+            <p className={styles.body}>{step.body}</p>
+            <details className={styles.detail}>
+              <summary>How it works</summary>
+              <p>{step.detail}</p>
+            </details>
+          </div>
         </div>
 
         <nav className={styles.nav} aria-label={`${title} tour steps`}>
-          <ol className={styles.steps}>
+          <p className={styles.counter} aria-hidden>
+            {pad(index + 1)} <span>/ {pad(steps.length)}</span>
+          </p>
+          {/* One segment per step: progress at a glance, and a way to jump without listing every step. */}
+          <div className={styles.segments}>
             {steps.map((item, i) => (
-              <li key={item.title}>
-                <button type="button" aria-current={i === index ? 'step' : undefined} onClick={() => go(i)}>
-                  <span className={styles.stepNumber} aria-hidden>
-                    {i + 1}
-                  </span>
-                  {item.title}
-                </button>
-              </li>
+              <button
+                key={item.title}
+                type="button"
+                aria-label={`Go to step ${i + 1}: ${item.title}`}
+                aria-current={i === index ? 'step' : undefined}
+                data-done={i < index}
+                onClick={() => go(i)}
+              />
             ))}
-          </ol>
+          </div>
           <div className={styles.arrows}>
-            <button type="button" onClick={() => go(index - 1)} disabled={index === 0}>
+            <button type="button" className={styles.previous} onClick={() => go(index - 1)} disabled={index === 0}>
               <ChevronLeft aria-hidden size={18} />
               Previous
             </button>
-            <div className={styles.progress} aria-hidden>
-              <span style={{ transform: `scaleX(${(index + 1) / steps.length})` }} />
-            </div>
-            <button type="button" onClick={() => go(index + 1)} disabled={index === last}>
-              Next
-              <ChevronRight aria-hidden size={18} />
-            </button>
+            {index < last ? (
+              <button type="button" className={styles.next} aria-label={`Next: ${steps[index + 1].title}`} onClick={() => go(index + 1)}>
+                <span className={styles.nextText}>
+                  <span className={styles.nextLabel}>Next</span>
+                  <span className={styles.nextTitle}>{steps[index + 1].title}</span>
+                </span>
+                <ChevronRight aria-hidden size={18} />
+              </button>
+            ) : (
+              <button type="button" className={styles.next} onClick={() => go(0)}>
+                <span className={styles.nextText}>
+                  <span className={styles.nextTitle}>Start again</span>
+                </span>
+                <RotateCcw aria-hidden size={16} />
+              </button>
+            )}
           </div>
         </nav>
       </div>

@@ -130,7 +130,7 @@ export const projects: Project[] = [
         body: 'Customers fill a box or pick donuts in the shop, choose delivery or a meet-up, and the order waits here for a yes or no.',
         detail:
           'Confirming runs the same sale service as the till, with an idempotency key fixed per order, so a repeated confirm can never record a second sale. Declining sends the customer a short reason on their order page.',
-        focus: { x: 62, y: 40, zoom: 1.14 },
+        focus: { x: 74, y: 77, zoom: 1.14 },
       },
       {
         shot: rowszeinScreen('record-sale'),
