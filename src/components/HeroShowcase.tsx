@@ -32,7 +32,7 @@ const artifacts: Record<Discipline, Artifact> = {
   },
   web: {
     id: 'web',
-    option: 'Experiences',
+    option: 'Websites',
     label: 'Web & Experiences',
     title: featuredWebsite.title,
     medium: featuredWebsite.medium,
@@ -43,7 +43,7 @@ const artifacts: Record<Discipline, Artifact> = {
 };
 
 const order: Discipline[] = ['software', 'web'];
-const headline: Record<Discipline, string> = { software: 'Software that works.', web: 'Experiences that stand out.' };
+const headline: Record<Discipline, string> = { software: 'Systems your business runs on.', web: 'Websites it’s found by.' };
 const other = (id: Discipline): Discipline => (id === 'software' ? 'web' : 'software');
 
 const HANDOFF_MS = 620;

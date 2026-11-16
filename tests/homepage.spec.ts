@@ -88,7 +88,7 @@ test.describe('Homepage structure', () => {
 
   test('leads with the proposition, then software and website work', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Software that works.Experiences that stand out.');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Systems your business runs on.Websites it’s found by.');
 
     const order = await page.evaluate(() =>
       ['intro-title', 'featured', 'work', 'services', 'working', 'about', 'contact'].map(
@@ -615,6 +615,10 @@ test.describe('Without JavaScript', () => {
     for (const step of steps) await expect(page.getByText(step.title).first()).toBeAttached();
     await expect(page.getByRole('heading', { name: 'What I can build for you' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'How I work' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'About me' })).toBeVisible();
+    const about = page.locator('#about');
+    await expect(about.getByText('I like building software that’s actually useful to someone.', { exact: false })).toBeVisible();
+    await expect(about.getByText(site.availability)).toBeVisible();
     await expect(page.getByRole('link', { name: site.email })).toBeVisible();
   });
 });

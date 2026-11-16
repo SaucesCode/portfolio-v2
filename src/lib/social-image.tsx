@@ -22,8 +22,8 @@ export async function renderSocialImage() {
         <div style={{ display: 'flex', flexDirection: 'column', width: 430, gap: 22, justifyContent: 'center' }}>
           <div style={{ fontSize: 28, fontWeight: 700 }}>{site.name}</div>
           <div style={{ display: 'flex', flexDirection: 'column', fontSize: 54, lineHeight: 1.02, letterSpacing: -2, fontWeight: 600 }}>
-            <span>Software that works.</span>
-            <span>Experiences that stand out.</span>
+            <span>Systems your business runs on.</span>
+            <span>Websites it’s found by.</span>
           </div>
           <div style={{ fontSize: 23, color: '#4f5358', lineHeight: 1.35 }}>
             Full-stack software engineer: web applications, business systems, WordPress and websites.
