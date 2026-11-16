@@ -84,7 +84,8 @@ test.describe('Homepage structure', () => {
 
   test('loads privacy-friendly visitor analytics', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('script[src*="/_vercel/insights/script.js"]')).toHaveCount(1);
+    // Locally the script is /_vercel/insights/script.js; on Vercel it is served from a randomised path.
+    await expect(page.locator('script[src$="/script.js"]:not([src*="/_next/"])')).toHaveCount(1);
   });
 
   test('leads with the proposition, then software and website work', async ({ page }) => {
