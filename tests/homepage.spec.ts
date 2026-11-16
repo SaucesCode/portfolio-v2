@@ -224,7 +224,8 @@ test.describe('Hero: two disciplines', () => {
       page.getByRole('link', { name: 'Explore my work' }),
       page.locator('#main-content section').first().getByRole('link', { name: 'Start a project' }),
       ...((await page.getByRole('radio').all()) as ReturnType<Page['getByRole']>[]),
-      page.locator('#work').getByRole('button', { name: /^All work/ }),
+      page.locator('#working').getByRole('link', { name: /Start a project/ }),
+      page.locator(`#work-${moreExperiments[0].slug} a`).first(),
     ];
     for (const control of controls) {
       const box = await control.boundingBox();
@@ -421,6 +422,22 @@ test.describe('Selected work gallery', () => {
       for (const link of project.links) await expect(item.locator(`a[href="${link.href}"]`)).toBeVisible();
     }
     await expect(gallery.getByRole('button', { name: /^All work/ })).toHaveCount(0);
+  });
+
+  test('starting prices fit inside their columns', async ({ page }) => {
+    for (const width of [1024, 1280, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/');
+      const overflow = await page.locator('#working ul > li').evaluateAll((items) =>
+        items.map((li) => {
+          const box = li.getBoundingClientRect();
+          return Math.max(...[...li.querySelectorAll('*')].map((el) => el.getBoundingClientRect().right)) - box.right;
+        }),
+      );
+      for (const px of overflow) expect(px, `at ${width}px`).toBeLessThanOrEqual(0.5);
+      const priceTops = await page.locator('#working ul > li > p:last-child').evaluateAll((ps) => ps.map((p) => Math.round(p.getBoundingClientRect().top)));
+      expect(new Set(priceTops).size, `prices line up at ${width}px`).toBe(1);
+    }
   });
 
   test('service examples link to projects that exist on the page', async ({ page }) => {

@@ -30,13 +30,11 @@ export function WorkingWithMe() {
       <div className="lg:col-span-7 lg:col-start-6">
         <ul className="grid gap-y-8 border-t border-rule pt-6 sm:grid-cols-3 sm:gap-x-6">
           {priceList.map((service) => (
-            <li key={service.id}>
-              <p className="text-[0.9375rem] text-graphite">{service.priceLabel}</p>
-              <p className="mt-2 flex items-baseline gap-2">
-                <span className="text-[0.9375rem] text-graphite">from</span>
-                <span className="font-wide text-[clamp(1.75rem,1.3rem+1.6vw,2.5rem)] leading-none font-medium tracking-[-0.03em] tabular-nums">
-                  {formatUsd(service.fromUsd!)}
-                </span>
+            <li key={service.id} className="flex flex-col [container-type:inline-size]">
+              <p className="text-[0.9375rem] text-graphite">{service.priceLabel} from</p>
+              {/* Sized from the column's own width, so the widest price never spills out of a narrow column. */}
+              <p className="font-wide mt-auto pt-2 text-[min(2.25rem,17cqi)] leading-none font-medium tracking-[-0.03em] tabular-nums">
+                {formatUsd(service.fromUsd!)}
               </p>
             </li>
           ))}
