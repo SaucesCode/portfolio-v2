@@ -109,7 +109,7 @@ export const projects: Project[] = [
       'An owner panel that tracks ingredients, recipes, sales and expenses, then turns them into stock alerts, production costs and profit per product.',
     note: 'The owner panel needs a login, so it is shown as a guided tour. The screens come from the latest published version, running locally with fictional demonstration data.',
     links: [
-      { href: 'https://rowszeins-s-delight.vercel.app/', label: 'Visit the public shop' },
+      { href: 'https://rowszein-s-delight.vercel.app/', label: 'Visit the public shop' },
       github('Rowszein-s-Delight'),
     ],
     poster: rowszeinScreen('recipes'),
