@@ -6,6 +6,7 @@ import { Services } from '@/components/Services';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SkipLink } from '@/components/SkipLink';
 import { WorkGallery } from '@/components/WorkGallery';
+import { WorkingTogether } from '@/components/WorkingTogether';
 import { categoryLabels, projects } from '@/data/projects';
 import { site } from '@/data/site';
 import { getBaseUrl } from '@/lib/seo';
@@ -61,6 +62,7 @@ export default function HomePage() {
         <FeaturedWork />
         <WorkGallery />
         <Services />
+        <WorkingTogether />
         <About />
       </main>
       <Contact />

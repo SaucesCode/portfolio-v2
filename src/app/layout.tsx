@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/next';
 import type { Metadata, Viewport } from 'next';
 import { Archivo, Newsreader, Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
 import { InstantHistoryScroll } from '@/components/InstantHistoryScroll';
@@ -5,6 +6,9 @@ import { services } from '@/data/services';
 import { site } from '@/data/site';
 import { getBaseUrl } from '@/lib/seo';
 import './globals.css';
+// Every page's header uses the capsule button, and the 404 route only receives the root layout's
+// stylesheet, so the button styles ship with the layout.
+import '@/components/ButtonLink.module.css';
 
 const archivo = Archivo({
   subsets: ['latin'],
@@ -146,6 +150,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         {children}
         <InstantHistoryScroll />
+        {/* Vercel Web Analytics: page views without cookies or personal data. */}
+        <Analytics />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd).replace(/</g, '\\u003c') }}

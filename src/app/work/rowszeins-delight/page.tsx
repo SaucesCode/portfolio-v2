@@ -67,7 +67,7 @@ const facts = [
   { term: 'What it is', detail: project.provenance },
   { term: 'My part', detail: 'Product design, front end, API and database' },
   { term: 'Built with', detail: 'React, TypeScript and Vite; Django REST Framework; PostgreSQL' },
-  { term: 'Where it stands', detail: 'In active development, not yet production-ready' },
+  { term: 'Where it stands', detail: 'In development: pre-launch hardening done, not yet declared production-ready' },
 ];
 
 const layers = [
@@ -100,10 +100,10 @@ const capabilities: { label: string; staff: boolean }[] = [
 ];
 
 const limits = [
-  'The project’s own documentation says it is not represented as secure or production-ready. Production deployment checks and several session and security findings are still open.',
-  'The owner panel is built for desktop. Its mobile layout is planned but not done.',
-  'Automated backend tests cover the sales and stock engine only. Accounts, products, recipes, expenses and the dashboard have none yet, and a full lint run still reports errors.',
-  'The screenshots show the latest published version, running locally with fictional demonstration data. Newer interface work that has not been published is not shown.',
+  'The project’s README still lists it as in development: production, infrastructure and deployment validation are open gates, so it is not presented as production-ready.',
+  'Pre-launch hardening is merged (HTTPS with HSTS, a Content-Security-Policy, and four automatic checks on every push), but the box screens have not yet been tested end to end with a signed-in owner.',
+  'This case study shows the owner panel at desktop width only.',
+  'The screenshots come from the version published on 16 Nov 2026, running locally with fictional demonstration data.',
 ];
 
 const sectionTitle = 'font-semiwide text-[clamp(1.75rem,1.4rem+1.2vw,2.5rem)] leading-[1.05] font-semibold tracking-[-0.025em]';
@@ -379,13 +379,15 @@ export default function RowszeinCaseStudy() {
               </h2>
               <div className="mt-6 max-w-[58ch] space-y-4 text-lg leading-relaxed">
                 <p>
-                  The sales and stock engine has 120 automated backend tests. They cover the failures that matter most
-                  for a shop: a sale that would overdraw stock, a retry after a dropped connection, an edit made from a
-                  stale screen, two tills selling the last item at once, fractional quantities, and a sale cancelled twice.
+                  The backend has 351 automated tests across every part of the app: sales and stock, online orders, shop
+                  settings, accounts, products, recipes, expenses and the dashboard. The sales tests cover the failures that
+                  matter most for a shop: a sale that would overdraw stock, a retry after a dropped connection, an edit made
+                  from a stale screen, two tills selling the last item at once, and a sale cancelled twice.
                 </p>
                 <p>
-                  The project’s verification log records all 120 passing against PostgreSQL, with the concurrency cases
-                  repeated five times in a row. I report those results from the log; they were not re-run for this page.
+                  I re-ran the suite for this page on 16 November 2026: every test passed, with 17 PostgreSQL-only tests
+                  skipped on SQLite. Every push also runs four automatic checks: the backend on SQLite and on a throwaway
+                  PostgreSQL, the frontend’s type check, lint and build, and a dependency audit.
                 </p>
               </div>
             </div>

@@ -58,9 +58,10 @@ test.describe('Identity and SEO', () => {
     expect(list.itemListElement).toHaveLength(projects.length);
   });
 
-  test('working terms never state a price', () => {
-    expect(terms.map((t) => t.id)).toEqual(['timeline', 'timezones', 'after-launch', 'payment']);
-    for (const term of terms) expect(term.body).not.toMatch(/\$|US\$|USD|price/i);
+  test('working terms never state an amount', () => {
+    expect(terms.map((t) => t.id)).toEqual(['approach', 'timeline', 'timezones', 'after-launch', 'payment']);
+    // The approach to pricing is described; no figure in any currency ever is.
+    for (const term of terms) expect(term.body).not.toMatch(/\$|₱|USD|PHP|\d[\d,]*\s*(dollars|pesos)/i);
   });
 
   test('sitemap lists only routes that exist', async ({ request }) => {
@@ -72,12 +73,26 @@ test.describe('Identity and SEO', () => {
 });
 
 test.describe('Homepage structure', () => {
+  test('working together explains how a project runs, without prices', async ({ page }) => {
+    await page.goto('/');
+    const section = page.locator('#process');
+    await expect(section.getByRole('heading', { level: 2, name: 'Working together' })).toBeVisible();
+    for (const term of terms) await expect(section.getByRole('heading', { level: 3, name: term.title })).toBeAttached();
+    await expect(section).not.toContainText(/₱|US\$|USD/);
+    await expect(section.getByRole('link', { name: /Start a project/ })).toHaveAttribute('href', /^mailto:/);
+  });
+
+  test('loads privacy-friendly visitor analytics', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('script[src*="/_vercel/insights/script.js"]')).toHaveCount(1);
+  });
+
   test('leads with the proposition, then software and website work', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Systems your business runs on.Websites it’s found by.');
 
     const order = await page.evaluate(() =>
-      ['intro-title', 'featured', 'work', 'services', 'about', 'contact'].map(
+      ['intro-title', 'featured', 'work', 'services', 'process', 'about', 'contact'].map(
         (id) => document.getElementById(id)!.getBoundingClientRect().top,
       ),
     );

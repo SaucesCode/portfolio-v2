@@ -141,6 +141,20 @@ test.describe('Case studies: content and SEO', () => {
     expect((await request.get('/work/not-a-project')).status()).toBe(404);
   });
 
+  test('a missing page explains itself and leads back to the work', async ({ page }) => {
+    const response = await page.goto('/work/not-a-project');
+    expect(response?.status()).toBe(404);
+    await expect(page.getByRole('heading', { level: 1, name: 'This page doesn’t exist' })).toBeVisible();
+    await expect(page.getByRole('main').getByRole('link', { name: 'Back to the homepage' })).toHaveAttribute('href', '/');
+    for (const project of caseStudies) {
+      await expect(page.getByRole('main').getByRole('link', { name: new RegExp(project.title) })).toHaveAttribute('href', project.caseStudy);
+    }
+    await expect(page.getByRole('banner').getByRole('link', { name: site.name })).toBeVisible();
+    // The capsule buttons must be styled here too: the 404 route only receives the layout's stylesheet.
+    const radius = await page.getByRole('main').getByRole('link', { name: 'Back to the homepage' }).evaluate((el) => parseFloat(getComputedStyle(el).borderTopLeftRadius));
+    expect(radius).toBeGreaterThan(20);
+  });
+
   test('no placeholder press quotes or client claims appear', async ({ page }) => {
     for (const { project } of cases) {
       await page.goto(project.caseStudy);

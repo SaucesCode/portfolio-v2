@@ -1,14 +1,20 @@
 export interface Term {
-  id: 'timeline' | 'timezones' | 'after-launch' | 'payment';
+  id: 'approach' | 'timeline' | 'timezones' | 'after-launch' | 'payment';
   title: string;
   body: string;
 }
 
 /**
  * How working together goes, in the owner's approved words. Prices are discussed per project and never
- * published. Read by llms.txt and, later, the site assistant.
+ * published: the approach is described, no amount ever is. Read by the homepage, llms.txt and, later,
+ * the site assistant.
  */
 export const terms: Term[] = [
+  {
+    id: 'approach',
+    title: 'How a project starts',
+    body: 'Every project starts with a short call about what you need. You then get a fixed price, agreed before any work starts. Based in the Philippines? Ask for a local quote.',
+  },
   {
     id: 'timeline',
     title: 'How long it takes',
