@@ -3,6 +3,7 @@ import { assistantEnabled, checkLimits } from '@/lib/ask/limits';
 import { logAsk, type AskLog } from '@/lib/ask/log';
 import { systemPrompt } from '@/lib/ask/prompt';
 import { storeFromEnv } from '@/lib/ask/store';
+import { isAllowedOrigin } from '@/lib/ask/origin';
 import { getBaseUrl } from '@/lib/seo';
 
 export const runtime = 'nodejs';
@@ -11,14 +12,6 @@ export const dynamic = 'force-dynamic';
 const MAX_QUESTION = 300;
 const MAX_TURNS = 4;
 const MAX_TURN_TEXT = 1200;
-
-/** The site itself, its Vercel deployment and branch URLs, and any origins configured for local runs. */
-function allowedOrigins(): Set<string> {
-  const origins = new Set([getBaseUrl()]);
-  for (const host of [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL]) if (host) origins.add(`https://${host}`);
-  for (const origin of (process.env.ASSISTANT_ALLOWED_ORIGINS ?? '').split(',')) if (origin.trim()) origins.add(origin.trim());
-  return origins;
-}
 
 /** On Vercel the platform sets X-Forwarded-For; the first address is the visitor's. */
 const visitorIp = (request: Request) =>
@@ -50,7 +43,7 @@ export async function POST(request: Request) {
     return Response.json(body, { status, headers: { 'Cache-Control': 'no-store', ...headers } });
   };
 
-  if (!allowedOrigins().has(request.headers.get('origin') ?? '')) return reply(403, { state: 'forbidden' }, 'forbidden');
+  if (!isAllowedOrigin(request.headers.get('origin'))) return reply(403, { state: 'forbidden' }, 'forbidden');
 
   try {
     const store = storeFromEnv();

@@ -147,7 +147,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     // data-scroll-behavior lets Next.js switch smooth scrolling off while it changes pages, so a
     // new page opens at its top instead of scrolling there; in-page links still scroll smoothly.
-    <html lang="en" data-scroll-behavior="smooth" className={`${archivo.variable} ${jakarta.variable} ${newsreader.variable} ${playfairLive.variable}`}>
+    // The hero's inline script marks <html> (data-js, and an early tap) before React loads, so its
+    // attributes legitimately differ from the server HTML; this applies to <html> alone, not its children.
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning className={`${archivo.variable} ${jakarta.variable} ${newsreader.variable} ${playfairLive.variable}`}>
       <body>
         {children}
         <InstantHistoryScroll />

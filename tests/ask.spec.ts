@@ -184,3 +184,36 @@ test.describe('Ask about my work panel', () => {
     });
   }
 });
+
+test.describe('Assistant in local development', () => {
+  test('development counts in memory and accepts localhost; production does neither', async () => {
+    const { storeFromEnv } = await import('../src/lib/ask/store');
+    const { isAllowedOrigin } = await import('../src/lib/ask/origin');
+    const env = process.env as Record<string, string | undefined>;
+    const saved = { NODE_ENV: env.NODE_ENV, ASSISTANT_STORE: env.ASSISTANT_STORE };
+    delete env.ASSISTANT_STORE;
+    try {
+      env.NODE_ENV = 'production';
+      expect(storeFromEnv()).toBeNull();
+      expect(isAllowedOrigin('http://localhost:3000')).toBe(false);
+      expect(isAllowedOrigin('https://www.saucescode.xyz')).toBe(true);
+      env.NODE_ENV = 'development';
+      expect(storeFromEnv()).not.toBeNull();
+      expect(isAllowedOrigin('http://localhost:3000')).toBe(true);
+      expect(isAllowedOrigin('http://127.0.0.1:5199')).toBe(true);
+      expect(isAllowedOrigin('https://evil.example')).toBe(false);
+    } finally {
+      Object.assign(env, saved);
+    }
+  });
+
+  test('an unexpected refusal still shows a message and the email link', async ({ page }) => {
+    await page.route('**/api/ask', (route) => route.fulfill({ status: 403, json: { state: 'forbidden' } }));
+    await page.goto('/');
+    await page.getByRole('banner').getByRole('button', { name: 'Ask about my work' }).click();
+    const panel = page.getByRole('dialog', { name: 'Ask about my work' });
+    await panel.getByRole('textbox', { name: 'Your question' }).fill('Hello');
+    await panel.getByRole('button', { name: 'Ask', exact: true }).click();
+    await expect(panel).toContainText('Something went wrong');
+  });
+});

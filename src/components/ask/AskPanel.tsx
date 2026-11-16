@@ -91,7 +91,9 @@ export function AskPanel() {
         setExchanges((all) => [...all, { question: trimmed, answer: body.answer, actions: body.actions ?? [] }]);
         setQuestion('');
       } else {
-        setProblem(body?.state ? (body as Problem) : { state: 'error' });
+        // Any state the panel does not know (a refused origin, say) reads as a general error.
+        const known = ['limited', 'busy', 'off', 'invalid', 'error'];
+        setProblem(known.includes(body?.state) ? (body as Problem) : { state: 'error' });
       }
     } catch {
       setProblem({ state: 'error' });
