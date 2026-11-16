@@ -532,6 +532,19 @@ test.describe('Services and contact', () => {
 });
 
 test.describe('Responsive boundaries', () => {
+  test('the header stays on one row at tablet and desktop widths', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Section links are shown from tablet width up.');
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const banner = page.getByRole('banner');
+    const desktop = (await banner.boundingBox())!.height;
+    await expect(banner.getByRole('link', { name: 'Pricing' })).toHaveAttribute('href', '#working');
+    for (const width of [768, 800, 912, 1024, 1280]) {
+      await page.setViewportSize({ width, height: 900 });
+      expect((await banner.boundingBox())!.height, `header height at ${width}px`).toBeLessThanOrEqual(desktop + 0.5);
+    }
+  });
+
   const widths = [320, 344, 375, 430, 600, 768, 912, 1024, 1366, 1920];
 
   test('no overflow and no collisions in the header or hero at any width', async ({ page, isMobile }) => {

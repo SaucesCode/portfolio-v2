@@ -35,10 +35,11 @@ export function SiteHeader({ onHome = true }: { onHome?: boolean }) {
             {site.name}
           </Link>
         )}
-        <nav aria-label="Primary" className="flex items-center gap-2 sm:gap-6">
-          <ul className="hidden items-center gap-6 md:flex">
+        <nav aria-label="Primary" className="flex items-center gap-2 sm:gap-4 lg:gap-6">
+          <ul className="hidden items-center gap-4 md:flex lg:gap-6">
             {sections.map((section) => (
-              <li key={section.id}>
+              // On tablets the "Start a project" button beside the list stands in for Contact, so the row fits.
+              <li key={section.id} className={section.id === 'contact' ? 'hidden lg:block' : undefined}>
                 {href(section.id).startsWith('/') ? (
                   <Link href={href(section.id)} className={linkClass}>
                     {section.label}
