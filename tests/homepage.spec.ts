@@ -331,8 +331,12 @@ test.describe('Application walkthrough', () => {
 
     await expect(caption).toHaveText(steps[0].title);
     await expect(tour.getByRole('button', { name: 'Previous' })).toBeDisabled();
-    // Next names the step it leads to, so the visitor knows what is coming without a full list.
-    await tour.getByRole('button', { name: `Next: ${steps[1].title}` }).click();
+    // The step that follows is named beside the counter, not inside the button.
+    await expect(tour.getByText(`Up next: ${steps[1].title}`)).toBeVisible();
+    const next = tour.getByRole('button', { name: 'Next', exact: true });
+    const height = (await next.boundingBox())!.height;
+    expect(height).toBeLessThanOrEqual(48);
+    await next.click();
     await expect(caption).toHaveText(steps[1].title);
 
     await tour.locator('[tabindex="0"]').focus();

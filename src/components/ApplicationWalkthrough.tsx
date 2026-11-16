@@ -26,6 +26,7 @@ export function ApplicationWalkthrough({ title, steps, transitionName }: Props) 
   const [index, setIndex] = useState(0);
   const swipeRef = useRef<{ x: number; y: number } | null>(null);
   const captionId = useId();
+  const upNextId = useId();
   const step = steps[index];
   const last = steps.length - 1;
 
@@ -121,9 +122,15 @@ export function ApplicationWalkthrough({ title, steps, transitionName }: Props) 
         </div>
 
         <nav className={styles.nav} aria-label={`${title} tour steps`}>
-          <p className={styles.counter} aria-hidden>
-            {pad(index + 1)} <span>/ {pad(steps.length)}</span>
-          </p>
+          {/* The number and what comes next, side by side; the buttons below stay one size. */}
+          <div className={styles.heading}>
+            <p className={styles.counter} aria-hidden>
+              {pad(index + 1)} <span>/ {pad(steps.length)}</span>
+            </p>
+            <p id={upNextId} className={styles.upNext}>
+              {index < last ? `Up next: ${steps[index + 1].title}` : 'Last step'}
+            </p>
+          </div>
           {/* One segment per step: progress at a glance, and a way to jump without listing every step. */}
           <div className={styles.segments}>
             {steps.map((item, i) => (
@@ -138,23 +145,18 @@ export function ApplicationWalkthrough({ title, steps, transitionName }: Props) 
             ))}
           </div>
           <div className={styles.arrows}>
-            <button type="button" className={styles.previous} onClick={() => go(index - 1)} disabled={index === 0}>
+            <button type="button" onClick={() => go(index - 1)} disabled={index === 0}>
               <ChevronLeft aria-hidden size={18} />
               Previous
             </button>
             {index < last ? (
-              <button type="button" className={styles.next} aria-label={`Next: ${steps[index + 1].title}`} onClick={() => go(index + 1)}>
-                <span className={styles.nextText}>
-                  <span className={styles.nextLabel}>Next</span>
-                  <span className={styles.nextTitle}>{steps[index + 1].title}</span>
-                </span>
+              <button type="button" aria-describedby={upNextId} onClick={() => go(index + 1)}>
+                Next
                 <ChevronRight aria-hidden size={18} />
               </button>
             ) : (
-              <button type="button" className={styles.next} onClick={() => go(0)}>
-                <span className={styles.nextText}>
-                  <span className={styles.nextTitle}>Start again</span>
-                </span>
+              <button type="button" onClick={() => go(0)}>
+                Start again
                 <RotateCcw aria-hidden size={16} />
               </button>
             )}
