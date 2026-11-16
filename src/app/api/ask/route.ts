@@ -38,8 +38,8 @@ function parse(body: unknown): Parsed {
 export async function POST(request: Request) {
   const started = Date.now();
   const requestId = crypto.randomUUID();
-  const reply = (status: number, body: unknown, outcome: AskLog['outcome'], tokens = 0, headers: HeadersInit = {}) => {
-    logAsk({ requestId, outcome, ms: Date.now() - started, tokens });
+  const reply = (status: number, body: unknown, outcome: AskLog['outcome'], tokens = 0, headers: HeadersInit = {}, detail?: string) => {
+    logAsk({ requestId, outcome, ms: Date.now() - started, tokens, detail });
     return Response.json(body, { status, headers: { 'Cache-Control': 'no-store', ...headers } });
   };
 
@@ -67,10 +67,10 @@ export async function POST(request: Request) {
     }
 
     const result = await askGemini(systemPrompt(getBaseUrl()), parsed.history, parsed.question);
-    if (!result.ok) return reply(503, { state: result.state }, result.state);
+    if (!result.ok) return reply(503, { state: result.state }, result.state, 0, {}, result.detail);
     return reply(200, { answer: result.answer, actions: result.actions }, 'answered', result.tokens);
-  } catch {
+  } catch (error) {
     // The counter store or anything else unexpected: the visitor sees a friendly retry state.
-    return reply(503, { state: 'error' }, 'error');
+    return reply(503, { state: 'error' }, 'error', 0, {}, error instanceof Error ? error.name : 'unknown');
   }
 }

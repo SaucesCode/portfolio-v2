@@ -4,6 +4,8 @@ export interface AskLog {
   outcome: 'answered' | 'invalid' | 'forbidden' | 'limited' | 'busy' | 'off' | 'error';
   ms: number;
   tokens: number;
+  /** Why a request failed (for example "gemini 400" or "timeout"); never the visitor's words. */
+  detail?: string;
 }
 
 export const formatAskLog = (entry: AskLog) => JSON.stringify({ event: 'ask', ...entry });

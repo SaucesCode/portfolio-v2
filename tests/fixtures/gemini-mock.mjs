@@ -6,7 +6,8 @@ const reply = (res, status, body) => {
   res.writeHead(status, { 'Content-Type': 'application/json' });
   res.end(typeof body === 'string' ? body : JSON.stringify(body));
 };
-const answer = (parts) => ({ candidates: [{ content: { role: 'model', parts } }], usageMetadata: { totalTokenCount: 120 } });
+// Replies in the structured-output shape the endpoint asks for: one JSON text part.
+const answer = (reply) => ({ candidates: [{ content: { role: 'model', parts: [{ text: JSON.stringify(reply) }] } }], usageMetadata: { totalTokenCount: 120 } });
 
 createServer((req, res) => {
   let raw = '';
@@ -19,12 +20,12 @@ createServer((req, res) => {
     if (question.includes('SERVERERROR')) return reply(res, 500, { error: { code: 500 } });
     if (question.includes('MALFORMED')) return reply(res, 200, 'not json');
     if (question.includes('BADTOOL')) {
-      return reply(res, 200, answer([{ text: 'Here is that section.' }, { functionCall: { name: 'show_section', args: { id: 'admin' } } }]));
+      return reply(res, 200, answer({ answer: 'Here is that section.', actions: [{ type: 'show_section', target: 'admin' }] }));
     }
-    const normal = answer([
-      { text: 'A WordPress site usually takes 3–5 weeks, depending on scope.' },
-      { functionCall: { name: 'show_section', args: { id: 'process' } } },
-    ]);
+    const normal = answer({
+      answer: 'A WordPress site usually takes 3–5 weeks, depending on scope.',
+      actions: [{ type: 'show_section', target: 'process' }],
+    });
     if (question.includes('SLOW')) return setTimeout(() => reply(res, 200, normal), 9000);
     return reply(res, 200, normal);
   });
