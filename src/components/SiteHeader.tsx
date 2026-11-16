@@ -5,6 +5,7 @@ import { ButtonLink } from './ButtonLink';
 const sections = [
   { id: 'featured', label: 'Work' },
   { id: 'services', label: 'Services' },
+  { id: 'working', label: 'Pricing' },
   { id: 'about', label: 'About' },
   { id: 'contact', label: 'Contact' },
 ];

@@ -77,12 +77,21 @@ test.describe('Identity and SEO', () => {
 });
 
 test.describe('Homepage structure', () => {
+  test('working with me shows real prices and terms', async ({ page }) => {
+    await page.goto('/');
+    const section = page.locator('#working');
+    await expect(section.getByRole('heading', { level: 2, name: 'Working with me' })).toBeVisible();
+    for (const term of terms) await expect(section.getByRole('heading', { level: 3, name: term.title })).toBeAttached();
+    for (const s of services.filter((s) => s.fromUsd)) await expect(section.getByText(formatUsd(s.fromUsd!)).first()).toBeVisible();
+    await expect(section.getByRole('link', { name: /Start a project/ })).toHaveAttribute('href', /^mailto:/);
+  });
+
   test('leads with the proposition, then software and website work', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Software that works.Experiences that stand out.');
 
     const order = await page.evaluate(() =>
-      ['intro-title', 'featured', 'work', 'services', 'about', 'contact'].map(
+      ['intro-title', 'featured', 'work', 'services', 'working', 'about', 'contact'].map(
         (id) => document.getElementById(id)!.getBoundingClientRect().top,
       ),
     );

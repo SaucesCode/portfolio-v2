@@ -8,6 +8,8 @@ export interface Service {
   span: [number, number];
   /** Starting price in US dollars for a typical small project; unset when it is quoted per scope. */
   fromUsd?: number;
+  /** What the starting price buys, for the price list in Working with me. */
+  priceLabel?: string;
 }
 
 /** The layers of a product, from what is stored to what is seen. */
@@ -22,6 +24,7 @@ export const services: Service[] = [
     examples: ['rowszeins-delight', 'quickaid'],
     span: [0, 2],
     fromUsd: 3500,
+    priceLabel: 'Web apps and business systems',
   },
   {
     id: 'backend',
@@ -39,6 +42,7 @@ export const services: Service[] = [
     examples: ['thread-and-form', 'kinetix-athletics'],
     span: [1, 3],
     fromUsd: 1200,
+    priceLabel: 'WordPress sites',
   },
   {
     id: 'websites',
@@ -48,5 +52,6 @@ export const services: Service[] = [
     examples: ['valence-capital', 'nexus-ai'],
     span: [2, 3],
     fromUsd: 500,
+    priceLabel: 'Landing pages',
   },
 ];

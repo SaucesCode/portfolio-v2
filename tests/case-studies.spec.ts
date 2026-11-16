@@ -185,6 +185,7 @@ test.describe('Case studies: navigation', () => {
     const nav = page.getByRole('navigation', { name: 'Primary' });
     await expect(nav.getByRole('link', { name: 'Work' })).toHaveAttribute('href', '/#featured');
     await expect(nav.getByRole('link', { name: 'Services' })).toHaveAttribute('href', '/#services');
+    await expect(nav.getByRole('link', { name: 'Pricing' })).toHaveAttribute('href', '/#working');
     await expect(nav.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '#contact');
     await nav.getByRole('link', { name: 'Services' }).click();
     await expect(page).toHaveURL(/\/#services$/);
