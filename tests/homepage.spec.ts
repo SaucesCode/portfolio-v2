@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { caseStudies, categoryLabels, featuredSoftware, featuredWebsite, galleryProjects, heroProjects, projects } from '../src/data/projects';
+import { caseStudies, featuredSoftware, featuredWebsite, galleryCards, galleryProjects, heroProjects, moreExperiments, projects } from '../src/data/projects';
 import { services } from '../src/data/services';
 import { site } from '../src/data/site';
 import { formatUsd, terms } from '../src/data/terms';
@@ -409,34 +409,25 @@ test.describe('Full-length website preview', () => {
 });
 
 test.describe('Selected work gallery', () => {
-  test('filters by category and announces the result', async ({ page }) => {
+  test('shows the main projects as cards and the rest as a short list', async ({ page }) => {
     await page.goto('/');
     const gallery = page.locator('#work');
-    const items = gallery.locator('ul > li');
-    await expect(items).toHaveCount(galleryProjects.length);
-
-    for (const category of ['software', 'web', 'experiments'] as const) {
-      const expected = galleryProjects.filter((p) => p.category === category).length;
-      expect(expected).toBeGreaterThan(0);
-      await gallery.getByRole('button', { name: new RegExp(`^${categoryLabels[category]}`) }).click();
-      await expect(items).toHaveCount(expected);
-      await expect(gallery.getByText(`Showing ${expected} projects in ${categoryLabels[category]}`)).toBeAttached();
+    await expect(gallery.locator(':scope ul').first().locator(':scope > li')).toHaveCount(galleryCards.length);
+    await expect(gallery.getByRole('heading', { level: 3, name: 'More experiments' })).toBeVisible();
+    for (const project of moreExperiments) {
+      const item = gallery.locator(`#work-${project.slug}`);
+      await expect(item.getByRole('heading', { level: 4, name: project.title })).toBeVisible();
+      await expect(item.locator('img')).toHaveCount(0);
+      for (const link of project.links) await expect(item.locator(`a[href="${link.href}"]`)).toBeVisible();
     }
-    await gallery.getByRole('button', { name: /^All work/ }).click();
-    await expect(items).toHaveCount(galleryProjects.length);
+    await expect(gallery.getByRole('button', { name: /^All work/ })).toHaveCount(0);
   });
 
-  test('rapid filter changes land on the last choice and keep focus on it', async ({ page }) => {
+  test('service examples link to projects that exist on the page', async ({ page }) => {
     await page.goto('/');
-    const gallery = page.locator('#work');
-    const names = [/^Software & Systems/, /^Web & Commerce/, /^Experiments & Other/, /^Web & Commerce/];
-    for (const name of names) await gallery.getByRole('button', { name }).click();
-    const last = gallery.getByRole('button', { name: /^Web & Commerce/ });
-    await expect(last).toHaveAttribute('aria-pressed', 'true');
-    await expect(last).toBeFocused();
-    await expect(gallery.locator('ul > li')).toHaveCount(galleryProjects.filter((p) => p.category === 'web').length);
-    const categories = await gallery.locator('ul > li').evaluateAll((els) => els.map((el) => el.getAttribute('data-category')));
-    expect(new Set(categories)).toEqual(new Set(['web']));
+    const hrefs = await page.locator('#services a[href^="#"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')!));
+    expect(hrefs.length).toBeGreaterThan(0);
+    for (const href of hrefs) await expect(page.locator(href)).toBeAttached();
   });
 
   test('hero projects are not repeated in the gallery', async ({ page }) => {
@@ -476,7 +467,7 @@ test.describe('Selected work gallery', () => {
 
   test('website projects open a full-page preview dialog and return focus', async ({ page }) => {
     await page.goto('/');
-    const project = galleryProjects.find((p) => p.captures && p.brand)!;
+    const project = galleryCards.find((p) => p.captures && p.brand)!;
     const trigger = page.getByRole('button', { name: `View the full ${project.title} page` });
     await trigger.click();
 
@@ -579,7 +570,7 @@ test.describe('Responsive boundaries', () => {
     test.skip(!isMobile, 'Small-screen dialog check.');
     await page.setViewportSize({ width: 344, height: 640 });
     await page.goto('/');
-    const project = galleryProjects.find((p) => p.captures)!;
+    const project = galleryCards.find((p) => p.captures)!;
     await page.getByRole('button', { name: `View the full ${project.title} page` }).click();
     const dialog = page.getByRole('dialog', { name: project.title });
     await expect(dialog).toBeVisible();

@@ -70,6 +70,8 @@ export interface Project {
   captures?: { desktop: FullLengthCapture; phone: FullLengthCapture };
   walkthrough?: WalkthroughStep[];
   brand?: BrandTheme;
+  /** How much room the gallery gives it: a full card (the default) or a line in "More experiments". */
+  tier?: 'card' | 'list';
   /** Path of the project's case study page, for the projects that have one. */
   caseStudy?: string;
   /** When the case study was first published and last meaningfully changed (YYYY-MM-DD). */
@@ -231,6 +233,7 @@ export const projects: Project[] = [
   },
   {
     slug: 'valence-capital',
+    tier: 'list',
     title: 'Valence Capital',
     category: 'web',
     medium: 'Landing page',
@@ -269,6 +272,7 @@ export const projects: Project[] = [
   },
   {
     slug: 'nexus-ai',
+    tier: 'list',
     title: 'Nexus AI',
     category: 'web',
     medium: 'Landing page',
@@ -282,6 +286,7 @@ export const projects: Project[] = [
   },
   {
     slug: 'page-fishing',
+    tier: 'list',
     title: 'Page Fishing',
     category: 'experiments',
     medium: 'Browser extension',
@@ -322,6 +327,9 @@ export const isHeroProject = (slug: string) => heroSlugs.has(slug);
 
 /** Projects for the homepage's Selected Work gallery: everything except the hero pair. */
 export const galleryProjects = projects.filter((project) => !isHeroProject(project.slug));
+
+export const galleryCards = galleryProjects.filter((project) => project.tier !== 'list');
+export const moreExperiments = galleryProjects.filter((project) => project.tier === 'list');
 
 export type CaseStudyProject = Project & Required<Pick<Project, 'caseStudy' | 'caseStudyDates'>>;
 
