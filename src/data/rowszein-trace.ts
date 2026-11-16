@@ -92,13 +92,13 @@ export const traceSteps: TraceStep[] = [
   },
   {
     title: 'Work out every new balance before writing anything',
-    body: 'Each product’s recipe becomes grams and millilitres of ingredients, and every resulting stock level is calculated and validated first. If any ingredient would go below zero, the request fails with nothing written.',
+    body: 'Each product’s recipe, including the donuts inside any boxes, becomes grams and millilitres of ingredients, and every resulting stock level is calculated and validated first. If any ingredient would go below zero, the request fails with nothing written.',
     test: 'test_insufficient_stock_rolls_back_all_records',
     touches: { Product: 'lock', Recipe: 'read', Ingredient: 'lock', ConsumptionBasis: 'lock' },
   },
   {
     title: 'Write the sale and its paper trail',
-    body: 'The sale and its lines are saved with a record of the request, what each recipe consumed, a stock movement for every ingredient with the balance after it, and a financial entry for the amount.',
+    body: 'The sale and its lines are saved, each partner item keeping the payout it was sold at, with a record of the request, what each recipe consumed, a stock movement for every ingredient with the balance after it, and a financial entry for the amount.',
     test: 'test_failures_at_each_write_boundary_roll_back_the_entire_creation',
     touches: { ...written, Product: 'lock', Recipe: 'read' },
   },
