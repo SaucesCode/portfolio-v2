@@ -544,14 +544,14 @@ test.describe('Services and contact', () => {
     await page.goto('/');
     const services = page.locator('#services');
     const lit = () => services.locator('ol li[data-on="true"]').allTextContents();
-    expect(await lit()).toEqual(['Data', 'Logic', 'Interface', 'Design']);
+    await expect.poll(lit).toEqual(['Data', 'Logic', 'Interface', 'Design']);
 
     await services.getByRole('link', { name: 'Valence Capital' }).focus();
-    expect(await lit()).toEqual(['Interface', 'Design']);
+    await expect.poll(lit).toEqual(['Interface', 'Design']);
     await expect(services.getByText('Websites, stores and landing pages').last()).toBeVisible();
 
     await services.getByRole('link', { name: 'QuickAid' }).focus();
-    expect(await lit()).toEqual(['Data', 'Logic', 'Interface']);
+    await expect.poll(lit).toEqual(['Data', 'Logic', 'Interface']);
   });
 
   test('service examples link to sections that exist', async ({ page }) => {
