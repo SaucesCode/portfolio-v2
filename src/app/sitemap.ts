@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/`, changeFrequency: 'monthly', priority: 1 },
     ...caseStudies.map((project) => ({
       url: `${baseUrl}${project.caseStudy}`,
+      lastModified: project.caseStudyDates.updated,
       changeFrequency: 'monthly' as const,
       priority: 0.8,
     })),

@@ -12,9 +12,9 @@ import { getBaseUrl } from '@/lib/seo';
 
 const baseUrl = getBaseUrl();
 
-const workListJsonLd = {
-  '@context': 'https://schema.org',
+const workList = {
   '@type': 'ItemList',
+  '@id': `${baseUrl}/#work`,
   name: `Software and websites by ${site.name}`,
   itemListElement: projects.map((project, index) => ({
     '@type': 'ListItem',
@@ -34,6 +34,23 @@ const workListJsonLd = {
   })),
 };
 
+/** The homepage is the profile page of the person declared in the root layout, listing their work. */
+const homeJsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'ProfilePage',
+      '@id': `${baseUrl}/#profile`,
+      url: `${baseUrl}/`,
+      mainEntity: { '@id': `${baseUrl}/#person` },
+      isPartOf: { '@id': `${baseUrl}/#website` },
+      hasPart: { '@id': `${baseUrl}/#work` },
+      inLanguage: 'en',
+    },
+    workList,
+  ],
+};
+
 export default function HomePage() {
   return (
     <div id="top">
@@ -49,7 +66,7 @@ export default function HomePage() {
       <Contact />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(workListJsonLd).replace(/</g, '\\u003c') }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd).replace(/</g, '\\u003c') }}
       />
     </div>
   );

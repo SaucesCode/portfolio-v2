@@ -16,6 +16,9 @@ export function caseStudyMetadata(project: CaseStudyProject, copy: CaseCopy): Me
     alternates: { canonical: project.caseStudy },
     openGraph: {
       type: 'article',
+      publishedTime: project.caseStudyDates.published,
+      modifiedTime: project.caseStudyDates.updated,
+      authors: [site.url],
       url: project.caseStudy,
       siteName: site.name,
       title: `${copy.title} | ${site.name}`,
@@ -48,6 +51,8 @@ export function caseStudyJsonLd(project: CaseStudyProject, copy: CaseCopy, work:
         description: copy.description,
         url,
         image: `${url}/opengraph-image`,
+        datePublished: project.caseStudyDates.published,
+        dateModified: project.caseStudyDates.updated,
         author: person,
         publisher: person,
         about: { '@id': `${url}#work` },

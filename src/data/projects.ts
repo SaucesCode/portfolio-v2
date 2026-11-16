@@ -72,6 +72,8 @@ export interface Project {
   brand?: BrandTheme;
   /** Path of the project's case study page, for the projects that have one. */
   caseStudy?: string;
+  /** When the case study was first published and last meaningfully changed (YYYY-MM-DD). */
+  caseStudyDates?: { published: string; updated: string };
 }
 
 const desktopPoster = (slug: string): Shot => ({ src: `/work/${slug}/desktop-poster.jpg`, width: 1440, height: 900 });
@@ -110,6 +112,7 @@ export const projects: Project[] = [
     ],
     poster: rowszeinScreen('recipes'),
     caseStudy: '/work/rowszeins-delight',
+    caseStudyDates: { published: '2026-11-11', updated: '2026-11-16' },
     walkthrough: [
       {
         shot: rowszeinScreen('dashboard'),
@@ -167,6 +170,7 @@ export const projects: Project[] = [
     poster: desktopPoster('thread-and-form'),
     captures: captures('thread-and-form', 7458, 15318),
     caseStudy: '/work/thread-and-form',
+    caseStudyDates: { published: '2026-11-11', updated: '2026-11-16' },
   },
   {
     slug: 'quickaid',
@@ -181,6 +185,7 @@ export const projects: Project[] = [
     note: 'Staff tools sit behind a login; the public site is shown.',
     links: [{ href: 'https://quick-aid-geomappingv1.vercel.app/', label: 'Visit the public site' }, github('QuickAid-Geomapping')],
     caseStudy: '/work/quickaid',
+    caseStudyDates: { published: '2026-11-16', updated: '2026-11-16' },
     poster: desktopPoster('quickaid'),
   },
   {
@@ -318,10 +323,14 @@ export const isHeroProject = (slug: string) => heroSlugs.has(slug);
 /** Projects for the homepage's Selected Work gallery: everything except the hero pair. */
 export const galleryProjects = projects.filter((project) => !isHeroProject(project.slug));
 
-export type CaseStudyProject = Project & { caseStudy: string };
+export type CaseStudyProject = Project & Required<Pick<Project, 'caseStudy' | 'caseStudyDates'>>;
 
 /** Projects with a case study page, in the order the pages link to each other. */
-export const caseStudies = projects.filter((project): project is CaseStudyProject => Boolean(project.caseStudy));
+export const caseStudies = projects.filter((project): project is CaseStudyProject => {
+  if (!project.caseStudy) return false;
+  if (!project.caseStudyDates) throw new Error(`Case study for ${project.slug} needs caseStudyDates`);
+  return true;
+});
 
 export const getCaseStudy = (slug: string): CaseStudyProject => {
   const project = caseStudies.find((p) => p.slug === slug);

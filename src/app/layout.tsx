@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Archivo, Newsreader, Plus_Jakarta_Sans } from 'next/font/google';
 import { InstantHistoryScroll } from '@/components/InstantHistoryScroll';
+import { services } from '@/data/services';
 import { site } from '@/data/site';
 import { getBaseUrl } from '@/lib/seo';
 import './globals.css';
@@ -90,7 +91,9 @@ const personJsonLd = {
       name: site.name,
       alternateName: site.githubHandle,
       jobTitle: site.role,
+      description,
       url: baseUrl,
+      mainEntityOfPage: { '@id': `${baseUrl}/#profile` },
       email: `mailto:${site.email}`,
       address: { '@type': 'PostalAddress', addressCountry: 'PH' },
       sameAs: [site.github, site.linkedin],
@@ -107,12 +110,18 @@ const personJsonLd = {
         'WordPress block themes',
         'Web design',
       ],
+      makesOffer: services.map((service) => ({
+        '@type': 'Offer',
+        itemOffered: { '@type': 'Service', name: service.name, description: service.description },
+      })),
     },
     {
       '@type': 'WebSite',
       '@id': `${baseUrl}/#website`,
       url: baseUrl,
       name: site.name,
+      description,
+      inLanguage: 'en',
       publisher: { '@id': `${baseUrl}/#person` },
     },
   ],

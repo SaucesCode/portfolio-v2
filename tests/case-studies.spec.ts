@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { caseStudies, getCaseStudy } from '../src/data/projects';
+import { caseStudies, getCaseStudy, isHeroProject } from '../src/data/projects';
 import { traceSteps } from '../src/data/rowszein-trace';
 import { site } from '../src/data/site';
 
@@ -60,6 +60,10 @@ test.describe('Case studies: content and SEO', () => {
       for (const expected of ['Article', type, 'SoftwareSourceCode', 'BreadcrumbList', 'Person']) expect(types).toContain(expected);
       const work = graph.find((node: { '@type'?: string }) => node['@type'] === type);
       expect(work.name).toBe(project.title);
+      const article = graph.find((node: { '@type'?: string }) => node['@type'] === 'Article');
+      expect(article.datePublished).toBe(project.caseStudyDates.published);
+      expect(article.dateModified).toBe(project.caseStudyDates.updated);
+      await expect(page.locator('meta[property="article:modified_time"]')).toHaveAttribute('content', project.caseStudyDates.updated);
     });
 
     test(`${project.title} has one h1, ordered headings and described images`, async ({ page }) => {
@@ -84,12 +88,16 @@ test.describe('Case studies: content and SEO', () => {
       expect(mailtos.length).toBeGreaterThanOrEqual(2);
       for (const href of mailtos) expect(href).toMatch(new RegExp(`^mailto:${site.email}\\?subject=`));
 
-      const other = caseStudies.find((p) => p.slug !== slug)!;
+      const other = caseStudies[(caseStudies.indexOf(project) + 1) % caseStudies.length];
       await expect(page.getByRole('navigation', { name: 'Next case study' }).getByRole('link', { name: new RegExp(other.title) })).toHaveAttribute(
         'href',
         other.caseStudy,
       );
-      await expect(page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Work' })).toHaveAttribute('href', '/#featured');
+      // Featured projects sit in the featured section; the rest live in the gallery.
+      await expect(page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Work' })).toHaveAttribute(
+        'href',
+        isHeroProject(slug) ? '/#featured' : '/#work',
+      );
       for (const link of project.links) await expect(page.locator(`main a[href="${link.href}"]`).first()).toBeVisible();
     });
 
@@ -106,6 +114,22 @@ test.describe('Case studies: content and SEO', () => {
     const paths = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
     expect(paths.sort()).toEqual(['/', ...caseStudies.map((p) => p.caseStudy)].sort());
     for (const path of paths) expect((await request.get(path)).status()).toBe(200);
+    for (const project of caseStudies) {
+      expect(xml).toContain(`${project.caseStudy}</loc>
+<lastmod>${project.caseStudyDates.updated}`);
+    }
+  });
+
+  test('llms.txt maps the site in plain text for language models', async ({ request }) => {
+    const response = await request.get('/llms.txt');
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toContain('text/plain');
+    const text = await response.text();
+    expect(text.startsWith(`# ${site.name}
+
+> `)).toBe(true);
+    for (const project of caseStudies) expect(text).toContain(`[${project.title}](${site.url}${project.caseStudy})`);
+    expect(text).toContain(site.email);
   });
 
   test('a case study that does not exist returns 404', async ({ request }) => {
@@ -307,7 +331,8 @@ test.describe('QuickAid: where a point on the map comes from', () => {
     const area = region(page);
     await area.getByRole('combobox', { name: 'Municipality' }).selectOption('Lucena City');
     await area.getByRole('combobox', { name: 'Barangay' }).selectOption({ label: 'Barangay 5' });
-    await expect(area.getByText(/about 9\d km from Lucena City/)).toBeVisible();
+    // The geocoder placed this barangay in Manila, roughly 100 km away.
+    await expect(area.getByText(/about \d{2,3} km from Lucena City/)).toBeVisible();
   });
 });
 

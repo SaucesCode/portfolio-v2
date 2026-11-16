@@ -33,7 +33,7 @@ test.describe('Identity and SEO', () => {
 
   test('has canonical URL, social image and accurate structured data', async ({ page, request }) => {
     await page.goto('/');
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /^https?:\/\/[^/]+\/?$/);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', site.url);
 
     const ogImage = await page.locator('meta[property="og:image"]').getAttribute('content');
     const ogResponse = await request.get(new URL(ogImage!).pathname + new URL(ogImage!).search);
@@ -41,11 +41,15 @@ test.describe('Identity and SEO', () => {
     expect(ogResponse.headers()['content-type']).toContain('image/png');
 
     const blocks = (await page.locator('script[type="application/ld+json"]').allTextContents()).map((t) => JSON.parse(t));
-    const person = blocks.flatMap((b) => b['@graph'] ?? []).find((node) => node['@type'] === 'Person');
+    const graph = blocks.flatMap((b) => b['@graph'] ?? []);
+    const person = graph.find((node) => node['@type'] === 'Person');
     expect(person.name).toBe(site.name);
     expect(person.email).toBe(`mailto:${site.email}`);
     expect(person.jobTitle).toMatch(/software engineer/i);
-    const list = blocks.find((b) => b['@type'] === 'ItemList');
+    expect(person.makesOffer.length).toBeGreaterThan(0);
+    const profile = graph.find((node) => node['@type'] === 'ProfilePage');
+    expect(profile.mainEntity['@id']).toBe(person['@id']);
+    const list = graph.find((node) => node['@type'] === 'ItemList');
     expect(list.itemListElement).toHaveLength(projects.length);
   });
 
