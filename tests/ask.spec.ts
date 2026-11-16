@@ -63,3 +63,52 @@ test.describe('Assistant limits', () => {
     expect(await assistantEnabled(store)).toBe(false);
   });
 });
+
+test.describe('POST /api/ask', () => {
+  test.skip(({ isMobile }) => isMobile, 'Server behaviour is the same for every viewport.');
+  let visitor = 0;
+  const ask = (request: import('@playwright/test').APIRequestContext, data: unknown, origin = 'http://localhost:3001') =>
+    request.post('/api/ask', { data, headers: { Origin: origin, 'X-Forwarded-For': `192.0.2.${++visitor % 250}` } });
+
+  test('answers from the site and suggests a page action', async ({ request }) => {
+    const response = await ask(request, { question: 'How long does a WordPress site take?' });
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.answer).toContain('3–5 weeks');
+    expect(body.actions).toEqual([{ type: 'show_section', id: 'process' }]);
+  });
+
+  test('accepts 300 characters, refuses 301 and blank questions', async ({ request }) => {
+    expect((await ask(request, { question: 'a'.repeat(300) })).status()).toBe(200);
+    const long = await ask(request, { question: 'a'.repeat(301) });
+    expect(long.status()).toBe(400);
+    expect(await long.json()).toMatchObject({ state: 'invalid', field: 'question' });
+    expect((await ask(request, { question: '   ' })).status()).toBe(400);
+    expect((await ask(request, 'not an object')).status()).toBe(400);
+  });
+
+  test('drops an action outside the allowlist', async ({ request }) => {
+    const body = await (await ask(request, { question: 'BADTOOL please' })).json();
+    expect(body.answer).toBe('Here is that section.');
+    expect(body.actions).toEqual([]);
+  });
+
+  test('turns provider failures into friendly states', async ({ request }) => {
+    test.setTimeout(30_000);
+    for (const [question, state] of [['RATELIMIT', 'busy'], ['SERVERERROR', 'error'], ['MALFORMED', 'error'], ['SLOW', 'error']] as const) {
+      const response = await ask(request, { question });
+      expect(response.status(), question).toBe(503);
+      expect(await response.json(), question).toEqual({ state });
+    }
+  });
+
+  test('refuses requests from other sites', async ({ request }) => {
+    expect((await ask(request, { question: 'Hello' }, 'https://evil.example')).status()).toBe(403);
+  });
+
+  test('log lines never carry the question', async () => {
+    const { formatAskLog } = await import('../src/lib/ask/log');
+    const line = JSON.parse(formatAskLog({ requestId: 'r1', outcome: 'answered', ms: 812, tokens: 140 }));
+    expect(Object.keys(line).sort()).toEqual(['event', 'ms', 'outcome', 'requestId', 'tokens']);
+  });
+});
