@@ -9,6 +9,7 @@ import './globals.css';
 // Every page's header uses the capsule button, and the 404 route only receives the root layout's
 // stylesheet, so the button styles ship with the layout.
 import '@/components/ButtonLink.module.css';
+import '@/components/ask/AskPanel.module.css';
 
 const archivo = Archivo({
   subsets: ['latin'],

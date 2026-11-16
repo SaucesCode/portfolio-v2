@@ -11,6 +11,7 @@ import { SaleControls } from './live/SaleControls';
 import { StyleControls } from './live/StyleControls';
 import { useIdleMount } from './live/useIdleMount';
 import { useRowszeinDemo } from './live/useRowszeinDemo';
+import { HERO_FOCUS_EVENT, HERO_FOCUS_KEY } from './ask/actions';
 import styles from './HeroShowcase.module.css';
 
 // The live demos are their own chunks, fetched only after first paint.
@@ -174,6 +175,20 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
     setSelected(next);
   };
 
+  // The assistant can ask for a demo while the visitor is already on the homepage.
+  const chooseRef = useRef(choose);
+  useEffect(() => {
+    chooseRef.current = choose;
+  });
+  useEffect(() => {
+    const onFocus = (event: Event) => {
+      const id = (event as CustomEvent<string>).detail;
+      if (id === 'software' || id === 'web') chooseRef.current(id);
+    };
+    window.addEventListener(HERO_FOCUS_EVENT, onFocus);
+    return () => window.removeEventListener(HERO_FOCUS_EVENT, onFocus);
+  }, []);
+
   // A tap on the switch before hydration (kept by EARLY_PICK) wins as soon as the hero can act on it.
   useEffect(() => {
     const root = document.documentElement;
@@ -181,8 +196,10 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
     // Read on the next frame, once the windows have laid out, so the handoff measures them. Reading
     // inside the frame also survives React's development double-run, which cancels the first frame.
     const frame = requestAnimationFrame(() => {
-      const pick = root.dataset.heroPick;
+      // An early tap, or a demo the assistant asked for before navigating home.
+      const pick = root.dataset.heroPick ?? sessionStorage.getItem(HERO_FOCUS_KEY) ?? undefined;
       delete root.dataset.heroPick;
+      sessionStorage.removeItem(HERO_FOCUS_KEY);
       if (pick === 'software' || pick === 'web') choose(pick);
     });
     return () => cancelAnimationFrame(frame);
