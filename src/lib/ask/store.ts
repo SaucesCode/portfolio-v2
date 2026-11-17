@@ -1,12 +1,26 @@
 /**
  * Durable counters for the assistant's limits. Serverless instances share no memory, so production
- * counts in Upstash Redis (over its REST API, no client library); local runs and tests can choose an
- * in-process store explicitly with ASSISTANT_STORE=memory.
+ * counts in Upstash Redis (over its REST API, no client library); `next dev` and tests can count in
+ * process memory.
  */
+
+/** One limit to check: the counter key, how long it lives, and the most it may reach. */
+export interface Step {
+  key: string;
+  ttlSeconds: number;
+  limit: number;
+}
+
+/**
+ * The outcome of one admit call: 'off' when the kill switch is set, 'ok' when every step passed, or
+ * the index of the first step over its limit. Steps after a refused one are not counted, so a visitor
+ * over their own limit never uses up the site's allowance.
+ */
+export type Admission = 'off' | 'ok' | number;
+
 export interface CounterStore {
-  /** Adds one and returns the new count; the key expires ttlSeconds after it was first created. */
-  incr(key: string, ttlSeconds: number): Promise<number>;
-  get(key: string): Promise<string | null>;
+  /** Checks the kill switch and counts each step in order, stopping at the first one over its limit. */
+  admit(switchKey: string, steps: Step[]): Promise<Admission>;
   set(key: string, value: string): Promise<void>;
 }
 
@@ -18,14 +32,15 @@ export function memoryStore(): CounterStore {
     return values.get(key);
   };
   return {
-    async incr(key, ttlSeconds) {
-      const entry = live(key);
-      const count = Number(entry?.value ?? 0) + 1;
-      values.set(key, { value: String(count), expires: entry?.expires ?? Date.now() + ttlSeconds * 1000 });
-      return count;
-    },
-    async get(key) {
-      return live(key)?.value ?? null;
+    async admit(switchKey, steps) {
+      if (live(switchKey)?.value === '0') return 'off';
+      for (const [index, step] of steps.entries()) {
+        const entry = live(step.key);
+        const count = Number(entry?.value ?? 0) + 1;
+        values.set(step.key, { value: String(count), expires: entry?.expires ?? Date.now() + step.ttlSeconds * 1000 });
+        if (count > step.limit) return index;
+      }
+      return 'ok';
     },
     async set(key, value) {
       values.set(key, { value, expires: Number.POSITIVE_INFINITY });
@@ -33,12 +48,33 @@ export function memoryStore(): CounterStore {
   };
 }
 
+/** The same rules as memoryStore().admit, run inside Redis in one round trip. Returns -2 off, -1 ok, or a step index. */
+const ADMIT_SCRIPT = `
+if redis.call('GET', KEYS[1]) == '0' then return -2 end
+for i = 2, #KEYS do
+  local count = redis.call('INCR', KEYS[i])
+  if count == 1 then redis.call('EXPIRE', KEYS[i], ARGV[(i - 2) * 2 + 1]) end
+  if count > tonumber(ARGV[(i - 2) * 2 + 2]) then return i - 2 end
+end
+return -1
+`;
+
+/** Upstash reports a failed command as { error } with HTTP 200; anything but a whole number must not count as allowed. */
+export function readCount(body: unknown): number {
+  const result = (body as { result?: unknown } | null)?.result;
+  if (typeof result !== 'number' || !Number.isInteger(result)) {
+    const error = (body as { error?: unknown } | null)?.error;
+    throw new Error(`Upstash returned no count${typeof error === 'string' ? `: ${error}` : ''}`);
+  }
+  return result;
+}
+
 export function upstashStore(url: string, token: string): CounterStore {
-  const call = async (path: string, body?: unknown) => {
-    const response = await fetch(`${url.replace(/\/$/, '')}${path}`, {
-      method: body ? 'POST' : 'GET',
-      headers: { Authorization: `Bearer ${token}`, ...(body ? { 'Content-Type': 'application/json' } : {}) },
-      body: body ? JSON.stringify(body) : undefined,
+  const command = async (args: string[]) => {
+    const response = await fetch(url.replace(/\/$/, ''), {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(args),
       signal: AbortSignal.timeout(2000),
       cache: 'no-store',
     });
@@ -46,20 +82,14 @@ export function upstashStore(url: string, token: string): CounterStore {
     return response.json();
   };
   return {
-    async incr(key, ttlSeconds) {
-      // One round trip: count, and start the expiry only when the key is new.
-      const [count] = (await call('/pipeline', [
-        ['INCR', key],
-        ['EXPIRE', key, String(ttlSeconds), 'NX'],
-      ])) as { result: number }[];
-      return Number(count.result);
-    },
-    async get(key) {
-      const { result } = (await call(`/get/${encodeURIComponent(key)}`)) as { result: string | null };
-      return result;
+    async admit(switchKey, steps) {
+      const keys = [switchKey, ...steps.map((step) => step.key)];
+      const args = steps.flatMap((step) => [String(step.ttlSeconds), String(step.limit)]);
+      const outcome = readCount(await command(['EVAL', ADMIT_SCRIPT, String(keys.length), ...keys, ...args]));
+      return outcome === -2 ? 'off' : outcome === -1 ? 'ok' : outcome;
     },
     async set(key, value) {
-      await call('/pipeline', [['SET', key, value]]);
+      await command(['SET', key, value]);
     },
   };
 }

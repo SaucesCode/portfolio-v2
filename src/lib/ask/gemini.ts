@@ -65,29 +65,32 @@ function toAction(raw: RawAction): AskAction | null {
   }
 }
 
+/** Both attempts share one deadline, so a question never waits longer than this. */
+const DEADLINE_MS = 9000;
+/** A fallback only starts if at least this much time is left. */
+const MIN_ATTEMPT_MS = 2500;
+
+type Attempt = ProviderResult | { ok: false; state: 'retry'; detail: string };
+
 /** One generateContent call. The key travels in a header, never in the URL. */
-export async function askGemini(system: string, history: Turn[], question: string): Promise<ProviderResult> {
+async function attempt(model: string, body: string, timeoutMs: number): Promise<Attempt> {
   const base = (process.env.GEMINI_BASE_URL ?? 'https://generativelanguage.googleapis.com').replace(/\/$/, '');
-  const model = process.env.GEMINI_MODEL ?? 'gemini-3.5-flash-lite';
   let response: Response;
   try {
     response = await fetch(`${base}/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY ?? '' },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: system }] },
-        contents: [...history, { role: 'user', text: question }].map((turn) => ({ role: turn.role, parts: [{ text: turn.text }] })),
-        // No thinkingConfig: Flash-Lite answers in about two seconds without one.
-        generationConfig: { maxOutputTokens: 400, temperature: 0.2, responseMimeType: 'application/json', responseSchema },
-      }),
-      signal: AbortSignal.timeout(8000),
+      body,
+      signal: AbortSignal.timeout(timeoutMs),
       cache: 'no-store',
     });
   } catch (error) {
-    return { ok: false, state: 'error', detail: error instanceof Error && error.name === 'TimeoutError' ? 'timeout' : 'network' };
+    return { ok: false, state: 'error', detail: error instanceof Error && error.name === 'TimeoutError' ? `${model} timeout` : `${model} network` };
   }
-  if (response.status === 429) return { ok: false, state: 'busy', detail: 'gemini 429' };
-  if (!response.ok) return { ok: false, state: 'error', detail: `gemini ${response.status}` };
+  // 500 and 503 mean the model is briefly overloaded: worth one try on another model. A 429 is this
+  // key's per-minute limit, so it reads as "try again in a moment" and is never retried.
+  if (response.status === 500 || response.status === 503) return { ok: false, state: 'retry', detail: `${model} ${response.status}` };
+  if (!response.ok) return { ok: false, state: 'error', detail: `${model} ${response.status}` };
 
   let reply: { answer?: unknown; actions?: unknown };
   let tokens = 0;
@@ -96,13 +99,38 @@ export async function askGemini(system: string, history: Turn[], question: strin
     tokens = data.usageMetadata?.totalTokenCount ?? 0;
     reply = JSON.parse((data.candidates?.[0]?.content?.parts ?? []).map((part) => part.text ?? '').join(''));
   } catch {
-    return { ok: false, state: 'error', detail: 'bad body' };
+    return { ok: false, state: 'error', detail: `${model} bad body` };
   }
   const answer = typeof reply.answer === 'string' ? reply.answer.trim() : '';
-  if (!answer) return { ok: false, state: 'error', detail: 'empty answer' };
+  if (!answer) return { ok: false, state: 'retry', detail: `${model} empty answer` };
+  // One action of each kind at most, and two in all.
+  const seen = new Set<string>();
   const actions = (Array.isArray(reply.actions) ? reply.actions : [])
     .map((raw) => toAction(raw as RawAction))
-    .filter((action): action is AskAction => action !== null)
+    .filter((action): action is AskAction => action !== null && !seen.has(action.type) && !!seen.add(action.type))
     .slice(0, 2);
   return { ok: true, answer, actions, tokens };
+}
+
+/**
+ * Asks the main model (gemini-3.1-flash-lite: about 1.6 s in testing) and, only if it is briefly
+ * overloaded or returns no answer, the fallback, inside one shared deadline.
+ */
+export async function askGemini(system: string, history: Turn[], question: string): Promise<ProviderResult> {
+  const models = [process.env.GEMINI_MODEL ?? 'gemini-3.1-flash-lite', process.env.GEMINI_FALLBACK_MODEL ?? 'gemini-3.5-flash-lite'];
+  const body = JSON.stringify({
+    systemInstruction: { parts: [{ text: system }] },
+    contents: [...history, { role: 'user', text: question }].map((turn) => ({ role: turn.role, parts: [{ text: turn.text }] })),
+    generationConfig: { maxOutputTokens: 400, temperature: 0.2, responseMimeType: 'application/json', responseSchema },
+  });
+  const started = Date.now();
+  const details: string[] = [];
+  for (const model of models) {
+    const left = DEADLINE_MS - (Date.now() - started);
+    if (left < MIN_ATTEMPT_MS) break;
+    const result = await attempt(model, body, left);
+    if (result.ok || result.state !== 'retry') return result.ok ? result : { ...result, detail: [...details, result.detail].join(', ') };
+    details.push(result.detail);
+  }
+  return { ok: false, state: 'error', detail: details.join(', ') || 'no time left' };
 }

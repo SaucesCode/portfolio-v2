@@ -11,7 +11,7 @@ import { SaleControls } from './live/SaleControls';
 import { StyleControls } from './live/StyleControls';
 import { useIdleMount } from './live/useIdleMount';
 import { useRowszeinDemo } from './live/useRowszeinDemo';
-import { HERO_FOCUS_EVENT, HERO_FOCUS_KEY } from './ask/actions';
+import { HERO_FOCUS_EVENT, takeHeroFocus } from './ask/actions';
 import styles from './HeroShowcase.module.css';
 
 // The live demos are their own chunks, fetched only after first paint.
@@ -197,9 +197,8 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
     // inside the frame also survives React's development double-run, which cancels the first frame.
     const frame = requestAnimationFrame(() => {
       // An early tap, or a demo the assistant asked for before navigating home.
-      const pick = root.dataset.heroPick ?? sessionStorage.getItem(HERO_FOCUS_KEY) ?? undefined;
+      const pick = root.dataset.heroPick ?? takeHeroFocus() ?? undefined;
       delete root.dataset.heroPick;
-      sessionStorage.removeItem(HERO_FOCUS_KEY);
       if (pick === 'software' || pick === 'web') choose(pick);
     });
     return () => cancelAnimationFrame(frame);

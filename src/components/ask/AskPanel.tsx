@@ -61,7 +61,8 @@ export function AskPanel() {
       const target = event.target as HTMLElement;
       const typing = target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
       const slash = event.key === '/' && !typing && !event.ctrlKey && !event.metaKey && !event.altKey;
-      const command = event.key.toLowerCase() === 'k' && (event.ctrlKey || event.metaKey);
+      // Autofill fires keydown events with no key; typing in a field keeps the browser's own shortcuts.
+      const command = !typing && event.key?.toLowerCase() === 'k' && (event.ctrlKey || event.metaKey);
       if (!slash && !command) return;
       event.preventDefault();
       open();
@@ -164,8 +165,9 @@ export function AskPanel() {
               </div>
             ))}
             {pending && <p className={styles.skeleton}>Looking through the site…</p>}
+            {/* Announced by the surrounding live region; role="alert" here would read it twice. */}
             {problem && (
-              <p className={styles.problem} role="alert">
+              <p className={styles.problem}>
                 {problemText(problem)}{' '}
                 <a href={inquiryHref} className={styles.mail}>
                   Email James instead
