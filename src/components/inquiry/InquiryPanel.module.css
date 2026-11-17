@@ -3,7 +3,8 @@
   width: min(42rem, calc(100% - 2rem));
   max-width: none;
   max-height: min(48rem, calc(100dvh - 3rem));
-  margin: 8vh auto auto;
+  /* Centred, so the whole sheet fits on short laptop screens. */
+  margin: auto;
   padding: 0;
   border: 0;
   border-radius: var(--radius-frame, 1rem);

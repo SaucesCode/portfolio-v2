@@ -245,6 +245,15 @@ test.describe('Project form', () => {
     await expect(box).toHaveValue('A stock system for a bakery');
   });
 
+  test('the whole form sheet fits on a short laptop screen', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'A laptop screen size.');
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto('/');
+    const box = (await (await openForm(page)).boundingBox())!;
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height).toBeLessThanOrEqual(720);
+  });
+
   test('Esc closes the form and focus returns to the button that opened it', async ({ page }) => {
     await page.goto('/');
     const opener = page.getByRole('main').getByRole('link', { name: 'Start a project' }).first();
