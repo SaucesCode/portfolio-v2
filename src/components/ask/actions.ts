@@ -1,5 +1,6 @@
 import { caseStudies, projects } from '@/data/projects';
-import { inquiryHref, site } from '@/data/site';
+import { site } from '@/data/site';
+import { openInquiry } from '../inquiry/open';
 import type { AskAction } from '@/lib/ask/gemini';
 import type { SectionId } from '@/lib/site-knowledge';
 
@@ -71,10 +72,7 @@ export function runAction(action: AskAction, onHome: boolean, push: (href: strin
       if (study) return push(study.caseStudy);
       return onHome ? scrollTo(`work-${action.slug}`) : push(`/#work-${action.slug}`);
     }
-    case 'draft_inquiry': {
-      const body = `${action.summary}\n\n(Drafted with the assistant on ${site.url.replace(/^https?:\/\//, '')}.)`;
-      // A mailto: link opens the visitor's mail app; it is not a page navigation.
-      window.open(`${inquiryHref}&body=${encodeURIComponent(body)}`, '_self');
-    }
+    case 'draft_inquiry':
+      return openInquiry(action.summary);
   }
 }

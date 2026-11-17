@@ -36,7 +36,7 @@ export function WorkingTogether() {
         </ol>
 
         <div className="mt-12">
-          <ButtonLink href={inquiryHref} icon="mail">
+          <ButtonLink href={inquiryHref} icon="mail" inquiry>
             Start a project
           </ButtonLink>
         </div>

@@ -139,3 +139,119 @@ test.describe('Inquiry endpoint', () => {
     expect(await checkInquiryLimits(store, '203.0.113.10', now)).toEqual({ ok: false, state: 'off' });
   });
 });
+
+test.describe('Project form', () => {
+  const message = 'We run two bakeries and need one place for orders and stock.';
+  const openForm = async (page: import('@playwright/test').Page) => {
+    await page.getByRole('main').getByRole('link', { name: 'Start a project' }).first().click();
+    const form = page.getByRole('dialog', { name: 'Start a project' });
+    await expect(form).toBeVisible();
+    return form;
+  };
+  const fill = async (form: import('@playwright/test').Locator, name = 'Ana Panel') => {
+    await form.getByRole('radio', { name: 'A business system or web app' }).check();
+    await form.getByRole('textbox', { name: 'Tell me about it' }).fill(message);
+    await form.getByRole('textbox', { name: 'Your name' }).fill(name);
+    await form.getByRole('textbox', { name: 'Your email' }).fill('ana@example.com');
+  };
+
+  test('every Start a project button opens the form instead of a mail app', async ({ page, isMobile }) => {
+    await page.goto('/');
+    await openForm(page);
+    await page.keyboard.press('Escape');
+    // Narrow phones show a round envelope labelled Contact in place of the header capsule.
+    await page.getByRole('banner').getByRole('link', { name: isMobile ? 'Contact' : 'Start a project', exact: true }).click();
+    await expect(page.getByRole('dialog', { name: 'Start a project' })).toBeVisible();
+  });
+
+  test('shows each problem next to its field and focuses the first', async ({ page }) => {
+    await page.goto('/');
+    const form = await openForm(page);
+    await form.getByRole('textbox', { name: 'Your email' }).fill('not-an-email');
+    await form.getByRole('button', { name: 'Send to James' }).click();
+    await expect(form.getByText('Choose what you need.')).toBeVisible();
+    await expect(form.getByRole('textbox', { name: 'Your email' })).toHaveAccessibleDescription("That email address doesn't look right.");
+    await expect(form.getByRole('textbox', { name: 'Your email' })).toHaveAttribute('aria-invalid', 'true');
+    await expect(form.getByRole('radio', { name: 'A business system or web app' })).toBeFocused();
+  });
+
+  test('sends, confirms with the reply address, and clears the draft', async ({ page, request }, info) => {
+    await page.setExtraHTTPHeaders({ 'X-Forwarded-For': `198.51.100.${info.project.name.length + 200}` });
+    await page.goto('/');
+    const form = await openForm(page);
+    const name = `Ana ${info.project.name}`;
+    await fill(form, name);
+    // A person takes a few seconds; the endpoint quietly drops instant submissions as bots.
+    await page.waitForTimeout(3100);
+    await form.getByRole('button', { name: 'Send to James' }).click();
+    await expect(form.getByText('Sent. James will reply to ana@example.com.')).toBeVisible();
+    expect((await (await request.get('http://127.0.0.1:3092/last')).json()).subject).toContain(name);
+    await page.keyboard.press('Escape');
+    const again = await openForm(page);
+    await expect(again.getByRole('textbox', { name: 'Tell me about it' })).toHaveValue('');
+  });
+
+  test('a failed send keeps the text and offers email and copy', async ({ page }) => {
+    await page.route('**/api/inquiry', (route) => route.fulfill({ status: 502, json: { state: 'error' } }));
+    await page.goto('/');
+    const form = await openForm(page);
+    await fill(form);
+    await form.getByRole('button', { name: 'Send to James' }).click();
+    await expect(form.getByText('That didn’t send. Your message is still here.')).toBeVisible();
+    await expect(form.getByRole('textbox', { name: 'Tell me about it' })).toHaveValue(message);
+    const fallback = form.getByRole('link', { name: 'Email it instead' });
+    await expect(fallback).toHaveAttribute('href', new RegExp(`^mailto:.*${encodeURIComponent('two bakeries')}`));
+    await expect(form.getByRole('button', { name: 'Copy address' })).toBeVisible();
+  });
+
+  test('too many sends says so and still offers email', async ({ page }) => {
+    await page.route('**/api/inquiry', (route) => route.fulfill({ status: 429, json: { state: 'limited', retryAfterSeconds: 600 } }));
+    await page.goto('/');
+    const form = await openForm(page);
+    await fill(form);
+    await form.getByRole('button', { name: 'Send to James' }).click();
+    await expect(form.getByText('You’ve sent a few already. Try again later, or email James directly.')).toBeVisible();
+    await expect(form.getByRole('link', { name: 'Email it instead' })).toBeVisible();
+  });
+
+  test('a draft survives closing and leaving the page, and wins over a case study opening line', async ({ page }) => {
+    await page.goto('/');
+    const form = await openForm(page);
+    await form.getByRole('textbox', { name: 'Tell me about it' }).fill(message);
+    await page.keyboard.press('Escape');
+    await page.goto('/work/rowszeins-delight');
+    await page.getByRole('link', { name: 'Email me about a system' }).click();
+    await expect(page.getByRole('dialog', { name: 'Start a project' }).getByRole('textbox', { name: 'Tell me about it' })).toHaveValue(message);
+  });
+
+  test('a case study opens the form with its opening line', async ({ page }) => {
+    await page.goto('/work/rowszeins-delight');
+    await page.getByRole('link', { name: 'Email me about a system' }).click();
+    const box = page.getByRole('dialog', { name: 'Start a project' }).getByRole('textbox', { name: 'Tell me about it' });
+    await expect(box).toHaveValue(/^A system for my business/);
+  });
+
+  test('the assistant’s email action opens the filled form', async ({ page }) => {
+    await page.route('**/api/ask', (route) =>
+      route.fulfill({ json: { answer: 'Yes, James builds those.', actions: [{ type: 'draft_inquiry', summary: 'A stock system for a bakery' }] } }),
+    );
+    await page.goto('/');
+    await page.getByRole('banner').getByRole('button', { name: 'Ask about my work' }).click();
+    const ask = page.getByRole('dialog', { name: 'Ask about my work' });
+    await ask.getByRole('textbox', { name: 'Your question' }).fill('Can you build stock tracking?');
+    await ask.getByRole('button', { name: 'Ask', exact: true }).click();
+    await ask.getByRole('button', { name: 'Email James about this' }).click();
+    const box = page.getByRole('dialog', { name: 'Start a project' }).getByRole('textbox', { name: 'Tell me about it' });
+    await expect(box).toHaveValue('A stock system for a bakery');
+  });
+
+  test('Esc closes the form and focus returns to the button that opened it', async ({ page }) => {
+    await page.goto('/');
+    const opener = page.getByRole('main').getByRole('link', { name: 'Start a project' }).first();
+    await opener.click();
+    await expect(page.getByRole('dialog', { name: 'Start a project' })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog', { name: 'Start a project' })).toBeHidden();
+    await expect(opener).toBeFocused();
+  });
+});
