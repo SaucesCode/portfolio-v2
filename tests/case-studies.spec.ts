@@ -8,6 +8,7 @@ const cases = [
   { slug: 'rowszeins-delight', cta: 'Need a system tailored to your business?', type: 'SoftwareApplication' },
   { slug: 'thread-and-form', cta: 'Have a website idea worth building?', type: 'CreativeWork' },
   { slug: 'quickaid', cta: 'Have data that belongs on a map?', type: 'SoftwareApplication' },
+  { slug: 'this-site', cta: 'Want an assistant like this on your site?', type: 'WebSite' },
 ].map((entry) => ({ ...entry, project: getCaseStudy(entry.slug) }));
 
 const jsonLdGraphs = (page: Page) =>
@@ -368,5 +369,71 @@ test.describe('Thread & Form on phones', () => {
     await page.goto('/work/thread-and-form');
     await page.locator('main picture img').nth(2).scrollIntoViewIfNeeded();
     await expect.poll(async () => (await sources()).every((src) => /desktop/.test(decodeURIComponent(src)))).toBe(true);
+  });
+});
+
+test.describe('This site case study', () => {
+  test('quotes the owner and never shows prices, limit numbers or internal names', async ({ page }) => {
+    await page.goto('/work/this-site');
+    await expect(page.locator('main blockquote')).toContainText('This is what I can build, especially with AI.');
+    const text = (await page.locator('main').innerText()).toLowerCase();
+    for (const banned of ['₱', 'us$', 'usd', 'assistant:enabled', 'inquiry:enabled', '400 a day', '30 a day', '10 per', '3 an hour', 'per hour']) {
+      expect(text, banned).not.toContain(banned);
+    }
+  });
+
+  test('"Ask the assistant" opens the assistant in place and returns focus', async ({ page }) => {
+    await page.goto('/work/this-site');
+    const button = page.getByRole('main').getByRole('button', { name: 'Ask the assistant' });
+    await button.click();
+    await expect(page.getByRole('dialog', { name: 'Ask about my work' })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(button).toBeFocused();
+  });
+
+  test('the question trace names every step and its parts in text', async ({ page }) => {
+    await page.goto('/work/this-site');
+    const steps = page.getByRole('region', { name: 'Following one question through the assistant' }).locator('[data-trace-step]');
+    await expect(steps).toHaveCount(6);
+    for (const step of await steps.all()) {
+      await expect(step.getByRole('heading', { level: 3 })).toBeVisible();
+      await expect(step.getByRole('list', { name: 'Parts involved' }).getByRole('listitem').first()).toBeVisible();
+    }
+  });
+
+  test('the step in the middle of the screen is the active one, even after a jump', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'The drawing is shown from large screens up.');
+    await page.goto('/work/this-site');
+    const last = page.locator('[data-trace-step]').last();
+    await last.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+    await expect(last).toHaveAttribute('data-active', 'true');
+    await expect(page.locator('[data-trace-drawing] [data-part="page"]')).toHaveAttribute('data-on', 'true');
+    await expect(page.locator('[data-trace-drawing] [data-part="model"]')).toHaveAttribute('data-on', 'false');
+  });
+
+  test('the trace fits a phone without sideways scrolling', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'Phone width.');
+    await page.goto('/work/this-site');
+    await page.getByRole('heading', { name: 'Following one question through the assistant' }).scrollIntoViewIfNeeded();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+
+  test('claims only what the code does', async ({ page }) => {
+    await page.goto('/work/this-site');
+    const text = await page.locator('body').innerText();
+    for (const overstated of [
+      'never knows more or less',
+      'only if the first is overloaded,',
+      'survives closing the page',
+      'borrow the assistant',
+      'never loses a lead',
+      'Nothing a visitor types is stored',
+      'already filled in',
+      'each can say no',
+      'costs nothing per visit',
+    ]) {
+      expect(text, overstated).not.toContain(overstated);
+    }
+    expect(text).toContain('overloaded or returns no answer');
   });
 });

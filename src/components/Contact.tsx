@@ -39,7 +39,7 @@ export function Contact({
           </h2>
           <div className="max-w-[46ch] lg:col-span-4 lg:col-start-9 lg:self-end">
             <p className="text-lg leading-relaxed">{lede}</p>
-            <ButtonLink href={href} variant="inverse" icon="mail" className="mt-6">
+            <ButtonLink href={href} variant="inverse" icon="mail" className="mt-6" inquiry={subject ? `${subject}: ` : true}>
               {action}
             </ButtonLink>
           </div>

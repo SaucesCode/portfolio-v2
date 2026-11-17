@@ -1,6 +1,7 @@
 import { inquiryHref } from '@/data/site';
-import { terms } from '@/data/terms';
+import { phases, terms } from '@/data/terms';
 import { ButtonLink } from './ButtonLink';
+import styles from './WorkingTogether.module.css';
 
 /** How a project runs, from the first call to after launch. Prices are agreed per project, never listed. */
 export function WorkingTogether() {
@@ -23,7 +24,19 @@ export function WorkingTogether() {
       </div>
 
       <div className="lg:col-span-7 lg:col-start-6">
-        <ol className="grid gap-x-10 gap-y-10 border-t border-rule pt-8 sm:grid-cols-2">
+        <ol aria-label="How a project runs" className={styles.phases}>
+          {phases.map((phase) => (
+            <li key={phase.title} className={styles.phase}>
+              <p data-phase-title className={styles.title}>
+                {phase.title}
+              </p>
+              <p className={styles.note}>{phase.note}</p>
+              {phase.pay && <p className={styles.pay}>{phase.pay}</p>}
+            </li>
+          ))}
+        </ol>
+
+        <ol className="mt-12 grid gap-x-10 gap-y-10 border-t border-rule pt-8 sm:grid-cols-2">
           {terms.map((term, index) => (
             <li key={term.id}>
               <p className="text-[0.9375rem] font-medium text-graphite tabular-nums" aria-hidden>
@@ -36,7 +49,7 @@ export function WorkingTogether() {
         </ol>
 
         <div className="mt-12">
-          <ButtonLink href={inquiryHref} icon="mail">
+          <ButtonLink href={inquiryHref} icon="mail" inquiry>
             Start a project
           </ButtonLink>
         </div>

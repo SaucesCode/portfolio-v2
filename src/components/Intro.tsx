@@ -17,7 +17,7 @@ export function Intro() {
           <ButtonLink href="#featured" icon="down">
             Explore my work
           </ButtonLink>
-          <ButtonLink href={inquiryHref} variant="outline" icon="mail">
+          <ButtonLink href={inquiryHref} variant="outline" icon="mail" inquiry>
             Start a project
           </ButtonLink>
         </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useId } from 'react';
 import { demoProducts } from '@/data/rowszein-demo';
 import { formatPeso, recordSale } from '@/lib/rowszein-demo';
 import type { RowszeinDemo } from './useRowszeinDemo';
@@ -7,6 +8,8 @@ import styles from './LiveControls.module.css';
 
 /** Full-size controls under the hero window: record one piece at a time, or start over. */
 export function SaleControls({ demo, announce }: { demo: RowszeinDemo; announce: (message: string) => void }) {
+  // The hero and the phone's full-screen view can both show these controls; ids must stay unique.
+  const uid = useId();
   return (
     <div role="group" aria-label="Try Rowszein’s Delight" className={styles.controls}>
       {/* Reset sits beside the heading, so the three products keep one row even in a narrow column. */}
@@ -19,7 +22,7 @@ export function SaleControls({ demo, announce }: { demo: RowszeinDemo; announce:
       <div className={styles.options}>
         {demoProducts.map((product) => {
           const attempt = recordSale(demo.state, product.id);
-          const reasonId = `sale-reason-${product.id}`;
+          const reasonId = `${uid}-reason-${product.id}`;
           return (
             <span key={product.id} className={styles.option}>
               <button

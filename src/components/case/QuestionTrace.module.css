@@ -1,0 +1,175 @@
+/*
+ * The trace sits on an ink band (it inverts in dark mode, like the contact footer), so it uses a
+ * signal tone that holds 4.5:1 against whichever ink is behind it, as the Rowszein sale trace does.
+ */
+.trace {
+  --band-signal: #a3abff;
+  --band-muted: color-mix(in srgb, var(--wall) 70%, transparent);
+  --band-rule: color-mix(in srgb, var(--wall) 22%, transparent);
+  display: grid;
+  gap: 3rem;
+  margin-top: 3.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .trace {
+    --band-signal: #2633e8;
+  }
+}
+
+@media (min-width: 1024px) {
+  .trace {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: 4rem;
+    margin-top: 1.5rem;
+  }
+}
+
+/* Steps ------------------------------------------------------------------- */
+.steps {
+  display: grid;
+  gap: 3.5rem;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  column-gap: 1rem;
+  align-content: center;
+}
+
+@media (min-width: 1024px) {
+  .steps {
+    gap: 0;
+  }
+
+  /* Each step holds the middle of the screen long enough for the drawing to be read. */
+  .step {
+    min-height: 64vh;
+  }
+
+  /* The current step is marked by its number, never by fading the others' text. */
+  .step .number {
+    color: var(--band-muted);
+    transition: color var(--dur-component) var(--ease-out);
+  }
+
+  .step[data-active='true'] .number {
+    color: var(--band-signal);
+  }
+}
+
+.number {
+  grid-row: span 3;
+  font-variation-settings: 'wdth' 125;
+  font-size: 2.25rem;
+  line-height: 1;
+  font-weight: 500;
+  color: var(--band-signal);
+}
+
+.title {
+  font-variation-settings: 'wdth' 112;
+  font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+  line-height: 1.12;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.body {
+  margin-top: 0.75rem;
+  max-width: 56ch;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+.parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.parts li {
+  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--band-signal);
+  border-radius: 999px;
+  font-size: 0.875rem;
+}
+
+/* Drawing: the five parts as a column, the active ones lit -------------------- */
+.drawing {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .drawing {
+    position: sticky;
+    top: 30vh;
+    align-self: start;
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 20vh;
+  }
+
+  /* A line runs through the parts, the way a request passes through them. */
+  .drawing::before {
+    content: '';
+    position: absolute;
+    top: 1.5rem;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    width: 1px;
+    background: var(--band-rule);
+  }
+}
+
+.part {
+  position: relative;
+  display: flex;
+  min-height: 3rem;
+  align-items: center;
+  padding: 0 1rem 0 2.75rem;
+  border: 1.5px solid var(--band-rule);
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--band-muted);
+  font-weight: 600;
+  transition:
+    border-color var(--dur-component) var(--ease-out),
+    color var(--dur-component) var(--ease-out);
+}
+
+.part::before {
+  content: '';
+  position: absolute;
+  left: 1.1875rem;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: var(--band-rule);
+  transition: background-color var(--dur-component) var(--ease-out);
+}
+
+.part[data-on='true'] {
+  border-color: var(--band-signal);
+  color: var(--wall);
+}
+
+.part[data-on='true']::before {
+  background: var(--band-signal);
+}
+
+/* The counter store and the model sit to one side of the server, as calls it makes. */
+.part[data-part='counters'],
+.part[data-part='model'] {
+  margin-left: 2.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step .number,
+  .part,
+  .part::before {
+    transition: none;
+  }
+}

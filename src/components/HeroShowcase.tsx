@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import { categoryLabels, featuredSoftware, featuredWebsite, type Shot } from '@/data/projects';
 import { stylePresets, typePairs } from '@/data/thread-and-form';
 import { LiveBoundary } from './live/LiveBoundary';
+import { PhoneDemo } from './live/PhoneDemo';
 import { SaleControls } from './live/SaleControls';
 import { StyleControls } from './live/StyleControls';
 import { useIdleMount } from './live/useIdleMount';
@@ -411,7 +412,10 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
       <div className={styles.tryRow}>
         {liveReady[selected] &&
           (selected === 'software' ? (
-            <SaleControls demo={demo} announce={setAnnouncement} />
+            <>
+              <SaleControls demo={demo} announce={setAnnouncement} />
+              <PhoneDemo demo={demo} announce={setAnnouncement} />
+            </>
           ) : (
             <StyleControls preset={preset} type={type} onPreset={setPreset} onType={setType} announce={setAnnouncement} />
           ))}

@@ -1,0 +1,309 @@
+/* The same sheet as the Ask panel: centred on larger screens, rising from the bottom on phones. */
+.dialog {
+  width: min(42rem, calc(100% - 2rem));
+  max-width: none;
+  max-height: min(48rem, calc(100dvh - 3rem));
+  /* Centred, so the whole sheet fits on short laptop screens. */
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-frame, 1rem);
+  background: var(--chalk);
+  color: var(--ink);
+  box-shadow: var(--shadow-hang);
+}
+
+.dialog::backdrop {
+  background: rgb(20 22 25 / 0.45);
+}
+
+@media (max-width: 39.99rem) {
+  .dialog {
+    width: 100%;
+    max-height: 94dvh;
+    margin: auto 0 0;
+    border-radius: 1.25rem 1.25rem 0 0;
+  }
+}
+
+.dialog[open] .sheet {
+  animation: inquiry-enter var(--dur-component) var(--ease-out);
+}
+
+@keyframes inquiry-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+
+.sheet {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  max-height: inherit;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1rem 0.25rem 1.5rem;
+}
+
+.title {
+  font-family: var(--font-archivo), system-ui, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-variation-settings: "wdth" 112;
+  letter-spacing: -0.01em;
+}
+
+.close {
+  display: grid;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--graphite);
+}
+
+.close:hover {
+  color: var(--ink);
+}
+
+.form,
+.sent {
+  display: grid;
+  align-content: start;
+  gap: 1.25rem;
+  padding: 0.75rem 1.5rem 1.5rem;
+  overflow-y: auto;
+}
+
+.field {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  border: 0;
+}
+
+.label {
+  padding: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.optional {
+  margin-left: 0.25rem;
+  color: var(--graphite);
+  font-weight: 400;
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Each choice is a pill; the real radio stays in the label for keyboards and screen readers. */
+.choice {
+  position: relative;
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  padding: 0 1rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-micro) var(--ease-out),
+    background-color var(--dur-micro) var(--ease-out),
+    transform var(--dur-micro) var(--ease-out);
+}
+
+.choice input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.choice:hover {
+  border-color: var(--ink);
+}
+
+.choice:active {
+  transform: scale(0.97);
+}
+
+.choice:has(input:checked) {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--chalk);
+}
+
+.choice:has(input:focus-visible) {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+.choice:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--rule);
+  border-radius: 0.75rem;
+  background: var(--wall);
+  color: var(--ink);
+  font: inherit;
+  line-height: 1.45;
+  transition: border-color var(--dur-micro) var(--ease-out);
+}
+
+textarea.input {
+  resize: vertical;
+}
+
+.input:hover {
+  border-color: var(--graphite);
+}
+
+.input:focus-visible {
+  border-color: var(--signal);
+  outline: 2px solid color-mix(in srgb, var(--signal) 35%, transparent);
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--signal);
+}
+
+.input:disabled,
+.input:read-only:not(select) {
+  cursor: progress;
+}
+
+.pair {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 40rem) {
+  .pair {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.count {
+  justify-self: end;
+  color: var(--graphite);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.error {
+  color: var(--signal);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.problem {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-left: 2px solid var(--signal);
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+  line-height: 1.5;
+}
+
+/* The copy button is drawn for the dark footer; here its two colours swap to suit the light sheet. */
+.fallback {
+  --copy-fg: var(--ink);
+  --copy-bg: var(--chalk);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+}
+
+.fallback > * {
+  --wall: var(--copy-fg);
+  --ink: var(--copy-bg);
+}
+
+.mail {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.foot {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.submit {
+  justify-self: start;
+  min-height: 2.75rem;
+  padding: 0 1.5rem;
+  border-radius: 999px;
+  background: var(--signal);
+  color: var(--signal-ink);
+  font-weight: 600;
+  transition:
+    background-color var(--dur-micro) var(--ease-out),
+    transform var(--dur-micro) var(--ease-out);
+}
+
+.submit:hover {
+  background: var(--signal-hover);
+}
+
+.submit:active {
+  transform: scale(0.97);
+}
+
+.submit:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.close:focus-visible,
+.submit:focus-visible,
+.mail:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+.note {
+  color: var(--graphite);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.sentTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog[open] .sheet {
+    animation-name: inquiry-fade;
+  }
+}
+
+@keyframes inquiry-fade {
+  from {
+    opacity: 0;
+  }
+}

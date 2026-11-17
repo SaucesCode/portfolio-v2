@@ -315,3 +315,61 @@ test.describe('Live hero review fixes', () => {
     await expect(page.getByRole('status').filter({ hasText: 'Not enough' })).toContainText('all-purpose flour');
   });
 });
+
+test.describe('Phone demo view', () => {
+  const trigger = (page: import('@playwright/test').Page) => page.getByRole('button', { name: 'Try it full screen' });
+  const view = (page: import('@playwright/test').Page) => page.getByRole('dialog', { name: 'Rowszein’s Delight demo' });
+  const figure = (scope: import('@playwright/test').Locator) => scope.locator('[data-layout="phone"] [data-figure="net-sales"]');
+
+  test('phones can open the demo full screen and sell in it', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'The full-screen view is for phones.');
+    await page.goto('/');
+    await trigger(page).click({ timeout: 15_000 });
+    await expect(view(page)).toBeVisible();
+    const before = await figure(view(page)).innerText();
+    await view(page).getByRole('button', { name: /Sell 1 Ube Cream/ }).click();
+    await expect(figure(view(page))).not.toHaveText(before);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    const size = await figure(view(page)).evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+    expect(size).toBeGreaterThanOrEqual(28);
+  });
+
+  test('closing keeps the sale and returns focus', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'The full-screen view is for phones.');
+    await page.goto('/');
+    await trigger(page).click({ timeout: 15_000 });
+    await view(page).getByRole('button', { name: /Sell 1 Classic Glazed/ }).click();
+    const sold = await figure(view(page)).innerText();
+    await view(page).getByRole('button', { name: 'Close the demo' }).click();
+    await expect(view(page)).toBeHidden();
+    await expect(trigger(page)).toBeFocused();
+    await expect(page.locator('[data-layout="desktop"] [data-figure="net-sales"]')).toHaveText(sold);
+  });
+
+  test('turning the phone wide closes the view', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'The full-screen view is for phones.');
+    await page.goto('/');
+    await trigger(page).click({ timeout: 15_000 });
+    await expect(view(page)).toBeVisible();
+    await page.setViewportSize({ width: 812, height: 375 });
+    await expect(view(page)).toBeHidden();
+    // The full-screen button is hidden at this width, so focus lands on the hero's own sale buttons.
+    await expect(page.getByRole('group', { name: 'Try Rowszein’s Delight' }).getByRole('button').first()).toBeFocused();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+
+  test('sales made full screen are announced to screen readers', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'The full-screen view is for phones.');
+    await page.goto('/');
+    await trigger(page).click({ timeout: 15_000 });
+    await view(page).getByRole('button', { name: /Sell 1 Ube Cream/ }).click();
+    await expect(view(page).getByRole('status')).toContainText('Ube Cream');
+  });
+
+  test('larger screens have no full-screen button', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Phones show the button.');
+    await page.goto('/');
+    await expect(page.locator('[data-live="ready"]').first()).toBeAttached({ timeout: 10_000 });
+    await expect(trigger(page)).toBeHidden();
+  });
+});

@@ -23,18 +23,21 @@ const watched = ["flour", "powdered-sugar", "ube-halaya"];
 /**
  * A miniature of the Rowszein's Delight owner panel, drawn from live demo state. It is a picture
  * for sighted visitors (aria-hidden); the controls and their announcements carry the information.
+ * The phone layout follows the real app on phones: no sidebar, one column, readable sizes.
  */
 export function LiveDashboard({
   state,
   recent,
+  layout = "desktop",
 }: {
   state: DemoState;
   recent: RecentSale[];
+  layout?: "desktop" | "phone";
 }) {
   const low = lowStock(state);
   const spent = state.expensesCentavos;
   return (
-    <div className={styles.shell} aria-hidden>
+    <div className={styles.shell} data-layout={layout} aria-hidden>
       <div className={styles.panel}>
         <aside className={styles.sidebar}>
           <p className={styles.brand}>Rowszein’s Delight</p>
@@ -62,6 +65,7 @@ export function LiveDashboard({
               <p className={styles.label}>Net sales this year</p>
               <p
                 key={state.netSalesCentavos}
+                data-figure="net-sales"
                 className={`${styles.figure} ${styles.changed}`}
               >
                 {formatPeso(state.netSalesCentavos)}

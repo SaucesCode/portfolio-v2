@@ -57,6 +57,7 @@ export function SiteHeader({ onHome = true }: { onHome?: boolean }) {
           {/* On narrow phones a round envelope link stands in for the capsule, so the name, Ask and Contact share one row. */}
           <a
             href={inquiryHref}
+            data-inquiry=""
             aria-label="Contact"
             className="grid size-11 place-items-center rounded-full bg-signal text-signal-ink transition-transform duration-[var(--dur-micro)] active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal min-[420px]:hidden"
           >
@@ -64,7 +65,7 @@ export function SiteHeader({ onHome = true }: { onHome?: boolean }) {
           </a>
           {/* The capsule's own display rule outranks utility classes, so a wrapper hides it on narrow phones. */}
           <span className="hidden min-[420px]:contents">
-            <ButtonLink href={inquiryHref} size="small" icon="mail">
+            <ButtonLink href={inquiryHref} size="small" icon="mail" inquiry>
               <span className="sm:hidden">Contact</span>
               <span className="hidden sm:inline">Start a project</span>
             </ButtonLink>

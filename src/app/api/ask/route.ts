@@ -4,6 +4,7 @@ import { logAsk, type AskLog } from '@/lib/ask/log';
 import { systemPrompt } from '@/lib/ask/prompt';
 import { storeFromEnv } from '@/lib/ask/store';
 import { isAllowedOrigin } from '@/lib/ask/origin';
+import { visitorIp } from '@/lib/request';
 import { getBaseUrl } from '@/lib/seo';
 
 export const runtime = 'nodejs';
@@ -12,10 +13,6 @@ export const dynamic = 'force-dynamic';
 const MAX_QUESTION = 300;
 const MAX_TURNS = 4;
 const MAX_TURN_TEXT = 1200;
-
-/** On Vercel the platform sets X-Forwarded-For; the first address is the visitor's. */
-const visitorIp = (request: Request) =>
-  request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
 
 type Parsed = { ok: true; question: string; history: Turn[] } | { ok: false; field: string; message: string };
 

@@ -519,6 +519,21 @@
   font-size: 0.75rem;
 }
 
+/*
+ * The window in front is already named by the line from the headline, the switch and the caption;
+ * a label on it would cover the live dashboard's greeting. Only the window behind keeps its label.
+ */
+.window[data-role="primary"] .tag {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.tag {
+  transition:
+    opacity var(--dur-micro) var(--ease-out),
+    visibility var(--dur-micro);
+}
+
 .demo {
   position: absolute;
   right: 0.625rem;

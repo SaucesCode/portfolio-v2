@@ -12,17 +12,20 @@ interface Props {
   size?: 'small' | 'regular';
   icon?: Icon;
   className?: string;
+  /** Opens the project form instead of a mail app; a string starts the message. */
+  inquiry?: string | true;
 }
 
 const icons: Record<Icon, typeof ArrowRight> = { right: ArrowRight, down: ArrowDown, mail: Mail };
 
 /** A capsule link with a knob compartment; the icon is drawn twice so hover can hand one through. */
-export function ButtonLink({ href, children, variant = 'primary', size = 'regular', icon = 'right', className }: Props) {
+export function ButtonLink({ href, children, variant = 'primary', size = 'regular', icon = 'right', className, inquiry }: Props) {
   const Glyph = icons[icon];
   return (
     <a
       href={href}
       data-icon={icon}
+      data-inquiry={inquiry === true ? '' : inquiry}
       className={cn(
         styles.button,
         variant === 'outline' && styles.outline,

@@ -10,6 +10,7 @@ import './globals.css';
 // stylesheet, so the button styles ship with the layout.
 import '@/components/ButtonLink.module.css';
 import '@/components/ask/AskPanel.module.css';
+import { InquiryPanel } from '@/components/inquiry/InquiryPanel';
 
 const archivo = Archivo({
   subsets: ['latin'],
@@ -153,6 +154,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         {children}
         <InstantHistoryScroll />
+        <InquiryPanel />
         {/* Vercel Web Analytics: page views without cookies or personal data. */}
         <Analytics />
         <script
