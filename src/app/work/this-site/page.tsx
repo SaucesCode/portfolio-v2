@@ -52,7 +52,7 @@ const features = [
   },
   {
     title: 'Start a project without a mail app',
-    body: 'A short form that emails James with the visitor as the reply address. A half-written message survives closing the page, and if sending fails, the text stays and the address is one tap from being copied.',
+    body: 'A short form that emails James with the visitor as the reply address. A half-written message survives closing the form or reloading the page, and if sending fails, the text stays and the address is one tap from being copied.',
     image: { src: '/work/this-site/form.jpg', width: 2880, height: 1800, alt: 'The “Start a project” form filled in with a fictional bakery owner’s request: a business system, needed in 1–3 months.' },
   },
 ];
@@ -62,7 +62,7 @@ const layers = [
   { name: 'Vercel', detail: 'Serves the pages from its edge network and runs the two server routes.' },
   { name: 'Server routes', detail: 'One for questions and one for project messages. Each checks where a request came from, what it contains and whether it is within its limits.' },
   { name: 'Upstash Redis', detail: 'Keeps the counters behind those limits. Checking and counting take one round trip per request.' },
-  { name: 'Gemini', detail: 'Writes the assistant’s answers from the site’s content. A second model steps in only when the first is overloaded.' },
+  { name: 'Gemini', detail: 'Writes the assistant’s answers from the site’s content. A second model steps in only when the first is overloaded or returns no answer.' },
   { name: 'Resend', detail: 'Delivers project messages to James’s inbox, with the visitor as the reply address.' },
 ];
 
@@ -77,7 +77,7 @@ const limits = [
   'The assistant runs on a free tier with a daily allowance. On a very busy day it says so and offers James’s email instead.',
   'It knows only what is on this site, and declines questions about anything else.',
   'The project form needs its email service to be set up. When it is not, the form says so as soon as it opens and offers the address instead.',
-  'Nothing a visitor types is stored by the site, so there is no history of past questions to learn from.',
+  'Questions asked to the assistant are not kept, so there is no history of past questions to learn from.',
 ];
 
 const sectionTitle = `${styles.narrow} text-[clamp(1.875rem,1.4rem+1.6vw,3rem)] leading-[1.02]`;
@@ -211,7 +211,7 @@ export default function ThisSiteCaseStudy() {
               </h2>
               <p className="mt-4 text-lg leading-relaxed text-[color-mix(in_srgb,var(--wall)_78%,transparent)]">
                 An assistant on a public site has two jobs: be useful, and be impossible to turn into something else. A
-                question passes through five parts before its answer appears. Each has one job, and each can say no.
+                question passes through five parts before its answer appears. Each has one job, and the server can say no at three of them.
               </p>
             </div>
             <QuestionTrace />
@@ -238,8 +238,8 @@ export default function ThisSiteCaseStudy() {
             <div className="lg:col-span-5">
               <h3 className={`${styles.narrow} text-2xl`}>Pages that are already built</h3>
               <p className="mt-4 max-w-[56ch] leading-relaxed">
-                Every page is built ahead of time and served as a file, so it loads fast and costs nothing per visit. Only
-                the two server routes run code when someone uses them.
+                Every page is built ahead of time and served as a file, so it loads fast. Apart from resizing images, only
+                the two server routes run code, and only when someone uses them.
               </p>
             </div>
             <div className="lg:col-span-6 lg:col-start-7">
@@ -249,8 +249,7 @@ export default function ThisSiteCaseStudy() {
                 <a href="/llms.txt" className="underline underline-offset-4">
                   /llms.txt
                 </a>{' '}
-                is written for language models. The assistant reads that same text, so it never knows more or less than
-                the pages say.
+                is written for language models. The assistant reads that same summary, so it knows only what the site says.
               </p>
             </div>
           </div>
@@ -301,7 +300,7 @@ export default function ThisSiteCaseStudy() {
       </main>
       <Contact
         headline={['Want an assistant', 'like this on', 'your site?']}
-        lede="An assistant that answers from your own content, a form that never loses a lead, or a demo people can use before they call. A few sentences is enough to start."
+        lede="An assistant that answers from your own content, a form that keeps a half-written message, or a demo people can use before they call. A few sentences is enough to start."
         action="Email me about a site like this"
         subject="A site like this one"
       />

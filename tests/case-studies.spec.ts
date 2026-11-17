@@ -417,4 +417,23 @@ test.describe('This site case study', () => {
     await page.getByRole('heading', { name: 'Following one question through the assistant' }).scrollIntoViewIfNeeded();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
+
+  test('claims only what the code does', async ({ page }) => {
+    await page.goto('/work/this-site');
+    const text = await page.locator('body').innerText();
+    for (const overstated of [
+      'never knows more or less',
+      'only if the first is overloaded,',
+      'survives closing the page',
+      'borrow the assistant',
+      'never loses a lead',
+      'Nothing a visitor types is stored',
+      'already filled in',
+      'each can say no',
+      'costs nothing per visit',
+    ]) {
+      expect(text, overstated).not.toContain(overstated);
+    }
+    expect(text).toContain('overloaded or returns no answer');
+  });
 });

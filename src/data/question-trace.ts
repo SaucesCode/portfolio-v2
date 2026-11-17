@@ -30,7 +30,7 @@ export const questionSteps: QuestionStep[] = [
   },
   {
     title: 'Is it from this site?',
-    body: 'The server checks that the request came from this site’s own pages. Requests from anywhere else are refused before anything else runs, so nobody can borrow the assistant for their own page.',
+    body: 'The server checks that the request came from this site’s own pages. Requests from anywhere else are refused before anything else runs, so another website’s pages cannot call it.',
     parts: ['server'],
   },
   {
@@ -40,17 +40,17 @@ export const questionSteps: QuestionStep[] = [
   },
   {
     title: 'Answered from the site only',
-    body: 'The model receives the site’s own content and strict rules: never state a price, never claim client work, speak about James in the third person, answer in the visitor’s language. A fast model answers; a second steps in only if the first is overloaded, and both share one time limit.',
+    body: 'The model receives the site’s own content and strict rules: never state a price, never claim client work, speak about James in the third person, answer in the visitor’s language. A fast model answers; a second steps in only if the first is overloaded or returns no answer, and both share one time limit.',
     parts: ['server', 'model'],
   },
   {
     title: 'Checked before it is shown',
-    body: 'The answer has to come back as structured data: the text, and at most two suggested actions. Each action is checked against the site’s real sections and projects, and anything else is dropped, so a visitor is never sent somewhere that does not exist.',
+    body: 'The answer has to come back as structured data: the text, and at most two suggested actions. Each action is checked against the site’s real sections, demos and projects, and anything else is dropped, so a visitor is never sent somewhere that does not exist.',
     parts: ['server'],
   },
   {
     title: 'The page acts',
-    body: 'The visitor sees the answer, with buttons that scroll to a section, open a project, bring up a live demo or start the project form already filled in.',
+    body: 'The visitor sees the answer, with buttons that scroll to a section, open a project, bring up a live demo or start the project form with a first line already written.',
     parts: ['page'],
   },
 ];
