@@ -10,6 +10,12 @@ import { visitorIp } from '@/lib/request';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+/** Whether the form can send right now; the panel asks when it opens, before the visitor types. */
+export function GET() {
+  const enabled = Boolean(storeFromEnv() && process.env.RESEND_API_KEY);
+  return Response.json({ enabled }, { headers: { 'Cache-Control': 'no-store' } });
+}
+
 /** A person takes longer than this to fill in the form; a script usually does not. */
 const MIN_FILL_MS = 3000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -39,8 +45,9 @@ export async function POST(request: Request) {
     if (!parsed.ok) return reply(400, { state: 'invalid', field: parsed.field, message: parsed.message }, 'invalid');
 
     // Bots fill the hidden field or submit instantly; they get a normal answer and nothing is sent.
-    const startedAt = typeof body.startedAt === 'number' ? body.startedAt : 0;
-    if ((typeof body.company === 'string' && body.company.trim()) || started - startedAt < MIN_FILL_MS) {
+    // Fill time is measured on the visitor's device, so a clock set wrong there cannot drop a real inquiry.
+    const elapsedMs = typeof body.elapsedMs === 'number' ? body.elapsedMs : 0;
+    if ((typeof body.trap === 'string' && body.trap.trim()) || elapsedMs < MIN_FILL_MS) {
       return reply(200, { ok: true }, 'dropped');
     }
 

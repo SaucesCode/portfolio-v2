@@ -353,6 +353,17 @@ test.describe('Phone demo view', () => {
     await expect(view(page)).toBeVisible();
     await page.setViewportSize({ width: 812, height: 375 });
     await expect(view(page)).toBeHidden();
+    // The full-screen button is hidden at this width, so focus lands on the hero's own sale buttons.
+    await expect(page.getByRole('group', { name: 'Try Rowszein’s Delight' }).getByRole('button').first()).toBeFocused();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+
+  test('sales made full screen are announced to screen readers', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'The full-screen view is for phones.');
+    await page.goto('/');
+    await trigger(page).click({ timeout: 15_000 });
+    await view(page).getByRole('button', { name: /Sell 1 Ube Cream/ }).click();
+    await expect(view(page).getByRole('status')).toContainText('Ube Cream');
   });
 
   test('larger screens have no full-screen button', async ({ page, isMobile }) => {

@@ -61,10 +61,10 @@ test.describe('Inquiry endpoint', () => {
 
   const mock = 'http://127.0.0.1:3092';
   let visitor = 0;
-  const valid = { need: 'system', message: long, name: 'Ana', email: 'ana@example.com', company: '' };
+  const valid = { need: 'system', message: long, name: 'Ana', email: 'ana@example.com', trap: '' };
   const send = (request: import('@playwright/test').APIRequestContext, overrides: Record<string, unknown> = {}, ip = `198.51.100.${++visitor}`, origin = 'http://localhost:3001') =>
     request.post('/api/inquiry', {
-      data: { ...valid, startedAt: Date.now() - 10_000, idempotencyKey: crypto.randomUUID(), ...overrides },
+      data: { ...valid, elapsedMs: 10_000, idempotencyKey: crypto.randomUUID(), ...overrides },
       headers: { Origin: origin, 'X-Forwarded-For': ip },
     });
   const count = async (request: import('@playwright/test').APIRequestContext) => (await (await request.get(`${mock}/count`)).json()).count as number;
@@ -90,11 +90,24 @@ test.describe('Inquiry endpoint', () => {
 
   test('bots get a normal answer and nothing is sent', async ({ request }) => {
     const before = await count(request);
-    const trapped = await send(request, { company: 'Acme SEO' });
+    const trapped = await send(request, { trap: 'Acme SEO' });
     expect(trapped.status()).toBe(200);
     expect(await trapped.json()).toEqual({ ok: true });
-    expect((await send(request, { startedAt: Date.now() })).status()).toBe(200);
+    expect((await send(request, { elapsedMs: 400 })).status()).toBe(200);
     expect(await count(request)).toBe(before);
+  });
+
+  test('fill time is measured on the visitor’s device, so a fast or slow clock never drops a real inquiry', async ({ request }) => {
+    const before = await count(request);
+    // A device clock a minute ahead would make a server-side comparison negative; elapsed time is clock-free.
+    expect((await send(request, { elapsedMs: 45_000, startedAt: Date.now() + 60_000 })).status()).toBe(200);
+    expect(await count(request)).toBe(before + 1);
+  });
+
+  test('says whether the form can send', async ({ request }) => {
+    const response = await request.get('/api/inquiry');
+    expect(response.status()).toBe(200);
+    expect(await response.json()).toEqual({ enabled: true });
   });
 
   test('invalid fields come back named', async ({ request }) => {
@@ -243,6 +256,39 @@ test.describe('Project form', () => {
     await ask.getByRole('button', { name: 'Email James about this' }).click();
     const box = page.getByRole('dialog', { name: 'Start a project' }).getByRole('textbox', { name: 'Tell me about it' });
     await expect(box).toHaveValue('A stock system for a bakery');
+  });
+
+  test('a restored draft sent straight away still reaches James', async ({ page, request }, info) => {
+    await page.setExtraHTTPHeaders({ 'X-Forwarded-For': `198.51.100.${info.project.name.length + 220}` });
+    await page.goto('/');
+    const form = await openForm(page);
+    const name = `Restored ${info.project.name}`;
+    await fill(form, name);
+    await page.waitForTimeout(3100);
+    await page.reload();
+    const again = await openForm(page);
+    await again.getByRole('button', { name: 'Send to James' }).click();
+    await expect(again.getByText('Sent. James will reply to ana@example.com.')).toBeVisible();
+    expect((await (await request.get('http://127.0.0.1:3092/last')).json()).subject).toContain(name);
+  });
+
+  test('the bot trap is invisible to people and to autofill', async ({ page }) => {
+    await page.goto('/');
+    const form = await openForm(page);
+    const trap = form.locator('[data-trap] input');
+    await expect(trap).toBeHidden();
+    expect(await trap.getAttribute('name')).not.toMatch(/company|organization|name|email|phone|address/i);
+  });
+
+  test('when sending is switched off, the form says so before anyone types', async ({ page }) => {
+    await page.route('**/api/inquiry', (route) =>
+      route.request().method() === 'GET' ? route.fulfill({ json: { enabled: false } }) : route.fallback(),
+    );
+    await page.goto('/');
+    const form = await openForm(page);
+    await expect(form.getByText('The form isn’t taking messages right now. Email James instead:')).toBeVisible();
+    await expect(form.getByRole('link', { name: 'Email James' })).toHaveAttribute('href', /^mailto:/);
+    await expect(form.getByRole('button', { name: 'Copy address' })).toBeVisible();
   });
 
   test('the whole form sheet fits on a short laptop screen', async ({ page, isMobile }) => {

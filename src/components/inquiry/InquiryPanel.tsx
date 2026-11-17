@@ -12,23 +12,33 @@ type Draft = Record<Field, string>;
 type Status = { kind: 'editing' } | { kind: 'sending' } | { kind: 'sent'; email: string } | { kind: 'failed'; limited: boolean };
 
 const DRAFT_KEY = 'inquiry:draft';
+const STARTED_KEY = 'inquiry:started';
 const empty: Draft = { need: '', message: '', timeline: '', name: '', email: '' };
 const order: Field[] = ['need', 'message', 'timeline', 'name', 'email'];
 
-/** Storage can be blocked by privacy settings; the draft then lives only as long as the page. */
-function loadDraft(): Draft | null {
+/**
+ * Storage can be blocked by privacy settings; the draft then lives only as long as the page. When
+ * the visitor started travels with the draft, so a restored draft is not mistaken for a bot.
+ */
+function loadDraft(): { draft: Draft; startedAt: number } | null {
   try {
     const saved = sessionStorage.getItem(DRAFT_KEY);
-    return saved ? { ...empty, ...(JSON.parse(saved) as Partial<Draft>) } : null;
+    if (!saved) return null;
+    return { draft: { ...empty, ...(JSON.parse(saved) as Partial<Draft>) }, startedAt: Number(sessionStorage.getItem(STARTED_KEY)) || 0 };
   } catch {
     return null;
   }
 }
 
-function saveDraft(draft: Draft | null) {
+function saveDraft(draft: Draft | null, startedAt = 0) {
   try {
-    if (draft) sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-    else sessionStorage.removeItem(DRAFT_KEY);
+    if (draft) {
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      sessionStorage.setItem(STARTED_KEY, String(startedAt));
+    } else {
+      sessionStorage.removeItem(DRAFT_KEY);
+      sessionStorage.removeItem(STARTED_KEY);
+    }
   } catch {
     // Storage blocked: the draft is kept in the page only.
   }
@@ -49,6 +59,7 @@ export function InquiryPanel() {
   const [draft, setDraft] = useState<Draft>(empty);
   const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
   const [status, setStatus] = useState<Status>({ kind: 'editing' });
+  const [available, setAvailable] = useState(true);
 
   const focusField = (field: Field) => {
     const target = formRef.current?.querySelector<HTMLElement>(field === 'need' ? 'input[name="need"]' : `#inquiry-${field}`);
@@ -60,11 +71,17 @@ export function InquiryPanel() {
     if (!dialog || dialog.open) return;
     const saved = loadDraft();
     setDraft((current) => {
-      const base = saved ?? (hasText(current) ? current : empty);
+      const base = saved?.draft ?? (hasText(current) ? current : empty);
       return !base.message.trim() && opening ? { ...base, message: opening } : base;
     });
     setStatus((current) => (current.kind === 'sent' ? { kind: 'editing' } : current));
+    if (saved?.startedAt) startedAt.current = saved.startedAt;
     if (!startedAt.current) startedAt.current = Date.now();
+    // Ask before the visitor types whether sending works; if the check itself fails, the form stays.
+    fetch('/api/inquiry', { cache: 'no-store' })
+      .then((response) => response.json() as Promise<{ enabled?: boolean }>)
+      .then((body) => setAvailable(body.enabled !== false))
+      .catch(() => setAvailable(true));
     if (!key.current) key.current = crypto.randomUUID();
     openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     dialog.showModal();
@@ -92,7 +109,7 @@ export function InquiryPanel() {
   const update = (field: Field, value: string) => {
     const next = { ...draft, [field]: value };
     setDraft(next);
-    saveDraft(hasText(next) ? next : null);
+    saveDraft(hasText(next) ? next : null, startedAt.current);
     if (errors[field]) setErrors((current) => ({ ...current, [field]: checkField(field, value) ?? undefined }));
     if (status.kind === 'failed') setStatus({ kind: 'editing' });
   };
@@ -113,12 +130,12 @@ export function InquiryPanel() {
     if (first) return focusField(first);
 
     setStatus({ kind: 'sending' });
-    const company = (formRef.current?.elements.namedItem('company') as HTMLInputElement | null)?.value ?? '';
+    const trap = (formRef.current?.elements.namedItem('hp_leave_empty') as HTMLInputElement | null)?.value ?? '';
     try {
       const response = await fetch('/api/inquiry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...draft, company, startedAt: startedAt.current, idempotencyKey: key.current }),
+        body: JSON.stringify({ ...draft, trap, elapsedMs: Date.now() - startedAt.current, idempotencyKey: key.current }),
       });
       if (response.ok) {
         setStatus({ kind: 'sent', email: draft.email.trim() });
@@ -168,7 +185,17 @@ export function InquiryPanel() {
           </button>
         </header>
 
-        {status.kind === 'sent' ? (
+        {!available && status.kind !== 'sent' ? (
+          <div className={styles.sent}>
+            <p>The form isn’t taking messages right now. Email James instead:</p>
+            <div className={styles.fallback}>
+              <a href={fallbackHref} className={styles.mail}>
+                Email James
+              </a>
+              <CopyEmail email={site.email} />
+            </div>
+          </div>
+        ) : status.kind === 'sent' ? (
           <div className={styles.sent} role="status">
             <p className={styles.sentTitle}>Sent. James will reply to {status.email}.</p>
             <p className={styles.note}>Replies usually arrive within one business day.</p>
@@ -277,10 +304,10 @@ export function InquiryPanel() {
               </div>
             </div>
 
-            {/* A field people never see; simple bots fill it in. */}
-            <div className={styles.trap} aria-hidden>
-              <label htmlFor="inquiry-company">Company</label>
-              <input id="inquiry-company" name="company" tabIndex={-1} autoComplete="off" defaultValue="" />
+            {/* Never shown, and named so autofill leaves it alone; only bots that fill every input reach it. */}
+            <div data-trap hidden>
+              <label htmlFor="inquiry-hp">Leave this empty</label>
+              <input id="inquiry-hp" name="hp_leave_empty" tabIndex={-1} autoComplete="off" defaultValue="" />
             </div>
 
             <div aria-live="polite">

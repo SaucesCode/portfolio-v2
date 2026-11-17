@@ -18,6 +18,12 @@ export function PhoneDemo({ demo, announce }: { demo: RowszeinDemo; announce: (m
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
+  // The hero's status region is outside this modal, so it is inert while open; the view speaks for itself.
+  const [said, setSaid] = useState('');
+  const say = (message: string) => {
+    setSaid(message);
+    announce(message);
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -51,7 +57,14 @@ export function PhoneDemo({ demo, announce }: { demo: RowszeinDemo; announce: (m
         aria-label="Rowszein’s Delight demo"
         onClose={() => {
           setOpen(false);
-          triggerRef.current?.focus();
+          setSaid('');
+          // Turned wide, the button is hidden; focus goes to the hero's own sale buttons instead.
+          const trigger = triggerRef.current;
+          if (trigger?.getClientRects().length) return trigger.focus();
+          const hero = [...document.querySelectorAll<HTMLElement>('[role="group"][aria-label="Try Rowszein’s Delight"] button')].find(
+            (button) => !dialogRef.current?.contains(button),
+          );
+          hero?.focus();
         }}
       >
         <div className={styles.frame}>
@@ -67,8 +80,11 @@ export function PhoneDemo({ demo, announce }: { demo: RowszeinDemo; announce: (m
             <LiveDashboard state={demo.state} recent={demo.recent} layout="phone" />
           </div>
           <div className={styles.dock}>
-            <SaleControls demo={demo} announce={announce} />
+            <SaleControls demo={demo} announce={say} />
           </div>
+          <p role="status" className="sr-only">
+            {said}
+          </p>
         </div>
       </dialog>
     </>
