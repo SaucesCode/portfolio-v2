@@ -1,6 +1,6 @@
 # Project form and phone demo view: design
 
-Date: 2026-11-17. Status: awaiting the owner's approval.
+Date: 2026-11-17. Status: built on branch feat/inquiry-and-phone-demo; real sending waits for the owner's Resend key.
 
 ## Why
 
