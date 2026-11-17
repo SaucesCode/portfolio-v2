@@ -33,21 +33,27 @@ const features = [
   {
     title: 'Try the software in the first screen',
     body: 'Record a sale in a miniature of the Rowszein’s Delight owner panel, or restyle the Thread & Form storefront. Both run in the browser with sample data. On a phone, the dashboard opens full screen in the app’s own phone layout.',
+    image: {
+      src: '/work/this-site/phone-demo.jpg',
+      width: 786,
+      height: 1454,
+      alt: 'The live demo full screen on a phone: the Rowszein’s Delight dashboard in one column after an Ube Cream sale, with the sale buttons docked at the bottom.',
+    },
   },
   {
     title: 'Take the guided tour',
     body: 'Eight screens of the real owner panel, one at a time, captured from the app running with demonstration data.',
-    image: { src: '/work/this-site/tour.jpg', alt: 'The guided tour on the homepage: the Rowszein’s Delight dashboard, step 1 of 8, “See the day at a glance”, with Previous and Next buttons.' },
+    image: { src: '/work/this-site/tour.jpg', width: 2880, height: 1800, alt: 'The guided tour on the homepage: the Rowszein’s Delight dashboard, step 1 of 8, “See the day at a glance”, with Previous and Next buttons.' },
   },
   {
     title: 'Ask about the work',
     body: 'Ask in plain words, in English or Tagalog. The answer comes only from what is on the site, with buttons that take you to the right section or project.',
-    image: { src: '/work/this-site/assistant.jpg', alt: 'The “Ask about my work” panel: asked how long a WordPress site takes, it answers “usually 3 to 5 weeks, depending on the scope” and offers a button to show how working together goes.' },
+    image: { src: '/work/this-site/assistant.jpg', width: 2880, height: 1800, alt: 'The “Ask about my work” panel: asked how long a WordPress site takes, it answers “usually 3 to 5 weeks, depending on the scope” and offers a button to show how working together goes.' },
   },
   {
     title: 'Start a project without a mail app',
     body: 'A short form that emails James with the visitor as the reply address. A half-written message survives closing the page, and if sending fails, the text stays and the address is one tap from being copied.',
-    image: { src: '/work/this-site/form.jpg', alt: 'The “Start a project” form filled in with a fictional bakery owner’s request: a business system, needed in 1–3 months.' },
+    image: { src: '/work/this-site/form.jpg', width: 2880, height: 1800, alt: 'The “Start a project” form filled in with a fictional bakery owner’s request: a business system, needed in 1–3 months.' },
   },
 ];
 
@@ -61,7 +67,7 @@ const layers = [
 ];
 
 const testing = [
-  'More than 290 automated end-to-end tests run against the built site, in a desktop browser and a phone browser, before every release.',
+  'More than 300 automated end-to-end tests run against the built site, in a desktop browser and a phone browser, before every release.',
   'During tests, small local stand-ins replace Gemini and Resend, so every failure (an overloaded model, an answer that is not valid, an email that is refused) is tested without calling either service.',
   'Every feature is read by a fresh reviewer before it ships, and the assistant is checked with real questions against the real model before each release. Real answers arrive in about two seconds.',
 ];
@@ -176,20 +182,18 @@ export default function ThisSiteCaseStudy() {
                   </span>
                   <h3 className={`${styles.narrow} text-2xl leading-tight`}>{feature.title}</h3>
                   <p className="mt-3 max-w-[52ch] leading-relaxed">{feature.body}</p>
-                  {!feature.image && <p className="mt-3 text-[0.9375rem] text-graphite">Shown in the screenshot above.</p>}
                 </div>
-                {feature.image && (
-                  <div className={styles.frame}>
-                    <Image
-                      src={feature.image.src}
-                      width={2880}
-                      height={1800}
-                      sizes="(min-width: 1024px) 58vw, 94vw"
-                      alt={feature.image.alt}
-                      loading="lazy"
-                    />
-                  </div>
-                )}
+                {/* A phone capture stays phone-sized beside its text instead of filling the column. */}
+                <div className={styles.frame} data-shape={feature.image.height > feature.image.width ? 'phone' : 'wide'}>
+                  <Image
+                    src={feature.image.src}
+                    width={feature.image.width}
+                    height={feature.image.height}
+                    sizes={feature.image.height > feature.image.width ? '18rem' : '(min-width: 1024px) 58vw, 94vw'}
+                    alt={feature.image.alt}
+                    loading="lazy"
+                  />
+                </div>
               </li>
             ))}
           </ol>

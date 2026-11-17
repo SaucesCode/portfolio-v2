@@ -1,6 +1,6 @@
 # Case study of this site: design
 
-Date: 2026-11-17. Status: approved by the owner, quote included as edited.
+Date: 2026-11-17. Status: built on branch feat/this-site-case-study.
 
 ## Why
 

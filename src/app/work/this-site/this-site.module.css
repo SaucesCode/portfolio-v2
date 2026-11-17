@@ -20,6 +20,12 @@
   box-shadow: var(--shadow-hang);
 }
 
+.frame[data-shape='phone'] {
+  justify-self: center;
+  width: min(18rem, 100%);
+  border-radius: 1.75rem;
+}
+
 .frame img {
   display: block;
   width: 100%;
