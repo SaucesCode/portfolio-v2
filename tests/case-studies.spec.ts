@@ -390,4 +390,31 @@ test.describe('This site case study', () => {
     await page.keyboard.press('Escape');
     await expect(button).toBeFocused();
   });
+
+  test('the question trace names every step and its parts in text', async ({ page }) => {
+    await page.goto('/work/this-site');
+    const steps = page.getByRole('region', { name: 'Following one question through the assistant' }).locator('[data-trace-step]');
+    await expect(steps).toHaveCount(6);
+    for (const step of await steps.all()) {
+      await expect(step.getByRole('heading', { level: 3 })).toBeVisible();
+      await expect(step.getByRole('list', { name: 'Parts involved' }).getByRole('listitem').first()).toBeVisible();
+    }
+  });
+
+  test('the step in the middle of the screen is the active one, even after a jump', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'The drawing is shown from large screens up.');
+    await page.goto('/work/this-site');
+    const last = page.locator('[data-trace-step]').last();
+    await last.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+    await expect(last).toHaveAttribute('data-active', 'true');
+    await expect(page.locator('[data-trace-drawing] [data-part="page"]')).toHaveAttribute('data-on', 'true');
+    await expect(page.locator('[data-trace-drawing] [data-part="model"]')).toHaveAttribute('data-on', 'false');
+  });
+
+  test('the trace fits a phone without sideways scrolling', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'Phone width.');
+    await page.goto('/work/this-site');
+    await page.getByRole('heading', { name: 'Following one question through the assistant' }).scrollIntoViewIfNeeded();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
 });

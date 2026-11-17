@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { AskButton } from '@/components/case/AskButton';
 import { NextCase } from '@/components/case/NextCase';
+import { QuestionTrace } from '@/components/case/QuestionTrace';
 import { ButtonLink } from '@/components/ButtonLink';
 import { Contact } from '@/components/Contact';
 import { ExternalLink } from '@/components/ExternalLink';
@@ -209,6 +210,7 @@ export default function ThisSiteCaseStudy() {
                 question passes through five parts before its answer appears. Each has one job, and each can say no.
               </p>
             </div>
+            <QuestionTrace />
           </div>
         </section>
 
