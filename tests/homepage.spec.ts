@@ -82,6 +82,44 @@ test.describe('Homepage structure', () => {
     await expect(section.getByRole('link', { name: /Start a project/ })).toHaveAttribute('href', /^mailto:/);
   });
 
+  test('working together shows the five phases of a project at a glance, in order', async ({ page }) => {
+    await page.goto('/');
+    const phases = page.locator('#process').getByRole('list', { name: 'How a project runs' }).getByRole('listitem');
+    await expect(phases).toHaveCount(5);
+    const titles = await phases.locator('[data-phase-title]').allInnerTexts();
+    expect(titles).toEqual(['Short call', 'Fixed price', 'Build', 'Launch', '30 days of fixes']);
+    await expect(phases.nth(1)).toContainText('50% to start');
+    await expect(phases.nth(3)).toContainText('50% at launch');
+  });
+
+  test('the phases read left to right on desktop and top to bottom on phones, without sideways scrolling', async ({ page, isMobile }) => {
+    await page.goto('/');
+    const phases = page.locator('#process').getByRole('list', { name: 'How a project runs' }).getByRole('listitem');
+    const first = (await phases.first().boundingBox())!;
+    const second = (await phases.nth(1).boundingBox())!;
+    if (isMobile) expect(second.y).toBeGreaterThan(first.y + first.height - 1);
+    else expect(Math.abs(second.y - first.y)).toBeLessThan(2);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+
+  test('the window label never covers the live dashboard\'s greeting', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Desktop hero windows.');
+    for (const [width, height] of [[1024, 768], [1280, 800], [1440, 900]]) {
+      await page.setViewportSize({ width, height });
+      await page.goto('/');
+      await expect(page.locator('[data-live="ready"]').first()).toBeAttached({ timeout: 10_000 });
+      const overlap = await page.evaluate(() => {
+        const primary = document.querySelector('[data-role="primary"]')!;
+        const label = primary.querySelector('[class*="tag"]')!;
+        if (getComputedStyle(label).visibility === 'hidden') return false;
+        const tag = label.getBoundingClientRect();
+        const greeting = [...primary.querySelectorAll('p')].find((p) => p.textContent?.startsWith('Good afternoon'))!.getBoundingClientRect();
+        return tag.left < greeting.right && greeting.left < tag.right && tag.top < greeting.bottom && greeting.top < tag.bottom;
+      });
+      expect(overlap, `label over greeting at ${width}x${height}`).toBe(false);
+    }
+  });
+
   test('loads privacy-friendly visitor analytics', async ({ page }) => {
     await page.goto('/');
     // Locally the script is /_vercel/insights/script.js; on Vercel it is served from a randomised path.
@@ -576,7 +614,7 @@ test.describe('Services and contact', () => {
 test.describe('Responsive boundaries', () => {
   test('the hero and the tour fit on common laptop screens without scrolling to reach their controls', async ({ page, isMobile }) => {
     test.skip(isMobile, 'Laptop and desktop heights.');
-    for (const [width, height] of [[1280, 720], [1280, 800], [1366, 768], [1440, 900], [1536, 864], [1920, 1080]]) {
+    for (const [width, height] of [[1024, 768], [1280, 720], [1280, 800], [1366, 768], [1440, 900], [1536, 864], [1920, 1080]]) {
       await page.setViewportSize({ width, height });
       await page.goto('/');
       await expect(page.locator('[data-live="ready"]').first()).toBeAttached({ timeout: 10_000 });

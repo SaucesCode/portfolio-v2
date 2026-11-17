@@ -36,3 +36,22 @@ export const terms: Term[] = [
     body: '50% to start and 50% at launch. Business systems are split into three milestones.',
   },
 ];
+
+export interface Phase {
+  title: string;
+  note: string;
+  /** The payment that falls due at this point, when one does. */
+  pay?: string;
+}
+
+/**
+ * The same terms as a sequence a client can take in at a glance. Every phrase comes from the terms
+ * above; nothing here is new.
+ */
+export const phases: Phase[] = [
+  { title: 'Short call', note: 'About what you need' },
+  { title: 'Fixed price', note: 'Agreed before any work starts', pay: '50% to start' },
+  { title: 'Build', note: 'Written updates twice a week' },
+  { title: 'Launch', note: 'The code lives on your own GitHub', pay: '50% at launch' },
+  { title: '30 days of fixes', note: 'Free, then an optional care plan' },
+];
