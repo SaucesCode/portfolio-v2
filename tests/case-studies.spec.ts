@@ -8,6 +8,7 @@ const cases = [
   { slug: 'rowszeins-delight', cta: 'Need a system tailored to your business?', type: 'SoftwareApplication' },
   { slug: 'thread-and-form', cta: 'Have a website idea worth building?', type: 'CreativeWork' },
   { slug: 'quickaid', cta: 'Have data that belongs on a map?', type: 'SoftwareApplication' },
+  { slug: 'this-site', cta: 'Want an assistant like this on your site?', type: 'WebSite' },
 ].map((entry) => ({ ...entry, project: getCaseStudy(entry.slug) }));
 
 const jsonLdGraphs = (page: Page) =>
@@ -368,5 +369,25 @@ test.describe('Thread & Form on phones', () => {
     await page.goto('/work/thread-and-form');
     await page.locator('main picture img').nth(2).scrollIntoViewIfNeeded();
     await expect.poll(async () => (await sources()).every((src) => /desktop/.test(decodeURIComponent(src)))).toBe(true);
+  });
+});
+
+test.describe('This site case study', () => {
+  test('quotes the owner and never shows prices, limit numbers or internal names', async ({ page }) => {
+    await page.goto('/work/this-site');
+    await expect(page.locator('main blockquote')).toContainText('This is what I can build, especially with AI.');
+    const text = (await page.locator('main').innerText()).toLowerCase();
+    for (const banned of ['₱', 'us$', 'usd', 'assistant:enabled', 'inquiry:enabled', '400 a day', '30 a day', '10 per', '3 an hour', 'per hour']) {
+      expect(text, banned).not.toContain(banned);
+    }
+  });
+
+  test('"Ask the assistant" opens the assistant in place and returns focus', async ({ page }) => {
+    await page.goto('/work/this-site');
+    const button = page.getByRole('main').getByRole('button', { name: 'Ask the assistant' });
+    await button.click();
+    await expect(page.getByRole('dialog', { name: 'Ask about my work' })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(button).toBeFocused();
   });
 });

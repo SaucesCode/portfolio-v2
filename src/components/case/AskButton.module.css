@@ -1,0 +1,27 @@
+.button {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1.25rem;
+  border-radius: 999px;
+  background: var(--signal);
+  color: var(--signal-ink);
+  font-weight: 600;
+  transition:
+    background-color var(--dur-micro) var(--ease-out),
+    transform var(--dur-micro) var(--ease-out);
+}
+
+.button:hover {
+  background: var(--signal-hover);
+}
+
+.button:active {
+  transform: scale(0.97);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}

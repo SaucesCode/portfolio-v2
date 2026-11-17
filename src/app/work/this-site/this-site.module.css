@@ -1,0 +1,77 @@
+/*
+ * This case study wears the site's own colours: it is the one project here whose brand is the
+ * portfolio itself. Headings use Archivo's narrow width, as the other case studies do.
+ */
+.page {
+  display: block;
+}
+
+.narrow {
+  font-variation-settings: "wdth" 84;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.frame {
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-frame, 1rem);
+  background: var(--chalk);
+  box-shadow: var(--shadow-hang);
+}
+
+.frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.quote {
+  padding-left: 1.25rem;
+  border-left: 2px solid var(--signal);
+  font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+/* What a visitor can do: text beside its screenshot on wide screens, stacked on phones. */
+.features {
+  display: grid;
+  gap: 4rem;
+  margin-top: 3rem;
+}
+
+.feature {
+  display: grid;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.featureIndex {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--graphite);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 64rem) {
+  .features {
+    gap: 6rem;
+  }
+
+  .feature {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 3rem;
+  }
+
+  .feature:nth-child(odd) .featureText {
+    order: 0;
+  }
+
+  .feature:nth-child(even) .featureText {
+    order: 1;
+  }
+}

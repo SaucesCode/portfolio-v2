@@ -215,6 +215,21 @@ export const projects: Project[] = [
     poster: desktopPoster('quickaid'),
   },
   {
+    slug: 'this-site',
+    title: 'This site',
+    category: 'web',
+    medium: 'Portfolio website with an AI assistant',
+    year: 2026,
+    classification: 'personal',
+    provenance: 'Personal project',
+    summary:
+      'This portfolio: live demos in the first screen, a guided tour, an assistant that answers only from the site, and a project form that works without a mail app.',
+    links: [{ href: 'https://www.saucescode.xyz/', label: 'Visit the live site' }, github('portfolio-v2')],
+    poster: desktopPoster('this-site'),
+    caseStudy: '/work/this-site',
+    caseStudyDates: { published: '2026-11-17', updated: '2026-11-17' },
+  },
+  {
     slug: 'kinetix-athletics',
     title: 'Kinetix Athletics',
     category: 'web',

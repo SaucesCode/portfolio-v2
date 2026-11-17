@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { inquiryHref } from '@/data/site';
 import type { AskAction } from '@/lib/ask/gemini';
 import { actionLabel, runAction } from './actions';
+import { ASK_OPEN_EVENT } from './open';
 import styles from './AskPanel.module.css';
 
 interface Exchange {
@@ -40,6 +41,7 @@ function problemText(problem: Problem): string {
 export function AskPanel() {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [question, setQuestion] = useState('');
   const [exchanges, setExchanges] = useState<Exchange[]>([]);
@@ -51,6 +53,9 @@ export function AskPanel() {
   const open = useCallback(() => {
     const dialog = dialogRef.current;
     if (!dialog || dialog.open) return;
+    // Focus goes back to whatever opened the panel; from a keyboard shortcut with nothing focused, the header button.
+    const active = document.activeElement;
+    openerRef.current = active instanceof HTMLElement && active !== document.body ? active : null;
     dialog.showModal();
     inputRef.current?.focus();
   }, []);
@@ -68,7 +73,11 @@ export function AskPanel() {
       open();
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener(ASK_OPEN_EVENT, open);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener(ASK_OPEN_EVENT, open);
+    };
   }, [open]);
 
   const ask = async (text: string) => {
@@ -124,7 +133,7 @@ export function AskPanel() {
         ref={dialogRef}
         className={styles.dialog}
         aria-labelledby="ask-title"
-        onClose={() => triggerRef.current?.focus()}
+        onClose={() => (openerRef.current?.isConnected ? openerRef.current : triggerRef.current)?.focus()}
         onClick={(event) => event.target === dialogRef.current && dialogRef.current?.close()}
       >
         <div className={styles.sheet}>
