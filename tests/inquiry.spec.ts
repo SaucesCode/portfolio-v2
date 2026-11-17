@@ -54,3 +54,88 @@ test.describe('Inquiry rules', () => {
     expect(composeInquiryEmail({ need: 'unsure', name: 'Bo', email: 'b@c.co', message: long }).text).toContain('When: Not given');
   });
 });
+
+test.describe('Inquiry endpoint', () => {
+  // The endpoint behaves the same at any viewport; one project keeps the shared counters predictable.
+  test.skip(({ isMobile }) => isMobile, 'Endpoint tests run once, on desktop.');
+
+  const mock = 'http://127.0.0.1:3092';
+  let visitor = 0;
+  const valid = { need: 'system', message: long, name: 'Ana', email: 'ana@example.com', company: '' };
+  const send = (request: import('@playwright/test').APIRequestContext, overrides: Record<string, unknown> = {}, ip = `198.51.100.${++visitor}`, origin = 'http://localhost:3001') =>
+    request.post('/api/inquiry', {
+      data: { ...valid, startedAt: Date.now() - 10_000, idempotencyKey: crypto.randomUUID(), ...overrides },
+      headers: { Origin: origin, 'X-Forwarded-For': ip },
+    });
+  const count = async (request: import('@playwright/test').APIRequestContext) => (await (await request.get(`${mock}/count`)).json()).count as number;
+
+  test('sends a valid inquiry with the visitor as Reply-To, in plain text', async ({ request }) => {
+    const response = await send(request, { email: ' Ana@Example.com ' });
+    expect(response.status()).toBe(200);
+    expect(await response.json()).toEqual({ ok: true });
+    const last = await (await request.get(`${mock}/last`)).json();
+    expect(last.reply_to).toBe('Ana@Example.com');
+    expect(last.html).toBeUndefined();
+    expect(last.subject).toBe('Project inquiry: A business system or web app from Ana');
+    expect(last.to).toEqual(['jamesspatrickdm@gmail.com']);
+  });
+
+  test('the same submission sent twice delivers once', async ({ request }) => {
+    const before = await count(request);
+    const idempotencyKey = crypto.randomUUID();
+    expect((await send(request, { idempotencyKey })).status()).toBe(200);
+    expect((await send(request, { idempotencyKey })).status()).toBe(200);
+    expect(await count(request)).toBe(before + 1);
+  });
+
+  test('bots get a normal answer and nothing is sent', async ({ request }) => {
+    const before = await count(request);
+    const trapped = await send(request, { company: 'Acme SEO' });
+    expect(trapped.status()).toBe(200);
+    expect(await trapped.json()).toEqual({ ok: true });
+    expect((await send(request, { startedAt: Date.now() })).status()).toBe(200);
+    expect(await count(request)).toBe(before);
+  });
+
+  test('invalid fields come back named', async ({ request }) => {
+    const response = await send(request, { email: 'x' });
+    expect(response.status()).toBe(400);
+    expect(await response.json()).toEqual({ state: 'invalid', field: 'email', message: "That email address doesn't look right." });
+  });
+
+  test('other sites are refused', async ({ request }) => {
+    expect((await send(request, {}, undefined, 'https://evil.example')).status()).toBe(403);
+  });
+
+  test('a fourth inquiry in an hour from one visitor is limited', async ({ request }) => {
+    const ip = '198.51.100.250';
+    for (let i = 0; i < 3; i++) expect((await send(request, {}, ip)).status()).toBe(200);
+    const fourth = await send(request, {}, ip);
+    expect(fourth.status()).toBe(429);
+    expect((await fourth.json()).state).toBe('limited');
+    expect(Number(fourth.headers()['retry-after'])).toBeGreaterThan(0);
+  });
+
+  test('a provider failure is reported, not hidden', async ({ request }) => {
+    const response = await send(request, { message: `${long} RESENDFAIL` });
+    expect(response.status()).toBe(502);
+    expect(await response.json()).toEqual({ state: 'error' });
+  });
+
+  test('logs carry no visitor details', async () => {
+    const { formatInquiryLog } = await import('../src/lib/inquiry/log');
+    const line = JSON.parse(formatInquiryLog({ requestId: 'r1', outcome: 'sent', ms: 640 }));
+    expect(line).toEqual({ event: 'inquiry', requestId: 'r1', outcome: 'sent', ms: 640 });
+  });
+
+  test('limits: three an hour per visitor, and the switch turns them off', async () => {
+    const { checkInquiryLimits } = await import('../src/lib/inquiry/limits');
+    const { memoryStore } = await import('../src/lib/ask/store');
+    const store = memoryStore();
+    const now = Date.UTC(2026, 10, 17, 9);
+    for (let i = 0; i < 3; i++) expect(await checkInquiryLimits(store, '203.0.113.9', now)).toEqual({ ok: true });
+    expect(await checkInquiryLimits(store, '203.0.113.9', now)).toMatchObject({ ok: false, state: 'limited' });
+    await store.set('inquiry:enabled', '0');
+    expect(await checkInquiryLimits(store, '203.0.113.10', now)).toEqual({ ok: false, state: 'off' });
+  });
+});
