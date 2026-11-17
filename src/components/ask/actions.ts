@@ -27,6 +27,24 @@ export function actionLabel(action: AskAction): string {
 }
 
 /** The hero listens for this event; a pending choice survives a navigation home through sessionStorage. */
+/** Storage can be blocked (privacy settings); a lost choice only means the hero keeps its current window. */
+export function rememberHeroFocus(id: string) {
+  try {
+    sessionStorage.setItem(HERO_FOCUS_KEY, id);
+  } catch {
+    // Storage blocked: navigate home without the choice.
+  }
+}
+
+export function takeHeroFocus(): string | null {
+  try {
+    const id = sessionStorage.getItem(HERO_FOCUS_KEY);
+    sessionStorage.removeItem(HERO_FOCUS_KEY);
+    return id;
+  } catch {
+    return null;
+  }
+}
 export const HERO_FOCUS_EVENT = 'hero:focus';
 export const HERO_FOCUS_KEY = 'hero:focus';
 
@@ -46,7 +64,7 @@ export function runAction(action: AskAction, onHome: boolean, push: (href: strin
         window.dispatchEvent(new CustomEvent(HERO_FOCUS_EVENT, { detail: action.id }));
         return scrollTo('top');
       }
-      sessionStorage.setItem(HERO_FOCUS_KEY, action.id);
+      rememberHeroFocus(action.id);
       return push('/');
     case 'open_project': {
       const study = caseStudies.find((p) => p.slug === action.slug);

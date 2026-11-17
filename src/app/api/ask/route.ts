@@ -1,5 +1,5 @@
 import { askGemini, type Turn } from '@/lib/ask/gemini';
-import { assistantEnabled, checkLimits } from '@/lib/ask/limits';
+import { checkLimits } from '@/lib/ask/limits';
 import { logAsk, type AskLog } from '@/lib/ask/log';
 import { systemPrompt } from '@/lib/ask/prompt';
 import { storeFromEnv } from '@/lib/ask/store';
@@ -26,13 +26,18 @@ function parse(body: unknown): Parsed {
   if (question.trim().length > MAX_QUESTION) {
     return { ok: false, field: 'question', message: `Keep it to ${MAX_QUESTION} characters.` };
   }
-  const turns = Array.isArray(history) ? history : [];
-  const valid = turns.filter(
-    (turn): turn is Turn =>
-      !!turn && (turn.role === 'user' || turn.role === 'model') && typeof turn.text === 'string' && turn.text.length <= MAX_TURN_TEXT,
-  );
-  if (valid.length !== turns.length) return { ok: false, field: 'history', message: 'The conversation could not be read.' };
-  return { ok: true, question: question.trim(), history: valid.slice(-MAX_TURNS) };
+  const turns: unknown[] = Array.isArray(history) ? history.slice(-MAX_TURNS) : [];
+  // Earlier turns obey the same limits as a question and must alternate user, model, user, model, so
+  // made-up history cannot smuggle in a longer prompt or put words in the model's mouth.
+  const valid: Turn[] = [];
+  for (const [index, turn] of turns.entries()) {
+    const expected = index % 2 === 0 ? 'user' : 'model';
+    const { role, text } = (turn ?? {}) as { role?: unknown; text?: unknown };
+    if (role !== expected || typeof text !== 'string') return { ok: false, field: 'history', message: 'The conversation could not be read.' };
+    if (role === 'user' && text.trim().length > MAX_QUESTION) return { ok: false, field: 'history', message: 'The conversation could not be read.' };
+    valid.push({ role: expected, text: expected === 'model' ? text.slice(0, MAX_TURN_TEXT) : text });
+  }
+  return { ok: true, question: question.trim(), history: valid };
 }
 
 export async function POST(request: Request) {
@@ -47,7 +52,7 @@ export async function POST(request: Request) {
 
   try {
     const store = storeFromEnv();
-    if (!store || !process.env.GEMINI_API_KEY || !(await assistantEnabled(store))) return reply(503, { state: 'off' }, 'off');
+    if (!store || !process.env.GEMINI_API_KEY) return reply(503, { state: 'off' }, 'off');
 
     let body: unknown;
     try {
@@ -59,6 +64,7 @@ export async function POST(request: Request) {
     if (!parsed.ok) return reply(400, { state: 'invalid', field: parsed.field, message: parsed.message }, 'invalid');
 
     const limit = await checkLimits(store, visitorIp(request), Date.now());
+    if (!limit.ok && limit.state === 'off') return reply(503, { state: 'off' }, 'off');
     if (!limit.ok) {
       const status = limit.state === 'limited' ? 429 : 503;
       return reply(status, { state: limit.state, retryAfterSeconds: limit.retryAfterSeconds }, limit.state, 0, {
