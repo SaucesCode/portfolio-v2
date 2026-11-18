@@ -761,3 +761,58 @@ test.describe('Without JavaScript', () => {
     await expect(page.getByRole('link', { name: site.email })).toBeVisible();
   });
 });
+
+test.describe('UX audit fixes', () => {
+  test('the homepage outline never skips a heading level', async ({ page }) => {
+    await page.goto('/');
+    const levels = await page.locator('main h1, main h2, main h3, main h4, footer h2').evaluateAll((hs) => hs.map((h) => Number(h.tagName[1])));
+    for (let i = 1; i < levels.length; i++) expect(levels[i] - levels[i - 1], `heading ${i}`).toBeLessThanOrEqual(1);
+  });
+
+  test('each featured project is named before its work, in reading and focus order', async ({ page }) => {
+    await page.goto('/');
+    for (const id of ['rowszeins-delight', 'thread-and-form']) {
+      const order = await page.locator(`#${id}`).evaluate((article) => {
+        const title = article.querySelector('h3')!;
+        const work = article.querySelector('[data-reveal="frame"]')!;
+        return title.compareDocumentPosition(work) & Node.DOCUMENT_POSITION_FOLLOWING ? 'title first' : 'work first';
+      });
+      expect(order, id).toBe('title first');
+    }
+  });
+
+  test('on phones the window being tried sits in front of the other one', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'The windows overlap on phones.');
+    await page.goto('/');
+    await expect(page.locator('[data-live="ready"]').first()).toBeAttached({ timeout: 10_000 });
+    const front = await page.evaluate(() => {
+      const primary = document.querySelector('[data-role="primary"]')!;
+      const support = document.querySelector('[data-role="support"]')!;
+      const a = primary.getBoundingClientRect();
+      const b = support.getBoundingClientRect();
+      // A point inside both windows: the overlap's centre.
+      const x = (Math.max(a.left, b.left) + Math.min(a.right, b.right)) / 2;
+      const y = (Math.max(a.top, b.top) + Math.min(a.bottom, b.bottom)) / 2;
+      primary.scrollIntoView({ block: 'center' });
+      const r = primary.getBoundingClientRect();
+      const top = document.elementFromPoint(x, r.top + (y - a.top));
+      return primary.contains(top) ? 'primary' : support.contains(top) ? 'support' : 'neither';
+    });
+    expect(front).toBe('primary');
+  });
+
+  test('the full-screen button keeps its distance from the sale buttons', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'The full-screen button is for phones.');
+    await page.goto('/');
+    const trigger = page.getByRole('button', { name: 'Try it full screen' });
+    await expect(trigger).toBeVisible({ timeout: 15_000 });
+    const gap = await page.evaluate(() => {
+      const buttons = [...document.querySelectorAll('[role="group"][aria-label="Try Rowszein’s Delight"] button')].filter((b) => !b.closest('dialog'));
+      const lowest = Math.max(...buttons.map((b) => b.getBoundingClientRect().bottom));
+      const t = [...document.querySelectorAll('button')].find((b) => b.textContent?.includes('Try it full screen'))!;
+      return t.getBoundingClientRect().top - lowest;
+    });
+    expect(gap).toBeGreaterThanOrEqual(12);
+  });
+});
+

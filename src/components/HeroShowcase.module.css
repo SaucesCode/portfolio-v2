@@ -53,6 +53,13 @@
   }
 }
 
+/* On phones the windows overlap most; the one being tried comes to the front. */
+@media (max-width: 37.49rem) {
+  .window[data-role="primary"] {
+    z-index: 3;
+  }
+}
+
 .controls {
   grid-column: 1 / -1;
   grid-row: 5;
