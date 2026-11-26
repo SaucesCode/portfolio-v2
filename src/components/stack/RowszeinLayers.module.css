@@ -46,7 +46,7 @@
 .swatch {
   display: grid;
   gap: 0.6cqi;
-  font-size: 1.5cqi;
+  font-size: 2cqi;
   font-weight: 600;
 }
 
@@ -65,7 +65,7 @@
 
 .specimen {
   display: grid;
-  font-size: 1.5cqi;
+  font-size: 2cqi;
   font-weight: 600;
 }
 
@@ -90,7 +90,7 @@
   height: 100%;
   align-content: center;
   gap: 1.8cqi;
-  padding: 4cqi 5.5cqi;
+  padding: 3cqi 5.5cqi 10cqi;
 }
 
 .step {
@@ -112,11 +112,19 @@
 /* Data: the tables, in the app's groups, with the demo's rows where a sale changes them. */
 .groups {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.65fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.6fr) minmax(0, 1.3fr);
   align-items: start;
   gap: 2.4cqi;
   height: 100%;
-  padding: 4.5cqi 3cqi;
+  padding: 10cqi 8cqi 2cqi 3cqi;
+  line-height: 1.2;
+}
+
+/* Below desktop the stack's callouts stand lower, so the columns start lower to stay clear of the tab. */
+@media (max-width: 1023px) {
+  .groups {
+    padding-top: 13cqi;
+  }
 }
 
 .group {
@@ -138,7 +146,7 @@
 
 .table {
   font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace;
-  font-size: 3.1cqi;
+  font-size: 3.3cqi;
 }
 
 .rows {
@@ -148,7 +156,7 @@
   padding-left: 1.4cqi;
   border-left: 1px solid var(--rule);
   color: var(--graphite);
-  font-size: 2.6cqi;
+  font-size: 3.4cqi;
 }
 
 .rows li {

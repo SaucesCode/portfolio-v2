@@ -1,18 +1,13 @@
 /*
  * The exploded stack. At rest the layers lie almost together under a gentle tilt, so only their
- * edges show, like a slab. Open, the scene tips back like a drawing on a drafting table and the
- * layers lift apart. Both states share one transform list, so every angle interpolates on its own.
+ * edges show, like a slab. Open, the scene turns to the isometric angle of a drawing on a drafting
+ * table and the layers come apart. Both states share one transform list, so every angle
+ * interpolates on its own; the perspective stays fixed.
  */
 .depth {
   container-type: inline-size;
   display: block;
   perspective: 1600px;
-  transition: perspective var(--dur-page) var(--ease-in-out);
-}
-
-/* Open, the view is all but axonometric, so sheets far from the window stay square and their text level. */
-.depth:has(> .scene[data-open='true']) {
-  perspective: 6000px;
 }
 
 .scene {
@@ -37,61 +32,60 @@
 }
 
 /*
- * Open, the scene tips back square to the reader, so every line on a sheet runs level. Below
- * desktop the window fills the column, so the sheets are laid out one under another, from the
- * window's foot up into the dimmed copy. Each lower sheet slides down the tilted plane by --fan
- * and back by --gap, a little more than it slid towards the reader, so every sheet clears the one
- * above it and they keep their order in depth.
+ * Open, the sheets lift apart in depth and also slide within the turned plane, so in the drawing
+ * each one clears the one above it and every line on it can be read. Below desktop the window
+ * fills the column, so the lower sheets step down their short side, towards the reader, while
+ * --gap carries them back a little further, so each stays behind the sheet above it: the stack
+ * runs down the column from the dimmed copy.
  */
 .scene[data-open='true'] {
   --spread: var(--gap);
-  --rx: 42deg;
+  --rx: 50deg;
   --ry: 0deg;
-  --scale: 0.55;
+  --rz: -30deg;
+  --scale: 0.6;
   --fan-x: 0;
   --fan-y: -1;
-  --fan: 35cqi;
-  --gap: 38cqi;
-  --shift-y: -64%;
+  --fan: 27cqi;
+  --gap: 34cqi;
+  --shift-x: -8cqi;
+  --shift-y: -70%;
 }
 
 /*
- * On desktop the hero copy steps back, so the sheets are dealt out side by side across the hero:
- * the layers under the interface move left until the lowest reaches the hero's left edge, and the
- * design sheet lifts a little to the right. The scene shifts left so the design sheet ends where
- * the window ends. The scale keeps three sheets' widths (300cqi) within the hero.
+ * On desktop the hero copy steps back, so the lower sheets are dealt out to the left across the
+ * hero. They slide along the screen's horizontal within the turned plane, which keeps them at
+ * their depth, by as much as a turned sheet is wide (115cqi, plus what perspective takes back from
+ * the deeper sheets) less what the drop in depth already clears. The design sheet lifts up and a little to the right, and the scene shifts left so it
+ * ends inside the window's edge.
  */
 @media (min-width: 1024px) {
   .scene[data-open='true'] {
-    --scale: 0.85;
-    --fan-x: 1;
-    --fan-y: 0;
-    --room: calc(min(100vw, 90rem) - 5rem);
+    --scale: 0.82;
+    --fan-x: cos(var(--rz));
+    --fan-y: calc(-1 * sin(var(--rz)));
     --gap: clamp(56px, 7vw, 120px);
+    --fan: calc(122cqi - 0.69 * var(--gap));
     --lift: 10cqi;
-    --fan: calc((var(--room) / var(--scale) - 100cqi - var(--lift)) / 2);
-    --shift-x: calc(50cqi - var(--scale) * (var(--lift) + 50cqi));
-    --shift-y: -24%;
+    --shift-x: calc(47cqi - var(--scale) * (60cqi + var(--lift)));
+    --shift-y: -26%;
   }
 }
 
-/* Taller screens give the window more width, so the open stack is drawn smaller to keep the sheets clear of each other. */
+/* Taller screens give the window more width than three sheets have room for, so the stack is drawn smaller. */
 @media (min-width: 1024px) and (min-height: 840px) {
   .scene[data-open='true'] {
-    --scale: 0.75;
+    --scale: 0.7;
   }
 }
 
-@media (min-width: 1346px) and (min-height: 940px) {
+@media (min-width: 1024px) and (min-height: 940px) {
   .scene[data-open='true'] {
-    --scale: 0.62;
+    --scale: 0.58;
   }
 }
 
-/*
- * Each layer slides by --along in the direction (--fan-x, --fan-y) as seen before the scene tips
- * back (undoing the scene's turn), then apart in depth.
- */
+/* Each layer slides by --along in the turned plane, in the direction (--fan-x, --fan-y), then apart in depth. */
 .layer {
   --along: calc(min(var(--offset), 0) * var(--fan) + max(var(--offset), 0) * var(--lift));
 
@@ -100,8 +94,8 @@
   display: block;
   transform-style: preserve-3d;
   transform: translate3d(
-    calc(var(--along) * (var(--fan-x) * cos(var(--rz)) + var(--fan-y) * sin(var(--rz)))),
-    calc(var(--along) * (var(--fan-y) * cos(var(--rz)) - var(--fan-x) * sin(var(--rz)))),
+    calc(var(--along) * var(--fan-x)),
+    calc(var(--along) * var(--fan-y)),
     calc(var(--offset) * var(--spread))
   );
   transition:
@@ -128,14 +122,16 @@
 }
 
 /*
- * Each layer's name, on a tab at its top-left corner. The tab undoes the scene's rotation and
- * scale, so it stands facing the reader at full size instead of lying foreshortened on the sheet.
+ * Each layer's name, as a callout: a tab standing on a leader line from the layer's top-left
+ * corner, clear of the sheet. The tab undoes the scene's rotation and scale, so it faces the reader
+ * at full size instead of lying foreshortened on the sheet.
  */
 .label {
+  --leader: 2.75rem;
+
   position: absolute;
   bottom: 100%;
   left: 0;
-  margin-bottom: 0.375rem;
   padding: 0.25rem 0.5rem;
   border: 1px solid var(--rule);
   border-radius: 4px;
@@ -147,17 +143,38 @@
   white-space: nowrap;
   transform-origin: 0 100%;
   transform: rotateZ(calc(-1 * var(--rz))) rotateY(calc(-1 * var(--ry))) rotateX(calc(-1 * var(--rx)))
-    scale(calc(1 / var(--scale)));
+    scale(calc(1 / var(--scale))) translateY(calc(-1 * var(--leader)));
   opacity: 0;
   transition:
     transform var(--dur-page) var(--ease-in-out),
     opacity var(--dur-micro) var(--ease-in);
 }
 
+/* Below desktop the sheets sit closer together, so the leader is shorter and the tab stays off the sheet above. */
+@media (max-width: 1023px) {
+  .label {
+    --leader: 1rem;
+  }
+}
+
+.label::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: -1px;
+  width: 1px;
+  height: var(--leader);
+  background: var(--graphite);
+}
+
 .layer[data-base] > .label {
   border-color: transparent;
   background: var(--signal);
   color: var(--signal-ink);
+}
+
+.layer[data-base] > .label::before {
+  background: var(--signal);
 }
 
 .scene[data-open='true'] .label {
