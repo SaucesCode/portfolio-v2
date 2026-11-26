@@ -326,7 +326,10 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
         ))}
       </h1>
 
-      <div className={styles.copy}>{children}</div>
+      {/* While the stack is open the copy is dimmed and partly under the sheets, so it leaves the tab order. */}
+      <div className={styles.copy} inert={selected === 'software' && stackOpen}>
+        {children}
+      </div>
 
       {order.map((id) => {
         const artifact = artifacts[id];

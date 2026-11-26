@@ -28,8 +28,8 @@ test.describe('The software stack', () => {
   });
 
   test('the stack rests closed at a gentle tilt and the window itself carries no transform', async ({ page }) => {
-    await expect(toggle(page)).toHaveAttribute('aria-pressed', 'false');
-    await expect(toggle(page)).toHaveText(CLOSED);
+    await expect(toggle(page)).toHaveAccessibleName(CLOSED);
+    await expect(toggle(page)).not.toHaveAttribute('aria-pressed');
     expect(await scene(page).evaluate((el) => getComputedStyle(el).transform)).not.toBe('none');
     await expect
       .poll(() => page.locator('[data-role]').evaluateAll((els) => els.map((el) => getComputedStyle(el).transform)), {
@@ -41,32 +41,32 @@ test.describe('The software stack', () => {
 
   test('the button opens and closes the stack, by mouse and keyboard', async ({ page }) => {
     await toggle(page).click();
-    await expect(toggle(page)).toHaveAttribute('aria-pressed', 'true');
-    await expect(toggle(page)).toHaveText(OPEN);
+    await expect(toggle(page)).toHaveAccessibleName(OPEN);
+    await expect(toggle(page)).not.toHaveAttribute('aria-pressed');
     await expect(hero(page)).toHaveAttribute('data-stack', 'open');
     await expect(scene(page)).toHaveAttribute('data-open', 'true');
 
     await toggle(page).focus();
     await page.keyboard.press('Space');
-    await expect(toggle(page)).toHaveAttribute('aria-pressed', 'false');
+    await expect(toggle(page)).toHaveAccessibleName(CLOSED);
     await expect(hero(page)).toHaveAttribute('data-stack', 'closed');
     await expect(scene(page)).toHaveAttribute('data-open', 'false');
 
     await page.keyboard.press('Enter');
-    await expect(toggle(page)).toHaveAttribute('aria-pressed', 'true');
+    await expect(toggle(page)).toHaveAccessibleName(OPEN);
     await expect(scene(page)).toHaveAttribute('data-open', 'true');
   });
 
   test('rapid presses end in the state of the last press', async ({ page }) => {
     for (let i = 0; i < 5; i++) await toggle(page).click({ delay: 0 });
-    await expect(toggle(page)).toHaveAttribute('aria-pressed', 'true');
+    await expect(toggle(page)).toHaveAccessibleName(OPEN);
     await expect(scene(page)).toHaveAttribute('data-open', 'true');
     const pageMs = await page.evaluate(() =>
       parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dur-page')),
     );
     await page.waitForTimeout(pageMs + 300);
     await settled(page);
-    await expect(toggle(page)).toHaveAttribute('aria-pressed', 'true');
+    await expect(toggle(page)).toHaveAccessibleName(OPEN);
     await expect(scene(page)).toHaveAttribute('data-open', 'true');
   });
 
@@ -97,8 +97,22 @@ test.describe('The software stack', () => {
       .toBe('1');
 
     await page.getByRole('radio', { name: new RegExp(featuredSoftware.title) }).click();
-    await expect(toggle(page)).toHaveAttribute('aria-pressed', 'false');
+    await expect(toggle(page)).toHaveAccessibleName(CLOSED);
     await expect(scene(page)).toHaveAttribute('data-open', 'false');
+  });
+
+  test('while open, the dimmed hero copy leaves the tab order', async ({ page }) => {
+    const copy = hero(page).locator(':scope > [class*="copy"]');
+    await toggle(page).click();
+    await expect(copy).toHaveAttribute('inert', '');
+    await toggle(page).focus();
+    for (let i = 0; i < 8; i++) {
+      await page.keyboard.press('Shift+Tab');
+      expect(await copy.evaluate((el) => el.contains(document.activeElement)), `focus after ${i + 1} Shift+Tab`).toBe(false);
+    }
+    await toggle(page).click();
+    await expect(copy).not.toHaveAttribute('inert');
+    await expect(copy.getByRole('link', { name: 'Explore my work' })).toBeVisible();
   });
 
   test('the open stack names the real steps and tables', async ({ page }) => {

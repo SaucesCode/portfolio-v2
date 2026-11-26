@@ -20,7 +20,8 @@ const place = (layer: StackLayer) => ({
  * A piece of work drawn as the layers it is made of, in a CSS 3D scene. The offset-0 layer is in
  * flow and sets the stack's size; the others are drawn over it, so opening never changes layout.
  * The labels are drawn by a second, identical scene laid over the first: separate 3D scenes never
- * cut into each other, so no sheet can cover a label.
+ * cut into each other, so no sheet can cover a label. Rules for a layer or the scene address both
+ * with [data-layer='id'], [data-label-for='id'] and [data-stack-scene], [data-stack-labels].
  */
 export function LayerStack({ layers, open, peek = false }: { layers: StackLayer[]; open: boolean; peek?: boolean }) {
   return (
@@ -32,9 +33,9 @@ export function LayerStack({ layers, open, peek = false }: { layers: StackLayer[
           </span>
         ))}
       </span>
-      <span className={`${styles.scene} ${styles.labels}`} data-open={open} data-peek={peek}>
+      <span className={`${styles.scene} ${styles.labels}`} data-stack-labels data-open={open} data-peek={peek}>
         {layers.map((layer) => (
-          <span key={layer.id} className={styles.layer} {...place(layer)}>
+          <span key={layer.id} className={styles.layer} data-label-for={layer.id} {...place(layer)}>
             <span className={styles.label}>{layer.label}</span>
           </span>
         ))}

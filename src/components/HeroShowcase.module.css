@@ -79,6 +79,10 @@
   z-index: 3;
 }
 
+.hero[data-stack="open"] .window[data-role="support"] {
+  pointer-events: none;
+}
+
 .controls {
   grid-column: 1 / -1;
   grid-row: 5;

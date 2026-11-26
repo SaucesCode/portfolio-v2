@@ -7,11 +7,19 @@
   container-type: inline-size;
   display: block;
   perspective: 1600px;
+  transition: perspective var(--dur-page) var(--ease-in-out);
+}
+
+/* Open, the view is all but axonometric, so sheets far from the window stay square and their text level. */
+.depth:has(> .scene[data-open='true']) {
+  perspective: 6000px;
 }
 
 .scene {
   --spread: 3px;
   --fan: 0px;
+  --fan-x: 1;
+  --fan-y: 0;
   --lift: 0px;
   --shift-x: 0px;
   --shift-y: 0%;
@@ -29,35 +37,45 @@
 }
 
 /*
- * Open, the layers under the interface fan out to the left until the lowest reaches the edge of
- * the room the stack has, and the design sheet lifts a little to the right. The scene shifts left
- * so the design sheet ends where the window ends. 120cqi is the tilted sheet's width in window
- * widths. Below desktop the room is the column, of which the window takes 92%.
+ * Open, the scene tips back square to the reader, so every line on a sheet runs level. Below
+ * desktop the window fills the column, so the sheets are laid out one under another, from the
+ * window's foot up into the dimmed copy. Each lower sheet slides down the tilted plane by --fan
+ * and back by --gap, a little more than it slid towards the reader, so every sheet clears the one
+ * above it and they keep their order in depth.
  */
 .scene[data-open='true'] {
   --spread: var(--gap);
-  --rx: 50deg;
+  --rx: 42deg;
   --ry: 0deg;
-  --rz: -30deg;
-  --room: 108cqi;
-  --gap: 30cqi;
-  --shift-y: -24%;
   --scale: 0.55;
-  --lift: 16cqi;
-  --fan: calc((var(--room) / var(--scale) - 120cqi - var(--lift)) / 2);
-  --shift-x: calc(50cqi - var(--scale) * (var(--lift) + 60cqi));
+  --fan-x: 0;
+  --fan-y: -1;
+  --fan: 35cqi;
+  --gap: 38cqi;
+  --shift-y: -64%;
 }
 
-/* On desktop the hero copy steps back, so the stack has the hero's whole width. */
+/*
+ * On desktop the hero copy steps back, so the sheets are dealt out side by side across the hero:
+ * the layers under the interface move left until the lowest reaches the hero's left edge, and the
+ * design sheet lifts a little to the right. The scene shifts left so the design sheet ends where
+ * the window ends. The scale keeps three sheets' widths (300cqi) within the hero.
+ */
 @media (min-width: 1024px) {
   .scene[data-open='true'] {
+    --scale: 0.85;
+    --fan-x: 1;
+    --fan-y: 0;
     --room: calc(min(100vw, 90rem) - 5rem);
     --gap: clamp(56px, 7vw, 120px);
-    --scale: 0.9;
+    --lift: 10cqi;
+    --fan: calc((var(--room) / var(--scale) - 100cqi - var(--lift)) / 2);
+    --shift-x: calc(50cqi - var(--scale) * (var(--lift) + 50cqi));
+    --shift-y: -24%;
   }
 }
 
-/* Taller screens give the window more width than the fan has room for, so the open stack is drawn smaller. */
+/* Taller screens give the window more width, so the open stack is drawn smaller to keep the sheets clear of each other. */
 @media (min-width: 1024px) and (min-height: 840px) {
   .scene[data-open='true'] {
     --scale: 0.75;
@@ -70,7 +88,10 @@
   }
 }
 
-/* Each layer moves along the screen's horizontal (undoing the scene's turn), then apart in depth. */
+/*
+ * Each layer slides by --along in the direction (--fan-x, --fan-y) as seen before the scene tips
+ * back (undoing the scene's turn), then apart in depth.
+ */
 .layer {
   --along: calc(min(var(--offset), 0) * var(--fan) + max(var(--offset), 0) * var(--lift));
 
@@ -79,8 +100,8 @@
   display: block;
   transform-style: preserve-3d;
   transform: translate3d(
-    calc(var(--along) * cos(var(--rz))),
-    calc(var(--along) * -1 * sin(var(--rz))),
+    calc(var(--along) * (var(--fan-x) * cos(var(--rz)) + var(--fan-y) * sin(var(--rz)))),
+    calc(var(--along) * (var(--fan-y) * cos(var(--rz)) - var(--fan-x) * sin(var(--rz)))),
     calc(var(--offset) * var(--spread))
   );
   transition:
