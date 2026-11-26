@@ -1,0 +1,13 @@
+/* Rowszein's Delight's own colours, sampled from the captured app. The dashboard and the stack's design layer share them. */
+.palette {
+  --rz-page: #fdf4f5;
+  --rz-card: #ffffff;
+  --rz-soft: #fbe4ec;
+  --rz-accent: #b9396a;
+  --rz-plum: #5f233c;
+  --rz-ink: #1e040f;
+  --rz-muted: color-mix(in srgb, #1e040f 58%, transparent);
+  --rz-low: #9c491d;
+  --rz-ok: #2f6b4f;
+  --rz-track: #ffe5ee;
+}

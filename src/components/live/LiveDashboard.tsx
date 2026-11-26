@@ -1,4 +1,4 @@
-import { demoIngredients } from "@/data/rowszein-demo";
+import { demoIngredients, watchedIngredientIds } from "@/data/rowszein-demo";
 import {
   formatPeso,
   formatStock,
@@ -18,7 +18,6 @@ const nav = [
   "Recipe costing",
   "Profit & analytics",
 ];
-const watched = ["flour", "powdered-sugar", "ube-halaya"];
 
 /**
  * A miniature of the Rowszein's Delight owner panel, drawn from live demo state. It is a picture
@@ -118,7 +117,7 @@ export function LiveDashboard({
               <p className={styles.label}>Pantry</p>
               <ul className={styles.meters}>
                 {demoIngredients
-                  .filter((ingredient) => watched.includes(ingredient.id))
+                  .filter((ingredient) => watchedIngredientIds.includes(ingredient.id))
                   .map((ingredient) => {
                     const quantity = state.stock[ingredient.id];
                     const minimum = toQuanta(ingredient.minimum);

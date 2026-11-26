@@ -129,7 +129,8 @@
 }
 
 .swatch[aria-checked='true'],
-.toggle[aria-checked='true'] {
+.toggle[aria-checked='true'],
+.toggle[aria-pressed='true'] {
   border-color: var(--ink);
   background: var(--ink);
   color: var(--wall);

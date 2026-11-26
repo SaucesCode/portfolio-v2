@@ -1,0 +1,147 @@
+/*
+ * The exploded stack. At rest the layers lie almost together under a gentle tilt, so only their
+ * edges show, like a slab. Open, the scene tips back like a drawing on a drafting table and the
+ * layers lift apart. Both states share one transform list, so every angle interpolates on its own.
+ */
+.depth {
+  container-type: inline-size;
+  display: block;
+  perspective: 1600px;
+}
+
+.scene {
+  --spread: 3px;
+  --fan: 0px;
+  --lift: 0px;
+  --shift-x: 0px;
+  --shift-y: 0%;
+  --scale: 1;
+  --rx: 9deg;
+  --ry: -11deg;
+  --rz: 0deg;
+
+  position: relative;
+  display: block;
+  transform-style: preserve-3d;
+  transform: translate(var(--shift-x), var(--shift-y)) scale(var(--scale)) rotateX(var(--rx)) rotateY(var(--ry))
+    rotateZ(var(--rz));
+  transition: transform var(--dur-page) var(--ease-in-out);
+}
+
+/*
+ * Open, the layers under the interface fan out to the left until the lowest reaches the edge of
+ * the room the stack has, and the design sheet lifts a little to the right. The scene shifts left
+ * so the design sheet ends where the window ends. 120cqi is the tilted sheet's width in window
+ * widths. Below desktop the room is the column, of which the window takes 92%.
+ */
+.scene[data-open='true'] {
+  --spread: var(--gap);
+  --rx: 50deg;
+  --ry: 0deg;
+  --rz: -30deg;
+  --room: 108cqi;
+  --gap: 30cqi;
+  --shift-y: -24%;
+  --scale: 0.55;
+  --lift: 16cqi;
+  --fan: calc((var(--room) / var(--scale) - 120cqi - var(--lift)) / 2);
+  --shift-x: calc(50cqi - var(--scale) * (var(--lift) + 60cqi));
+}
+
+/* On desktop the hero copy steps back, so the stack has the hero's whole width. */
+@media (min-width: 1024px) {
+  .scene[data-open='true'] {
+    --room: calc(min(100vw, 90rem) - 5rem);
+    --gap: clamp(56px, 7vw, 120px);
+    --scale: 0.9;
+  }
+}
+
+/* Taller screens give the window more width than the fan has room for, so the open stack is drawn smaller. */
+@media (min-width: 1024px) and (min-height: 840px) {
+  .scene[data-open='true'] {
+    --scale: 0.75;
+  }
+}
+
+@media (min-width: 1346px) and (min-height: 940px) {
+  .scene[data-open='true'] {
+    --scale: 0.62;
+  }
+}
+
+/* Each layer moves along the screen's horizontal (undoing the scene's turn), then apart in depth. */
+.layer {
+  --along: calc(min(var(--offset), 0) * var(--fan) + max(var(--offset), 0) * var(--lift));
+
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform-style: preserve-3d;
+  transform: translate3d(
+    calc(var(--along) * cos(var(--rz))),
+    calc(var(--along) * -1 * sin(var(--rz))),
+    calc(var(--offset) * var(--spread))
+  );
+  transition:
+    transform var(--dur-page) var(--ease-in-out),
+    opacity var(--dur-page) var(--ease-in-out);
+  transition-delay: calc(abs(var(--offset)) * 40ms);
+  pointer-events: none;
+}
+
+.layer[data-base] {
+  position: relative;
+  pointer-events: auto;
+}
+
+.scene[data-open='false'] .layer[data-hidden-when-closed] {
+  opacity: 0;
+}
+
+.labels,
+.labels .layer[data-base] {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/*
+ * Each layer's name, on a tab at its top-left corner. The tab undoes the scene's rotation and
+ * scale, so it stands facing the reader at full size instead of lying foreshortened on the sheet.
+ */
+.label {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--chalk);
+  color: var(--ink);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  transform-origin: 0 100%;
+  transform: rotateZ(calc(-1 * var(--rz))) rotateY(calc(-1 * var(--ry))) rotateX(calc(-1 * var(--rx)))
+    scale(calc(1 / var(--scale)));
+  opacity: 0;
+  transition:
+    transform var(--dur-page) var(--ease-in-out),
+    opacity var(--dur-micro) var(--ease-in);
+}
+
+.layer[data-base] > .label {
+  border-color: transparent;
+  background: var(--signal);
+  color: var(--signal-ink);
+}
+
+.scene[data-open='true'] .label {
+  opacity: 1;
+  transition:
+    transform var(--dur-page) var(--ease-in-out),
+    opacity var(--dur-component) var(--ease-out) var(--dur-page);
+}

@@ -12,6 +12,9 @@ import { SaleControls } from './live/SaleControls';
 import { StyleControls } from './live/StyleControls';
 import { useIdleMount } from './live/useIdleMount';
 import { useRowszeinDemo } from './live/useRowszeinDemo';
+import { LayerStack } from './stack/LayerStack';
+import { DataLayer, DesignLayer, LogicLayer } from './stack/RowszeinLayers';
+import { StackToggle } from './stack/StackToggle';
 import { HERO_FOCUS_EVENT, takeHeroFocus } from './ask/actions';
 import styles from './HeroShowcase.module.css';
 
@@ -89,6 +92,7 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
   const [type, setType] = useState(typePairs[0]);
   const [liveReady, setLiveReady] = useState<Record<Discipline, boolean>>({ software: false, web: false });
   const [announcement, setAnnouncement] = useState('');
+  const [stackOpen, setStackOpen] = useState(false);
   const markSoftwareReady = useCallback(() => setLiveReady((ready) => ({ ...ready, software: true })), []);
   const markWebReady = useCallback(() => setLiveReady((ready) => ({ ...ready, web: true })), []);
 
@@ -173,6 +177,7 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
     for (const id of order) rects[id] = windows.current[id]!.getBoundingClientRect();
     firstRects.current = rects;
     rootRef.current?.setAttribute('data-touched', '');
+    setStackOpen(false);
     setSelected(next);
   };
 
@@ -298,7 +303,13 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div ref={rootRef} className={styles.hero} data-active={selected} data-entrance>
+    <div
+      ref={rootRef}
+      className={styles.hero}
+      data-active={selected}
+      data-stack={selected === 'software' ? (stackOpen ? 'open' : 'closed') : undefined}
+      data-entrance
+    >
       <script dangerouslySetInnerHTML={{ __html: EARLY_PICK }} />
       <h1 id="intro-title" className={styles.headline}>
         {order.map((id) => (
@@ -319,6 +330,41 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
 
       {order.map((id) => {
         const artifact = artifacts[id];
+        const frame = (
+          <span className={styles.frame}>
+            <Image
+              src={artifact.shot.src}
+              width={artifact.shot.width}
+              height={artifact.shot.height}
+              sizes="(min-width: 1024px) 46vw, 92vw"
+              alt=""
+              loading="eager"
+              fetchPriority={id === 'software' ? 'high' : 'auto'}
+              draggable={false}
+            />
+            {idle && (
+              <span
+                className={styles.live}
+                data-live={liveReady[id] ? 'ready' : 'loading'}
+                data-live-id={id}
+                inert={selected !== id}
+              >
+                <LiveBoundary>
+                  {id === 'software' ? (
+                    <SoftwareLayer state={demo.state} recent={demo.recent} onReady={markSoftwareReady} />
+                  ) : (
+                    <WebLayer preset={preset} type={type} onReady={markWebReady} />
+                  )}
+                </LiveBoundary>
+              </span>
+            )}
+            {liveReady[id] ? (
+              <span className={styles.demo}>Live demo · sample data, running in your browser</span>
+            ) : (
+              id === 'software' && <span className={styles.demo}>Demonstration data</span>
+            )}
+          </span>
+        );
         return (
           <div
             key={id}
@@ -331,39 +377,24 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
             aria-hidden
             onClick={() => choose(id)}
           >
-            <span className={styles.frame}>
-              <Image
-                src={artifact.shot.src}
-                width={artifact.shot.width}
-                height={artifact.shot.height}
-                sizes="(min-width: 1024px) 46vw, 92vw"
-                alt=""
-                loading="eager"
-                fetchPriority={id === 'software' ? 'high' : 'auto'}
-                draggable={false}
+            {id === 'software' ? (
+              <LayerStack
+                open={stackOpen}
+                layers={[
+                  { id: 'design', label: 'Design', offset: 1, content: <DesignLayer />, hiddenWhenClosed: true },
+                  { id: 'interface', label: 'Interface', offset: 0, content: frame },
+                  { id: 'logic', label: 'Logic', offset: -1, content: <LogicLayer flow={null} /> },
+                  {
+                    id: 'data',
+                    label: 'Data · demonstration data',
+                    offset: -2,
+                    content: <DataLayer state={demo.state} recent={demo.recent} flow={null} />,
+                  },
+                ]}
               />
-              {idle && (
-                <span
-                  className={styles.live}
-                  data-live={liveReady[id] ? 'ready' : 'loading'}
-                  data-live-id={id}
-                  inert={selected !== id}
-                >
-                  <LiveBoundary>
-                    {id === 'software' ? (
-                      <SoftwareLayer state={demo.state} recent={demo.recent} onReady={markSoftwareReady} />
-                    ) : (
-                      <WebLayer preset={preset} type={type} onReady={markWebReady} />
-                    )}
-                  </LiveBoundary>
-                </span>
-              )}
-              {liveReady[id] ? (
-                <span className={styles.demo}>Live demo · sample data, running in your browser</span>
-              ) : (
-                id === 'software' && <span className={styles.demo}>Demonstration data</span>
-              )}
-            </span>
+            ) : (
+              frame
+            )}
             <span className={styles.tag}>{artifact.label}</span>
             {/* Registration marks: the corners a printer lines up before the work is trimmed. */}
             <span className={styles.marks} aria-hidden>
@@ -413,6 +444,9 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
         {liveReady[selected] &&
           (selected === 'software' ? (
             <>
+              <span className={styles.stackToggle}>
+                <StackToggle open={stackOpen} onToggle={() => setStackOpen((open) => !open)} />
+              </span>
               <SaleControls demo={demo} announce={setAnnouncement} />
               <PhoneDemo demo={demo} announce={setAnnouncement} />
             </>
