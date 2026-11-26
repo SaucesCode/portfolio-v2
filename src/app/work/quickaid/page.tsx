@@ -29,7 +29,7 @@ const jsonLd = caseStudyJsonLd(project, copy, {
 const facts = [
   { term: 'What it is', detail: project.provenance },
   { term: 'My part', detail: 'Data model, API, geocoding, the map and much of the interface' },
-  { term: 'Built with', detail: 'React 19, Leaflet, TanStack Query and Recharts; Django REST Framework; PostgreSQL' },
+  { term: 'Built with', detail: project.builtWith },
   { term: 'Where it stands', detail: 'Last updated May 2026, with no automated tests yet' },
 ];
 

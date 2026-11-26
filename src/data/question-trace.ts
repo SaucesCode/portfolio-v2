@@ -40,7 +40,7 @@ export const questionSteps: QuestionStep[] = [
   },
   {
     title: 'Answered from the site only',
-    body: 'The model receives the site’s own content and strict rules: never state a price, never claim client work, speak about James in the third person, answer in the visitor’s language. A fast model answers; a second steps in only if the first is overloaded or returns no answer, and both share one time limit.',
+    body: 'The model receives the site’s own content and strict rules: never state a price, never claim client work, speak about James in the third person, answer in the visitor’s language. A fast model answers; a second steps in if the first is overloaded, returns no answer or is still silent after 3.5 seconds, and both share one time limit.',
     parts: ['server', 'model'],
   },
   {

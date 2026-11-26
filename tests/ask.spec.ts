@@ -17,6 +17,82 @@ test.describe('Site knowledge', () => {
     expect([...sectionIds]).toEqual(['featured', 'work', 'services', 'process', 'about', 'contact']);
     expect(projectSlugs).toEqual(projects.map((p) => p.slug));
   });
+
+  // The general stack once read as every project's stack, so QuickAid was said to run on Node.js.
+  test('each case study names its own stack, on its own line', () => {
+    const lines = siteKnowledge('https://www.saucescode.xyz').split('\n');
+    for (const project of caseStudies) {
+      const line = lines.find((l) => l.includes(`${project.caseStudy})`));
+      expect(line, project.slug).toContain(`Built with ${project.builtWith}.`);
+    }
+    expect(lines.find((l) => l.includes('/work/quickaid)'))).not.toContain('Node');
+  });
+});
+
+test.describe('Model fallback timing', () => {
+  const realFetch = globalThis.fetch;
+  test.afterEach(() => {
+    globalThis.fetch = realFetch;
+  });
+
+  const answer = (text: string) =>
+    new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify({ answer: text, actions: [] }) }] } }] }), { status: 200 });
+  /** A request that never answers, like a stalled model; it ends only when its signal aborts. */
+  const stall = (signal: AbortSignal) => new Promise<Response>((_, reject) => signal.addEventListener('abort', () => reject(signal.reason)));
+  const later = (ms: number, response: () => Response) => new Promise<Response>((resolve) => setTimeout(() => resolve(response()), ms));
+
+  /** Calls in order: the first is the main model, the second the fallback. */
+  function stubModels(...replies: ((signal: AbortSignal) => Promise<Response>)[]) {
+    const signals: AbortSignal[] = [];
+    globalThis.fetch = (async (_url: string | URL | Request, init?: RequestInit) => {
+      const signal = init!.signal!;
+      signals.push(signal);
+      return replies[signals.length - 1](signal);
+    }) as typeof fetch;
+    return signals;
+  }
+
+  test('a stalled main model hands over to the fallback instead of failing', async () => {
+    const { askGemini } = await import('../src/lib/ask/gemini');
+    const signals = stubModels(stall, async () => answer('From the fallback.'));
+    const started = Date.now();
+    const result = await askGemini('system', [], 'Hi');
+    expect(result).toMatchObject({ ok: true, answer: 'From the fallback.' });
+    expect(Date.now() - started).toBeLessThan(5000);
+    expect(signals[0].aborted, 'the stalled request is cancelled').toBe(true);
+  });
+
+  test('a quick answer never starts the fallback', async () => {
+    const { askGemini } = await import('../src/lib/ask/gemini');
+    const signals = stubModels(async () => answer('From the main model.'));
+    expect(await askGemini('system', [], 'Hi')).toMatchObject({ ok: true, answer: 'From the main model.' });
+    await new Promise((resolve) => setTimeout(resolve, 4000));
+    expect(signals).toHaveLength(1);
+  });
+
+  test('a slow main answer still wins if it arrives before the fallback', async () => {
+    const { askGemini } = await import('../src/lib/ask/gemini');
+    const signals = stubModels(() => later(4500, () => answer('From the main model.')), stall);
+    expect(await askGemini('system', [], 'Hi')).toMatchObject({ ok: true, answer: 'From the main model.' });
+    expect(signals).toHaveLength(2);
+    expect(signals[1].aborted, 'the fallback is cancelled').toBe(true);
+  });
+
+  test('an overloaded main model hands over at once', async () => {
+    const { askGemini } = await import('../src/lib/ask/gemini');
+    stubModels(async () => new Response('{}', { status: 503 }), async () => answer('From the fallback.'));
+    const started = Date.now();
+    expect(await askGemini('system', [], 'Hi')).toMatchObject({ ok: true, answer: 'From the fallback.' });
+    expect(Date.now() - started).toBeLessThan(1000);
+  });
+
+  test('when both fail, the visitor gets the error state with both reasons logged', async () => {
+    const { askGemini } = await import('../src/lib/ask/gemini');
+    stubModels(stall, async () => new Response('{}', { status: 503 }));
+    const result = await askGemini('system', [], 'Hi');
+    expect(result).toMatchObject({ ok: false, state: 'error' });
+    if (!result.ok) expect(result.detail).toMatch(/503.*timeout|timeout.*503/);
+  });
 });
 
 test.describe('Assistant limits', () => {
@@ -106,6 +182,14 @@ test.describe('POST /api/ask', () => {
     const response = await ask(request, { question: 'OVERLOADED, how long does a site take?' });
     expect(response.status()).toBe(200);
     expect((await response.json()).answer).toContain('3–5 weeks');
+  });
+
+  test('answers from the fallback when the first model stalls', async ({ request }) => {
+    const started = Date.now();
+    const response = await ask(request, { question: 'STALLED, how long does a site take?' });
+    expect(response.status()).toBe(200);
+    expect((await response.json()).answer).toContain('3–5 weeks');
+    expect(Date.now() - started).toBeLessThan(6000);
   });
 
   test('never returns the same kind of action twice', async ({ request }) => {

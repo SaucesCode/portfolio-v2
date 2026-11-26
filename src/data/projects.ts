@@ -72,6 +72,8 @@ export interface Project {
   brand?: BrandTheme;
   /** How much room the gallery gives it: a full card (the default) or a line in "More experiments". */
   tier?: 'card' | 'list';
+  /** What it is built with, as its case study states it; every case study needs one. */
+  builtWith?: string;
   /** Path of the project's case study page, for the projects that have one. */
   caseStudy?: string;
   /** When the case study was first published and last meaningfully changed (YYYY-MM-DD). */
@@ -113,6 +115,7 @@ export const projects: Project[] = [
       github('Rowszein-s-Delight'),
     ],
     poster: rowszeinScreen('recipes'),
+    builtWith: 'React, TypeScript and Vite; Django REST Framework; PostgreSQL',
     caseStudy: '/work/rowszeins-delight',
     caseStudyDates: { published: '2026-11-11', updated: '2026-11-16' },
     walkthrough: [
@@ -195,6 +198,7 @@ export const projects: Project[] = [
     links: [{ href: 'https://saucescode.github.io/thread-and-form/', label: 'Visit the live site' }, github('thread-and-form')],
     poster: desktopPoster('thread-and-form'),
     captures: captures('thread-and-form', 7458, 15318),
+    builtWith: 'WordPress block theme with theme.json v3, PHP, Tailwind CSS v4 and plain JavaScript',
     caseStudy: '/work/thread-and-form',
     caseStudyDates: { published: '2026-11-11', updated: '2026-11-16' },
   },
@@ -210,6 +214,7 @@ export const projects: Project[] = [
       'A system for a social assistance programme: online applications, approvals, payout batches, an applicant map and analytics for staff.',
     note: 'Staff tools sit behind a login; the public site is shown.',
     links: [{ href: 'https://quick-aid-geomappingv1.vercel.app/', label: 'Visit the public site' }, github('QuickAid-Geomapping')],
+    builtWith: 'React 19, Leaflet, TanStack Query and Recharts; Django REST Framework; PostgreSQL',
     caseStudy: '/work/quickaid',
     caseStudyDates: { published: '2026-11-16', updated: '2026-11-16' },
     poster: desktopPoster('quickaid'),
@@ -226,6 +231,7 @@ export const projects: Project[] = [
       'This portfolio: live demos in the first screen, a guided tour, an assistant that answers only from the site, and a project form that works without a mail app.',
     links: [{ href: 'https://www.saucescode.xyz/', label: 'Visit the live site' }, github('portfolio-v2')],
     poster: desktopPoster('this-site'),
+    builtWith: 'Next.js 16, React 19 and TypeScript; Upstash Redis, Gemini and Resend; hosted on Vercel',
     caseStudy: '/work/this-site',
     caseStudyDates: { published: '2026-11-17', updated: '2026-11-17' },
   },
@@ -370,12 +376,13 @@ export const galleryProjects = projects.filter((project) => !isHeroProject(proje
 export const galleryCards = galleryProjects.filter((project) => project.tier !== 'list');
 export const moreExperiments = galleryProjects.filter((project) => project.tier === 'list');
 
-export type CaseStudyProject = Project & Required<Pick<Project, 'caseStudy' | 'caseStudyDates'>>;
+export type CaseStudyProject = Project & Required<Pick<Project, 'caseStudy' | 'caseStudyDates' | 'builtWith'>>;
 
 /** Projects with a case study page, in the order the pages link to each other. */
 export const caseStudies = projects.filter((project): project is CaseStudyProject => {
   if (!project.caseStudy) return false;
   if (!project.caseStudyDates) throw new Error(`Case study for ${project.slug} needs caseStudyDates`);
+  if (!project.builtWith) throw new Error(`Case study for ${project.slug} needs builtWith`);
   return true;
 });
 

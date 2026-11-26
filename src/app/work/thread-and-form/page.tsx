@@ -50,7 +50,7 @@ const jsonLd = caseStudyJsonLd(project, copy, {
 const facts = [
   { term: 'What it is', detail: 'A concept build for a fictional fashion label. No client commissioned it.' },
   { term: 'My part', detail: 'Design, theme development and the static demo build' },
-  { term: 'Built with', detail: 'WordPress block theme with theme.json v3, PHP, Tailwind CSS v4 and plain JavaScript' },
+  { term: 'Built with', detail: project.builtWith },
   { term: 'Requires', detail: 'WordPress 6.6 or later, PHP 7.4 or later' },
 ];
 

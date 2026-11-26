@@ -25,7 +25,7 @@ const jsonLd = caseStudyJsonLd(project, copy, { '@type': 'WebSite', url: project
 const facts = [
   { term: 'What it is', detail: project.provenance },
   { term: 'My part', detail: 'Design, copy, code and tests' },
-  { term: 'Built with', detail: 'Next.js 16, React 19 and TypeScript; Upstash Redis, Gemini and Resend; hosted on Vercel' },
+  { term: 'Built with', detail: project.builtWith },
   { term: 'Where it stands', detail: 'Live on saucescode.xyz, updated November 2026' },
 ];
 
@@ -62,7 +62,7 @@ const layers = [
   { name: 'Vercel', detail: 'Serves the pages from its edge network and runs the two server routes.' },
   { name: 'Server routes', detail: 'One for questions and one for project messages. Each checks where a request came from, what it contains and whether it is within its limits.' },
   { name: 'Upstash Redis', detail: 'Keeps the counters behind those limits. Checking and counting take one round trip per request.' },
-  { name: 'Gemini', detail: 'Writes the assistant’s answers from the site’s content. A second model steps in only when the first is overloaded or returns no answer.' },
+  { name: 'Gemini', detail: 'Writes the assistant’s answers from the site’s content. A second model steps in when the first is overloaded, returns no answer or is still silent after 3.5 seconds; the first answer wins.' },
   { name: 'Resend', detail: 'Delivers project messages to James’s inbox, with the visitor as the reply address.' },
 ];
 

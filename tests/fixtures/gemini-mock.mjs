@@ -32,6 +32,8 @@ createServer((req, res) => {
       actions: [{ type: 'show_section', target: 'process' }],
     });
     if (question.includes('SLOW')) return setTimeout(() => reply(res, 200, normal), 9000);
+    // Only the main model stalls; the fallback answers.
+    if (question.includes('STALLED') && req.url.includes('gemini-3.1-flash-lite')) return setTimeout(() => reply(res, 200, normal), 15000);
     return reply(res, 200, normal);
   });
 }).listen(3091, '127.0.0.1');
