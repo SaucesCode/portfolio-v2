@@ -102,7 +102,7 @@ Each phase ships on its own branch and pull request, which the owner merges.
 
 ## Decided by the owner after the builder check
 
-1. **Resting pose: a gentle tilt.** Closed, the stack sits at a slight 3D angle, enough to read as an object that can open, while the live demo stays easy to read and tap. The full sketch angle is used only when open. Tilting is a parent transform on the scene, not on the screenshot image, so the LCP image itself is not transformed. The unfold entrance now ends at this resting pose, so the test "the timed entrance … leaves no transform behind" changes to check that the entrance ends exactly at the resting pose within the same time limit.
+1. **Resting pose: a gentle tilt.** Closed, the stack sits at a slight 3D angle, enough to read as an object that can open, while the live demo stays easy to read and tap. The full sketch angle is used only when open. Tilting is a transform on an inner scene element, not on the window or the screenshot image. The window keeps its unfold and FLIP handoff unchanged and still ends with no transform, so the existing test "the timed entrance … leaves no transform behind" stays as it is, and the LCP image itself is not transformed.
 2. **Discovery: a one-time peek, plus the button.** About a second after the live demo is ready, the layers lift slightly apart and settle back (under 1 s in all), once per visit (remembered for the browser session). It is skipped with reduced motion, and skipped if the visitor has already opened the stack, recorded a sale or switched to Websites. The "See what's underneath" button does the full opening.
 
 ## Testing and verification
