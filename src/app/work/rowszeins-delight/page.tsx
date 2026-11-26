@@ -66,7 +66,7 @@ const jsonLd = caseStudyJsonLd(project, copy, {
 const facts = [
   { term: 'What it is', detail: project.provenance },
   { term: 'My part', detail: 'Product design, front end, API and database' },
-  { term: 'Built with', detail: 'React, TypeScript and Vite; Django REST Framework; PostgreSQL' },
+  { term: 'Built with', detail: project.builtWith },
   { term: 'Where it stands', detail: 'In development: pre-launch hardening done, not yet declared production-ready' },
 ];
 

@@ -26,7 +26,7 @@ export function siteKnowledge(baseUrl: string): string {
 
 ${site.availability}
 
-Stack: Django and Node.js on the server, PostgreSQL for data, React and Next.js for interfaces, and PHP for WordPress block themes. The source code for each project is public on GitHub as ${site.githubHandle}. Each project below states where it comes from, such as a personal project or a concept build for a fictional brand.
+Tools James works with across his projects (no single project uses all of them): Django and Node.js on the server, PostgreSQL for data, React and Next.js for interfaces, and PHP for WordPress block themes. Each case study below lists what that project is built with. The source code for each project is public on GitHub as ${site.githubHandle}. Each project below states where it comes from, such as a personal project or a concept build for a fictional brand.
 
 ## Services
 
@@ -43,7 +43,7 @@ ${terms.map((term) => `- ${term.title}: ${term.body}`).join('\n')}
 
 ## Case studies
 
-${caseStudies.map((project) => `- [${project.title}](${baseUrl}${project.caseStudy}): ${describe(project)}`).join('\n')}
+${caseStudies.map((project) => `- [${project.title}](${baseUrl}${project.caseStudy}): ${describe(project)} Built with ${project.builtWith}.`).join('\n')}
 
 ## Other work
 

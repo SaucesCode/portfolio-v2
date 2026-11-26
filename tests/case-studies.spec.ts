@@ -424,6 +424,7 @@ test.describe('This site case study', () => {
     for (const overstated of [
       'never knows more or less',
       'only if the first is overloaded,',
+      'only when the first is overloaded',
       'survives closing the page',
       'borrow the assistant',
       'never loses a lead',
@@ -434,6 +435,6 @@ test.describe('This site case study', () => {
     ]) {
       expect(text, overstated).not.toContain(overstated);
     }
-    expect(text).toContain('overloaded or returns no answer');
+    expect(text).toContain('overloaded, returns no answer or is still silent after 3.5 seconds');
   });
 });

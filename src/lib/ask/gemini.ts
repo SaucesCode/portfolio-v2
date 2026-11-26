@@ -67,13 +67,24 @@ function toAction(raw: RawAction): AskAction | null {
 
 /** Both attempts share one deadline, so a question never waits longer than this. */
 const DEADLINE_MS = 9000;
+/**
+ * Answers usually arrive in 1.5–3 s. A main model still silent after this has most likely stalled
+ * (on the live site about one question in three did), so the fallback starts alongside it.
+ */
+const HEDGE_MS = 3500;
 /** A fallback only starts if at least this much time is left. */
 const MIN_ATTEMPT_MS = 2500;
 
 type Attempt = ProviderResult | { ok: false; state: 'retry'; detail: string };
+type Answer = Extract<ProviderResult, { ok: true }>;
+
+const failureKind = (error: unknown) => {
+  const name = error instanceof Error ? error.name : '';
+  return name === 'TimeoutError' ? 'timeout' : name === 'AbortError' ? 'cancelled' : 'network';
+};
 
 /** One generateContent call. The key travels in a header, never in the URL. */
-async function attempt(model: string, body: string, timeoutMs: number): Promise<Attempt> {
+async function attempt(model: string, body: string, signal: AbortSignal): Promise<Attempt> {
   const base = (process.env.GEMINI_BASE_URL ?? 'https://generativelanguage.googleapis.com').replace(/\/$/, '');
   let response: Response;
   try {
@@ -81,11 +92,11 @@ async function attempt(model: string, body: string, timeoutMs: number): Promise<
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY ?? '' },
       body,
-      signal: AbortSignal.timeout(timeoutMs),
+      signal,
       cache: 'no-store',
     });
   } catch (error) {
-    return { ok: false, state: 'error', detail: error instanceof Error && error.name === 'TimeoutError' ? `${model} timeout` : `${model} network` };
+    return { ok: false, state: 'error', detail: `${model} ${failureKind(error)}` };
   }
   // 500 and 503 mean the model is briefly overloaded: worth one try on another model. A 429 is this
   // key's per-minute limit, so it reads as "try again in a moment" and is never retried.
@@ -112,25 +123,57 @@ async function attempt(model: string, body: string, timeoutMs: number): Promise<
   return { ok: true, answer, actions, tokens };
 }
 
+/** Resolves with the first answer, or with every failure once all the attempts have failed. */
+function firstAnswer(attempts: Promise<Attempt>[]): Promise<Answer | string[]> {
+  return new Promise((resolve) => {
+    const failures: string[] = [];
+    const settle = (result: Attempt) => {
+      if (result.ok) resolve(result);
+      else if (failures.push(result.detail) === attempts.length) resolve(failures);
+    };
+    for (const pending of attempts) pending.then(settle, (error: unknown) => settle({ ok: false, state: 'error', detail: failureKind(error) }));
+  });
+}
+
 /**
- * Asks the main model (gemini-3.1-flash-lite: about 1.6 s in testing) and, only if it is briefly
- * overloaded or returns no answer, the fallback, inside one shared deadline.
+ * Asks the main model (gemini-3.1-flash-lite: about 1.6 s in testing). The fallback starts at once
+ * if the main model is briefly overloaded or returns no answer, and alongside it if the main model
+ * has not answered within HEDGE_MS; the first answer wins and the other request is cancelled.
+ * Everything shares one deadline.
  */
 export async function askGemini(system: string, history: Turn[], question: string): Promise<ProviderResult> {
-  const models = [process.env.GEMINI_MODEL ?? 'gemini-3.1-flash-lite', process.env.GEMINI_FALLBACK_MODEL ?? 'gemini-3.5-flash-lite'];
+  const [main, fallback] = [process.env.GEMINI_MODEL ?? 'gemini-3.1-flash-lite', process.env.GEMINI_FALLBACK_MODEL ?? 'gemini-3.5-flash-lite'];
   const body = JSON.stringify({
     systemInstruction: { parts: [{ text: system }] },
     contents: [...history, { role: 'user', text: question }].map((turn) => ({ role: turn.role, parts: [{ text: turn.text }] })),
     generationConfig: { maxOutputTokens: 400, temperature: 0.2, responseMimeType: 'application/json', responseSchema },
   });
   const started = Date.now();
+  const deadline = AbortSignal.timeout(DEADLINE_MS);
+  const cancels: AbortController[] = [];
+  const run = (model: string) => {
+    const cancel = new AbortController();
+    cancels.push(cancel);
+    return attempt(model, body, AbortSignal.any([deadline, cancel.signal]));
+  };
+  const finish = (result: ProviderResult) => {
+    for (const cancel of cancels) cancel.abort();
+    return result;
+  };
+
+  const first = run(main);
+  let hedge: ReturnType<typeof setTimeout> | undefined;
+  const early = await Promise.race([first, new Promise<null>((resolve) => (hedge = setTimeout(resolve, HEDGE_MS, null)))]);
+  clearTimeout(hedge);
+
   const details: string[] = [];
-  for (const model of models) {
-    const left = DEADLINE_MS - (Date.now() - started);
-    if (left < MIN_ATTEMPT_MS) break;
-    const result = await attempt(model, body, left);
-    if (result.ok || result.state !== 'retry') return result.ok ? result : { ...result, detail: [...details, result.detail].join(', ') };
-    details.push(result.detail);
+  if (early) {
+    if (early.ok || early.state !== 'retry') return finish(early);
+    details.push(early.detail);
+    if (DEADLINE_MS - (Date.now() - started) < MIN_ATTEMPT_MS) return finish({ ok: false, state: 'error', detail: details.join(', ') });
   }
-  return { ok: false, state: 'error', detail: details.join(', ') || 'no time left' };
+
+  const outcome = await firstAnswer(early ? [run(fallback)] : [first, run(fallback)]);
+  if (!Array.isArray(outcome)) return finish(outcome);
+  return finish({ ok: false, state: 'error', detail: [...details, ...outcome].join(', ') });
 }
