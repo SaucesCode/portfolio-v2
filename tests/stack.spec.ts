@@ -125,6 +125,90 @@ test.describe('The software stack', () => {
   });
 });
 
+test.describe('A sale through the stack', () => {
+  const HINT = 'Your sale went underneath too';
+  const BALANCE_CHECK = 'Work out every new balance before writing anything';
+  const sales = (page: Page) => page.getByRole('group', { name: 'Try Rowszein’s Delight' });
+  const sell = (page: Page, product: string) => sales(page).getByRole('button', { name: new RegExp(`Sell 1 ${product}`) });
+  const lit = (page: Page) => layer(page, 'logic').locator('[data-lit="true"]');
+  const card = (page: Page, table: string) => layer(page, 'data').locator(`[data-table="${table}"]`);
+  const flour = (page: Page) => card(page, 'Ingredient').locator('li', { hasText: 'All-purpose flour' }).innerText();
+  const status = (page: Page) => hero(page).getByRole('status');
+
+  test.beforeEach(async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Desktop hero; the flow is the same on phones.');
+    await page.goto('/');
+    await ready(page);
+  });
+
+  test('a sale with the stack open lights every step and lands in the data layer', async ({ page }) => {
+    await toggle(page).click();
+    const before = await flour(page);
+    await sell(page, 'Ube Cream').click();
+    await expect(lit(page)).toHaveCount(6, { timeout: 2000 });
+    await expect(layer(page, 'logic').locator('[data-stopped]')).toHaveCount(0);
+    await expect(card(page, 'Sale')).toContainText('Ube Cream');
+    expect(await flour(page)).not.toBe(before);
+    await expect(status(page)).toContainText('Underneath, the real app writes this sale and its paper trail in one transaction.');
+  });
+
+  test('three quick sales all land and the flow ends lit', async ({ page }) => {
+    await toggle(page).click();
+    for (const product of ['Classic Glazed', 'Ube Cream', 'Chocolate Dip']) await sell(page, product).click();
+    for (const product of ['Classic Glazed', 'Ube Cream', 'Chocolate Dip']) await expect(card(page, 'Sale')).toContainText(product);
+    await expect(lit(page)).toHaveCount(6);
+  });
+
+  test('a sale with the stack closed updates the dashboard and hints once', async ({ page }) => {
+    await sell(page, 'Ube Cream').click();
+    await expect(status(page)).toContainText('Sold 1 Ube Cream');
+    await expect(status(page)).not.toContainText('Underneath');
+    await expect(page.getByText(HINT)).toBeVisible();
+    await expect(toggle(page)).toHaveAccessibleDescription(HINT);
+    await expect(toggle(page)).toHaveAccessibleName(CLOSED);
+    await expect(scene(page)).toHaveAttribute('data-open', 'false');
+
+    await toggle(page).click();
+    await expect(page.getByText(HINT)).toBeHidden();
+    await toggle(page).click();
+    await sell(page, 'Classic Glazed').click();
+    await expect(status(page)).toContainText('Sold 1 Classic Glazed');
+    await expect(page.getByText(HINT)).toBeHidden();
+    await expect(toggle(page)).toHaveAccessibleDescription('');
+  });
+
+  test('a refused sale stops at the balance check and writes nothing', async ({ page }) => {
+    const glazed = sell(page, 'Classic Glazed');
+    await glazed.focus();
+    for (let i = 0; i < 65; i++) await page.keyboard.press('Enter');
+    await expect(glazed).toHaveAttribute('aria-disabled', 'true');
+
+    await toggle(page).click();
+    const before = await layer(page, 'data').innerText();
+    await glazed.focus();
+    await page.keyboard.press('Enter');
+    await expect(lit(page)).toHaveCount(4);
+    const stopped = layer(page, 'logic').locator('[data-stopped]');
+    await expect(stopped).toHaveCount(1);
+    await expect(stopped).toContainText(BALANCE_CHECK);
+    await expect(stopped).toContainText('Stopped: not enough all-purpose flour');
+    await expect(layer(page, 'data').locator('[data-written]')).toHaveCount(0);
+    expect(await layer(page, 'data').innerText()).toBe(before);
+  });
+
+  test('reset returns the data layer to the start and lights nothing', async ({ page }) => {
+    const start = await flour(page);
+    await toggle(page).click();
+    await sell(page, 'Ube Cream').click();
+    await sell(page, 'Classic Glazed').click();
+    await expect(lit(page)).toHaveCount(6);
+    await sales(page).getByRole('button', { name: 'Reset demo' }).click();
+    await expect(lit(page)).toHaveCount(0);
+    await expect(card(page, 'Sale').locator('li')).toHaveCount(0);
+    expect(await flour(page)).toBe(start);
+  });
+});
+
 test.describe('The software stack at every size', () => {
   test('with the stack open, the switch and sale buttons stay on screen at laptop sizes', async ({ page, isMobile }) => {
     test.skip(isMobile, 'Laptop heights.');

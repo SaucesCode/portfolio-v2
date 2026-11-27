@@ -37,15 +37,27 @@ export function DesignLayer() {
   );
 }
 
-/** The server's steps for one sale, by their titles, in order. */
+/**
+ * The server's steps for one sale, by their titles, in order. A recorded sale lights them one after
+ * another; a refused one stops at the step that refused it.
+ */
 export function LogicLayer({ flow }: { flow: StackFlow | null }) {
   return (
     <span className={styles.sheet}>
       <ol key={flow?.key} className={styles.steps}>
         {traceSteps.map((step, i) => (
-          <li key={step.title} className={styles.step}>
+          <li
+            key={step.title}
+            className={styles.step}
+            data-lit={i < (flow?.lit ?? 0)}
+            data-stopped={i === flow?.stoppedAt || undefined}
+            style={{ '--order': i } as CSSProperties}
+          >
             <span className={styles.number}>{String(i + 1).padStart(2, '0')}</span>
-            {step.title}
+            <span>
+              {step.title}
+              {i === flow?.stoppedAt && <span className={styles.stop}>Stopped: not enough {flow.shortOf}</span>}
+            </span>
           </li>
         ))}
       </ol>
@@ -57,28 +69,35 @@ export function LogicLayer({ flow }: { flow: StackFlow | null }) {
 export function DataLayer({ state, recent, flow }: { state: DemoState; recent: RecentSale[]; flow: StackFlow | null }) {
   return (
     <span className={styles.sheet}>
-      <span key={flow?.key} className={styles.groups}>
+      <span
+        key={flow?.key}
+        className={styles.groups}
+        data-reset={!flow || undefined}
+        style={{ '--order': flow?.lit ?? 0 } as CSSProperties}
+      >
         {tableGroups.map((group) => (
           <span key={group.name} className={styles.group}>
             <span className={styles.groupName}>{group.name}</span>
             <ul className={styles.tables}>
               {group.tables.map(({ table }) => (
-                <li key={table} data-table={table}>
+                <li key={table} data-table={table} data-written={flow?.written.includes(table) || undefined}>
                   <span className={styles.table}>{table}</span>
                   {table === 'Ingredient' && (
                     <ul className={styles.rows}>
                       {watched.map((ingredient) => (
                         <li key={ingredient.id}>
                           <span>{ingredient.name}</span>
-                          <span className={styles.value}>{formatStock(state.stock[ingredient.id], ingredient.unit)}</span>
+                          <span className={`${styles.value} ${styles.fresh}`}>{formatStock(state.stock[ingredient.id], ingredient.unit)}</span>
                         </li>
                       ))}
                     </ul>
                   )}
                   {table === 'Sale' && recent.length > 0 && (
                     <ul className={styles.rows}>
-                      {recent.map((sale) => (
-                        <li key={sale.key}>1× {sale.name}</li>
+                      {recent.map((sale, i) => (
+                        <li key={sale.key} className={i === 0 ? styles.fresh : undefined}>
+                          1× {sale.name}
+                        </li>
                       ))}
                     </ul>
                   )}

@@ -2,10 +2,11 @@
 
 import Image from 'next/image';
 import { ArrowDown } from 'lucide-react';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import dynamic from 'next/dynamic';
 import { categoryLabels, featuredSoftware, featuredWebsite, type Shot } from '@/data/projects';
 import { stylePresets, typePairs } from '@/data/thread-and-form';
+import { describeFlow, flowFor } from '@/lib/stack-flow';
 import { LiveBoundary } from './live/LiveBoundary';
 import { PhoneDemo } from './live/PhoneDemo';
 import { SaleControls } from './live/SaleControls';
@@ -91,8 +92,19 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
   const [preset, setPreset] = useState(stylePresets[0]);
   const [type, setType] = useState(typePairs[0]);
   const [liveReady, setLiveReady] = useState<Record<Discipline, boolean>>({ software: false, web: false });
-  const [announcement, setAnnouncement] = useState('');
+  // A sale's sentence is made when it is recorded, but its flow only exists once the demo has
+  // re-rendered, so the announcement keeps whether to add what happened underneath.
+  const [announcement, setAnnouncement] = useState({ text: '', underneath: false });
   const [stackOpen, setStackOpen] = useState(false);
+  const [stackOpened, setStackOpened] = useState(false);
+  const flow = useMemo(() => flowFor(demo.event), [demo.event]);
+  const announce = useCallback((text: string) => setAnnouncement({ text, underneath: false }), []);
+  const announceSale = (text: string) => setAnnouncement({ text, underneath: stackOpen });
+  const status = announcement.underneath && flow ? `${announcement.text} ${describeFlow(flow)}` : announcement.text;
+  const toggleStack = () => {
+    setStackOpen((open) => !open);
+    setStackOpened(true);
+  };
   const markSoftwareReady = useCallback(() => setLiveReady((ready) => ({ ...ready, software: true })), []);
   const markWebReady = useCallback(() => setLiveReady((ready) => ({ ...ready, web: true })), []);
 
@@ -386,12 +398,12 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
                 layers={[
                   { id: 'design', label: 'Design', offset: 1, content: <DesignLayer />, hiddenWhenClosed: true },
                   { id: 'interface', label: 'Interface', offset: 0, content: frame },
-                  { id: 'logic', label: 'Logic', offset: -1, content: <LogicLayer flow={null} /> },
+                  { id: 'logic', label: 'Logic', offset: -1, content: <LogicLayer flow={flow} /> },
                   {
                     id: 'data',
                     label: 'Data · demonstration data',
                     offset: -2,
-                    content: <DataLayer state={demo.state} recent={demo.recent} flow={null} />,
+                    content: <DataLayer state={demo.state} recent={demo.recent} flow={flow} />,
                   },
                 ]}
               />
@@ -448,17 +460,21 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
           (selected === 'software' ? (
             <>
               <span className={styles.stackToggle}>
-                <StackToggle open={stackOpen} onToggle={() => setStackOpen((open) => !open)} />
+                <StackToggle
+                  open={stackOpen}
+                  hint={!stackOpen && !stackOpened && demo.recent.length > 0}
+                  onToggle={toggleStack}
+                />
               </span>
-              <SaleControls demo={demo} announce={setAnnouncement} />
-              <PhoneDemo demo={demo} announce={setAnnouncement} />
+              <SaleControls demo={demo} announce={announceSale} />
+              <PhoneDemo demo={demo} announce={announce} />
             </>
           ) : (
-            <StyleControls preset={preset} type={type} onPreset={setPreset} onType={setType} announce={setAnnouncement} />
+            <StyleControls preset={preset} type={type} onPreset={setPreset} onType={setType} announce={announce} />
           ))}
       </div>
       <p role="status" className="sr-only">
-        {announcement}
+        {status}
       </p>
 
       <svg className={styles.thread} aria-hidden>

@@ -94,6 +94,8 @@
 }
 
 .step {
+  position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-columns: 5.5cqi 1fr;
   align-items: baseline;
@@ -107,6 +109,43 @@
   font-size: 2.8cqi;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+/*
+ * A sale on its way through: each step it reaches is marked with a band that runs out from the left
+ * edge, 120ms after the step before it. A refused sale's last step is marked in ink and says why.
+ */
+.step::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -0.5cqi -1.6cqi;
+  border-left: 0.6cqi solid var(--signal);
+  border-radius: 0.6cqi;
+  background: color-mix(in srgb, var(--signal) 13%, var(--chalk));
+  opacity: 0;
+  transform-origin: left;
+}
+
+.step[data-lit='true']::before {
+  opacity: 1;
+}
+
+.step[data-stopped]::before {
+  border-left-color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 8%, var(--chalk));
+}
+
+.stop {
+  display: block;
+  width: fit-content;
+  margin-top: 1cqi;
+  padding: 0.5cqi 1.4cqi;
+  border-radius: 0.6cqi;
+  background: var(--ink);
+  color: var(--chalk);
+  font-size: 3.6cqi;
+  font-weight: 650;
 }
 
 /* Data: the tables, in the app's groups, with the demo's rows where a sale changes them. */
@@ -144,6 +183,31 @@
   gap: 1.2cqi;
 }
 
+.tables > li {
+  position: relative;
+  isolation: isolate;
+}
+
+/* The tables a sale wrote keep a tint, after a brighter flash as the sale arrives. */
+.tables > li[data-written]::before,
+.tables > li[data-written]::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -0.6cqi -1cqi;
+  border-radius: 0.6cqi;
+}
+
+.tables > li[data-written]::before {
+  border-left: 0.6cqi solid var(--signal);
+  background: color-mix(in srgb, var(--signal) 10%, var(--chalk));
+}
+
+.tables > li[data-written]::after {
+  background: color-mix(in srgb, var(--signal) 22%, transparent);
+  opacity: 0;
+}
+
 .table {
   font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace;
   font-size: 3.3cqi;
@@ -169,4 +233,55 @@
 .value {
   color: var(--ink);
   font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Motion. A step lights 120ms after the one before it, and the data layer after the last lit step,
+ * when its new figures and row appear. A reset settles the rows back in. With reduced motion every
+ * change is made in place.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .step[data-lit='true']::before {
+    animation: band-out var(--dur-component) var(--ease-out) backwards;
+    animation-delay: calc(var(--order) * 120ms);
+  }
+
+  .stop {
+    animation: appear var(--dur-micro) var(--ease-out) backwards;
+    animation-delay: calc(var(--order) * 120ms);
+  }
+
+  .tables > li[data-written]::before,
+  [data-written] .fresh {
+    animation: appear var(--dur-component) var(--ease-out) backwards;
+    animation-delay: calc(var(--order) * 120ms);
+  }
+
+  .tables > li[data-written]::after {
+    animation: flash calc(2 * var(--dur-page)) var(--ease-out) backwards;
+    animation-delay: calc(var(--order) * 120ms);
+  }
+
+  .groups[data-reset] .rows {
+    animation: appear var(--dur-component) var(--ease-out) backwards;
+  }
+}
+
+@keyframes band-out {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes flash {
+  30% {
+    opacity: 1;
+  }
 }
