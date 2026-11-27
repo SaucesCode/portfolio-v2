@@ -3,6 +3,8 @@
  * sizes its contents in container units, so the layers scale with the window like the dashboard.
  */
 .sheet {
+  --step-delay: 120ms;
+
   container-type: inline-size;
   position: absolute;
   inset: 0;
@@ -113,7 +115,8 @@
 
 /*
  * A sale on its way through: each step it reaches is marked with a band that runs out from the left
- * edge, 120ms after the step before it. A refused sale's last step is marked in ink and says why.
+ * edge, one --step-delay after the step before it. A refused sale's last step is marked in ink and
+ * says why.
  */
 .step::before {
   content: '';
@@ -236,31 +239,92 @@
 }
 
 /*
+ * On phones each layer's name is printed in its top-left corner, so the content starts below
+ * --label-room. The sheets are drawn larger there, so the type steps up only where a line still fits.
+ */
+@media (max-width: 599.98px) {
+  .board {
+    margin-top: var(--label-room);
+  }
+
+  .steps {
+    align-content: start;
+    gap: 0.8cqi;
+    padding: var(--label-room) 5cqi 1cqi;
+  }
+
+  .step {
+    font-size: 4.3cqi;
+    line-height: 1.08;
+  }
+
+  .number {
+    font-size: 3.2cqi;
+  }
+
+  .stop {
+    margin-top: 0.5cqi;
+    padding: 0.3cqi 1.2cqi;
+    font-size: 3.2cqi;
+  }
+
+  .groups {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.65fr) minmax(0, 1.5fr);
+    gap: 2cqi;
+    padding: var(--label-room) 3cqi 1cqi;
+  }
+
+  .group {
+    gap: 1cqi;
+    padding-top: 1cqi;
+  }
+
+  .groupName {
+    font-size: 4cqi;
+  }
+
+  .tables {
+    gap: 0.8cqi;
+  }
+
+  .table {
+    font-size: 3.8cqi;
+  }
+
+  .rows {
+    gap: 0.3cqi;
+    margin-top: 0.5cqi;
+    font-size: 3.2cqi;
+    line-height: 1.05;
+  }
+}
+
+/*
  * Motion. A sale starts in the interface, where its new row pulses for one 120ms step; then each
- * step lights 120ms after the one before it, and the data layer after the last lit step, when its
- * new figures and row appear. A reset settles the rows back in. With reduced motion every
- * change is made in place.
+ * step lights one --step-delay (the same 120ms) after the one before it, and the data layer after
+ * the last lit step, when its new figures and row appear. A reset settles the rows back in. With
+ * reduced motion every change is made in place.
  */
 @media (prefers-reduced-motion: no-preference) {
   .step[data-lit='true']::before {
     animation: band-out var(--dur-component) var(--ease-out) backwards;
-    animation-delay: calc((var(--order) + 1) * 120ms);
+    animation-delay: calc((var(--order) + 1) * var(--step-delay));
   }
 
   .stop {
     animation: appear var(--dur-micro) var(--ease-out) backwards;
-    animation-delay: calc((var(--order) + 1) * 120ms);
+    animation-delay: calc((var(--order) + 1) * var(--step-delay));
   }
 
   .tables > li[data-written]::before,
   [data-written] .fresh {
     animation: appear var(--dur-component) var(--ease-out) backwards;
-    animation-delay: calc((var(--order) + 1) * 120ms);
+    animation-delay: calc((var(--order) + 1) * var(--step-delay));
   }
 
   .tables > li[data-written]::after {
     animation: flash calc(2 * var(--dur-page)) var(--ease-out) backwards;
-    animation-delay: calc((var(--order) + 1) * 120ms);
+    animation-delay: calc((var(--order) + 1) * var(--step-delay));
   }
 
   .groups[data-reset] .rows {

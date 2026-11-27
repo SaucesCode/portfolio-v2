@@ -25,21 +25,21 @@ const place = (layer: StackLayer) => ({
  */
 export function LayerStack({ layers, open, peek = false }: { layers: StackLayer[]; open: boolean; peek?: boolean }) {
   return (
-    <span className={styles.depth}>
-      <span className={styles.scene} data-stack-scene data-open={open} data-peek={peek}>
+    <div className={styles.depth}>
+      <div className={styles.scene} data-stack-scene data-open={open} data-peek={peek}>
         {layers.map((layer) => (
-          <span key={layer.id} className={styles.layer} data-layer={layer.id} {...place(layer)}>
+          <div key={layer.id} className={styles.layer} data-layer={layer.id} {...place(layer)}>
             {layer.content}
-          </span>
+          </div>
         ))}
-      </span>
-      <span className={`${styles.scene} ${styles.labels}`} data-stack-labels data-open={open} data-peek={peek}>
+      </div>
+      <div className={`${styles.scene} ${styles.labels}`} data-stack-labels data-open={open} data-peek={peek}>
         {layers.map((layer) => (
-          <span key={layer.id} className={styles.layer} data-label-for={layer.id} {...place(layer)}>
+          <div key={layer.id} className={styles.layer} data-label-for={layer.id} {...place(layer)}>
             <span className={styles.label}>{layer.label}</span>
-          </span>
+          </div>
         ))}
-      </span>
-    </span>
+      </div>
+    </div>
   );
 }

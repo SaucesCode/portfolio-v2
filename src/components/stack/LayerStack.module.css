@@ -53,6 +53,37 @@
 }
 
 /*
+ * Phones have no room beside the window, so the sheets step straight down the column: they slide
+ * along the screen's vertical within the turned plane, and by as much again in depth, which at 45°
+ * keeps each the same distance from the reader, so every sheet is drawn at the same size. The
+ * turn is shallower and the sheets larger than on a tablet, so their lines still read.
+ */
+@media (max-width: 599.98px) {
+  .scene[data-open='true'] {
+    --rx: 45deg;
+    --rz: -18deg;
+    --scale: 0.9;
+    --fan-x: calc(-1 * sin(var(--rz)));
+    --fan-y: calc(-1 * cos(var(--rz)));
+    --fan: 30cqi;
+    --gap: 30cqi;
+    --shift-x: 3cqi;
+    --shift-y: -117%;
+  }
+}
+
+/*
+ * Wider phones and small tablets have more width than height to spare, so the stack
+ * is drawn smaller.
+ */
+@media (min-width: 480px) and (max-width: 599.98px) {
+  .scene[data-open='true'] {
+    --scale: 0.72;
+    --shift-y: -90%;
+  }
+}
+
+/*
  * On desktop the hero copy steps back, so the lower sheets are dealt out to the left across the
  * hero. They slide along the screen's horizontal within the turned plane, which keeps them at
  * their depth, by as much as a turned sheet is wide (115cqi, plus what perspective takes back from
@@ -101,7 +132,7 @@
   transition:
     transform var(--dur-page) var(--ease-in-out),
     opacity var(--dur-page) var(--ease-in-out);
-  transition-delay: calc(abs(var(--offset)) * 40ms);
+  transition-delay: calc(max(var(--offset), -1 * var(--offset)) * 40ms);
   pointer-events: none;
 }
 
@@ -177,6 +208,30 @@
   background: var(--signal);
 }
 
+/*
+ * On phones there is no room for callouts, so each name is printed inside its sheet's top-left
+ * corner, lying on the sheet and sized with it. Content keeps the top --label-room of a sheet clear.
+ */
+@media (max-width: 599.98px) {
+  .layer {
+    --label-room: 12.5cqi;
+  }
+
+  .label {
+    top: 2.5cqi;
+    bottom: auto;
+    left: 3cqi;
+    padding: 0.8cqi 2cqi;
+    border-radius: 1cqi;
+    font-size: 4.6cqi;
+    transform: none;
+  }
+
+  .label::before {
+    content: none;
+  }
+}
+
 .scene[data-open='true'] .label {
   opacity: 1;
   transition:
@@ -185,16 +240,18 @@
 }
 
 /*
- * Once per visit the closed layers lift apart and settle back, to show that the stack opens. The
- * keyframes repeat the layer's own transform list with only the depth changed, so the motion
- * composes with whatever the closed layer already carries. PEEK_MS in usePeek.ts is this duration.
+ * Once per visit the closed layers lift apart and settle back, to show that the stack opens. At
+ * the gentle tilt depth alone barely shows, so the sheets under the interface also slide out past
+ * its right edge, like cards fanned from a deck. The keyframes repeat the layer's own
+ * transform list, so the motion composes with whatever the closed layer already carries. PEEK_MS
+ * in usePeek.ts is this duration.
  */
 @keyframes peek {
   50% {
     transform: translate3d(
-      calc(var(--along) * var(--fan-x)),
-      calc(var(--along) * var(--fan-y)),
-      calc(var(--offset) * 16px)
+      calc(var(--along) * var(--fan-x) - min(var(--offset), 0) * 2.5cqi),
+      calc(var(--along) * var(--fan-y) - min(var(--offset), 0) * 1.5cqi),
+      calc(var(--offset) * 40px)
     );
   }
 }
@@ -202,5 +259,42 @@
 @media (prefers-reduced-motion: no-preference) {
   .scene[data-open='false'][data-peek='true'] .layer {
     animation: peek 900ms var(--ease-in-out);
+  }
+}
+
+/*
+ * With reduced motion nothing slides or turns: the layers and labels take their places at once,
+ * and the stack fades in over --dur-micro when the page first shows it and each time it opens or
+ * closes. The fade is on the perspective box, not the scenes, because opacity below 1 on a 3D scene
+ * flattens it. The two keyframes are the same, so that changing the name with the state restarts
+ * the fade. The site-wide reduced-motion rule cuts every animation to 1ms; this one keeps its own
+ * duration over it.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .scene,
+  .layer,
+  .scene .label,
+  .scene[data-open='true'] .label {
+    transition: none;
+  }
+
+  .depth:has(> [data-open='true']) {
+    animation: swap-open var(--dur-micro) var(--ease-out) !important;
+  }
+
+  .depth:has(> [data-open='false']) {
+    animation: swap-closed var(--dur-micro) var(--ease-out) !important;
+  }
+}
+
+@keyframes swap-open {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes swap-closed {
+  from {
+    opacity: 0;
   }
 }

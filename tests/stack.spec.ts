@@ -349,3 +349,140 @@ test.describe('The one-time peek', () => {
     expect(errors).toEqual([]);
   });
 });
+
+test.describe('The stack on phones and under reduced motion', () => {
+  /** The union of the boxes the layers and their labels are drawn in, as the visitor sees them. */
+  const drawn = (page: Page) =>
+    page.evaluate(() => {
+      const boxes = [...document.querySelectorAll('[data-layer], [data-label-for] > *')].map((el) => el.getBoundingClientRect());
+      return {
+        left: Math.min(...boxes.map((b) => b.left)),
+        right: Math.max(...boxes.map((b) => b.right)),
+        top: Math.min(...boxes.map((b) => b.top)),
+        bottom: Math.max(...boxes.map((b) => b.bottom)),
+      };
+    });
+  const noOverflow = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
+  /** Brings the window to the middle of the screen, where on phones its scroll-driven unfold has finished, and lets it settle. */
+  const inView = async (page: Page) => {
+    await layer(page, 'interface').evaluate((el) => el.scrollIntoView({ block: 'center' }));
+    await settled(page);
+    await expect
+      .poll(() => page.locator('[data-id="software"]').evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).isIdentity))
+      .toBe(true);
+  };
+
+  test('under reduced motion, opening fades instead of moving', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await skipPeek(page);
+    await page.goto('/');
+    await ready(page);
+
+    const motion = () =>
+      page.evaluate(() => {
+        const parts = [...document.querySelectorAll('[data-stack-scene], [data-stack-labels], [data-layer], [data-label-for], [data-label-for] > *')];
+        return parts.flatMap((el) => {
+          const style = getComputedStyle(el);
+          const transitions = style.transitionProperty.split(', ');
+          const moving = el.getAnimations().filter((animation) =>
+            animation instanceof CSSTransition
+              ? animation.transitionProperty === 'transform'
+              : (animation.effect as KeyframeEffect).getKeyframes().some((frame) => 'transform' in frame),
+          );
+          const problems = [];
+          if (transitions.includes('transform') || transitions.includes('all')) problems.push(`transitions ${style.transitionProperty}`);
+          if (style.transitionDelay.split(', ').some((delay) => parseFloat(delay) !== 0)) problems.push(`delays ${style.transitionDelay}`);
+          if (moving.length) problems.push(`${moving.length} transform animations`);
+          return problems.map((problem) => `${el.getAttribute('data-layer') ?? el.getAttribute('data-label-for') ?? el.className}: ${problem}`);
+        });
+      });
+    const ms = (time: string) => parseFloat(time) * (time.trim().endsWith('ms') ? 1 : 1000);
+    // The fade runs on the scene's perspective box: opacity below 1 on a 3D scene would flatten it.
+    const fade = async () => {
+      const { name, duration, flat } = await scene(page).evaluate((el) => {
+        const style = getComputedStyle(el.parentElement!);
+        return { name: style.animationName, duration: style.animationDuration, flat: style.transformStyle === 'flat' };
+      });
+      expect(flat).toBe(true);
+      return { name, duration: ms(duration) };
+    };
+    const micro = ms(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--dur-micro')));
+
+    await toggle(page).click();
+    await expect(scene(page)).toHaveAttribute('data-open', 'true');
+    expect(await motion()).toEqual([]);
+    const opening = await fade();
+    expect(opening.name).not.toBe('none');
+    expect(opening.duration).toBe(micro);
+
+    await toggle(page).click();
+    await expect(scene(page)).toHaveAttribute('data-open', 'false');
+    expect(await motion()).toEqual([]);
+    const closing = await fade();
+    expect(closing.name).not.toBe('none');
+    expect(closing.name).not.toBe(opening.name);
+    expect(closing.duration).toBe(micro);
+  });
+
+  test('on phones the open stack fits the column with labels inside the layers', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'The phone layout.');
+    await skipPeek(page);
+    for (const width of [320, 375, 390]) {
+      await page.setViewportSize({ width, height: 844 });
+      await page.goto('/');
+      await ready(page);
+      await toggle(page).click();
+      await expect(scene(page)).toHaveAttribute('data-open', 'true');
+      await inView(page);
+      expect(await noOverflow(page), `overflow at ${width}px`).toBe(true);
+      // Hit-testing follows the 3D transforms, so it tells whether each corner of a label, as drawn,
+      // lies on its own sheet. The corners are found with probes placed inside the label itself.
+      await page.addStyleTag({ content: '[data-layer] { pointer-events: auto !important; }' });
+      const layers = await page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>('[data-layer]')].map((el) => {
+          const { left, right } = el.getBoundingClientRect();
+          const label = document.querySelector(`[data-label-for="${el.dataset.layer}"] > *`)!;
+          const onSheet = ['left:2px;top:2px', 'right:2px;top:2px', 'left:2px;bottom:2px', 'right:2px;bottom:2px'].every((corner) => {
+            const probe = document.createElement('i');
+            probe.style.cssText = `position:absolute;${corner};width:0;height:0`;
+            label.appendChild(probe);
+            const { x, y } = probe.getBoundingClientRect();
+            probe.remove();
+            return document.elementsFromPoint(x, y).some((hit) => el.contains(hit));
+          });
+          return { id: el.dataset.layer, left, right, onSheet };
+        }),
+      );
+      for (const { id, left, right, onSheet } of layers) {
+        expect(left, `${id} left at ${width}px`).toBeGreaterThanOrEqual(0);
+        expect(right, `${id} right at ${width}px`).toBeLessThanOrEqual(width);
+        expect(onSheet, `${id} label inside its layer at ${width}px`).toBe(true);
+      }
+      const size = await toggle(page).boundingBox();
+      expect(size!.width).toBeGreaterThanOrEqual(44);
+      expect(size!.height).toBeGreaterThanOrEqual(44);
+    }
+  });
+
+  test('resizing while open keeps the stack inside the hero', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Starts at a laptop size.');
+    await skipPeek(page);
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    await ready(page);
+    await toggle(page).click();
+    await settled(page);
+    await page.setViewportSize({ width: 375, height: 812 });
+    await inView(page);
+    expect(await noOverflow(page)).toBe(true);
+    const stack = await drawn(page);
+    const box = await hero(page).evaluate((el) => {
+      const { left, right, top, bottom } = el.getBoundingClientRect();
+      return { left, right, top, bottom };
+    });
+    expect(stack.left).toBeGreaterThanOrEqual(box.left);
+    expect(stack.right).toBeLessThanOrEqual(box.right);
+    expect(stack.top).toBeGreaterThanOrEqual(box.top);
+    expect(stack.bottom).toBeLessThanOrEqual(box.bottom);
+  });
+});

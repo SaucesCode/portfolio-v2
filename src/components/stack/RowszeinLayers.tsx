@@ -43,7 +43,7 @@ export function DesignLayer() {
  */
 export function LogicLayer({ flow }: { flow: StackFlow | null }) {
   return (
-    <span className={styles.sheet}>
+    <div className={styles.sheet}>
       <ol key={flow?.key} className={styles.steps}>
         {traceSteps.map((step, i) => (
           <li
@@ -61,22 +61,22 @@ export function LogicLayer({ flow }: { flow: StackFlow | null }) {
           </li>
         ))}
       </ol>
-    </span>
+    </div>
   );
 }
 
 /** The tables a sale is written to, grouped as the app groups them, with the demo's own rows. */
 export function DataLayer({ state, recent, flow }: { state: DemoState; recent: RecentSale[]; flow: StackFlow | null }) {
   return (
-    <span className={styles.sheet}>
-      <span
+    <div className={styles.sheet}>
+      <div
         key={flow?.key}
         className={styles.groups}
         data-reset={!flow || undefined}
         style={{ '--order': flow?.lit ?? 0 } as CSSProperties}
       >
         {tableGroups.map((group) => (
-          <span key={group.name} className={styles.group}>
+          <div key={group.name} className={styles.group}>
             <span className={styles.groupName}>{group.name}</span>
             <ul className={styles.tables}>
               {group.tables.map(({ table }) => (
@@ -104,9 +104,9 @@ export function DataLayer({ state, recent, flow }: { state: DemoState; recent: R
                 </li>
               ))}
             </ul>
-          </span>
+          </div>
         ))}
-      </span>
-    </span>
+      </div>
+    </div>
   );
 }
