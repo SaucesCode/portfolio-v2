@@ -6,7 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import dynamic from 'next/dynamic';
 import { categoryLabels, featuredSoftware, featuredWebsite, type Shot } from '@/data/projects';
 import { stylePresets, typePairs } from '@/data/thread-and-form';
-import { describeFlow, flowFor } from '@/lib/stack-flow';
+import { CLOSED_SENTENCE, describeFlow, flowFor, OPENED_SENTENCE } from '@/lib/stack-flow';
 import { LiveBoundary } from './live/LiveBoundary';
 import { PhoneDemo } from './live/PhoneDemo';
 import { SaleControls } from './live/SaleControls';
@@ -109,8 +109,9 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
   // Only a sale recorded with the stack open travels from its dashboard row; a refusal adds no row.
   const pulseKey = announcement.underneath && flow && !flow.shortOf ? flow.key : null;
   const toggleStack = () => {
-    setStackOpen((open) => !open);
+    setStackOpen(!stackOpen);
     setStackOpened(true);
+    announce(stackOpen ? CLOSED_SENTENCE : OPENED_SENTENCE);
   };
   const markSoftwareReady = useCallback(() => setLiveReady((ready) => ({ ...ready, software: true })), []);
   const markWebReady = useCallback(() => setLiveReady((ready) => ({ ...ready, web: true })), []);

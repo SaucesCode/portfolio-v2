@@ -1,6 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
 import { featuredSoftware, featuredWebsite } from '../src/data/projects';
+import { demoIngredients } from '../src/data/rowszein-demo';
 import { tableGroups, traceSteps } from '../src/data/rowszein-trace';
+import { formatStock, initialState, recordSale } from '../src/lib/rowszein-demo';
 
 const CLOSED = 'See what’s underneath';
 const OPEN = 'Put it back together';
@@ -9,6 +11,8 @@ const hero = (page: Page) => page.locator('[data-active][data-entrance]');
 const scene = (page: Page) => page.locator('[data-stack-scene]');
 const toggle = (page: Page) => page.getByRole('button', { name: new RegExp(`${CLOSED}|${OPEN}`) });
 const layer = (page: Page, id: string) => page.locator(`[data-layer="${id}"]`);
+const BALANCE_CHECK = 'Work out every new balance before writing anything';
+const balanceCheck = traceSteps.findIndex((step) => step.title === BALANCE_CHECK);
 
 async function ready(page: Page) {
   await expect(page.locator('[data-live="ready"]').first()).toBeAttached({ timeout: 10_000 });
@@ -65,10 +69,6 @@ test.describe('The software stack', () => {
     for (let i = 0; i < 5; i++) await toggle(page).click({ delay: 0 });
     await expect(toggle(page)).toHaveAccessibleName(OPEN);
     await expect(scene(page)).toHaveAttribute('data-open', 'true');
-    const pageMs = await page.evaluate(() =>
-      parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dur-page')),
-    );
-    await page.waitForTimeout(pageMs + 300);
     await settled(page);
     await expect(toggle(page)).toHaveAccessibleName(OPEN);
     await expect(scene(page)).toHaveAttribute('data-open', 'true');
@@ -119,6 +119,17 @@ test.describe('The software stack', () => {
     await expect(copy.getByRole('link', { name: 'Explore my work' })).toBeVisible();
   });
 
+  test('opening tells a screen reader what the layers show, and closing says so', async ({ page }) => {
+    const status = hero(page).getByRole('status');
+    await toggle(page).click();
+    await expect(status).toContainText('Opened into four layers');
+    for (const step of traceSteps) await expect(status).toContainText(step.title);
+    for (const { table } of tableGroups.flatMap((group) => group.tables)) await expect(status).toContainText(table);
+    await expect(status).toContainText('demonstration data');
+    await toggle(page).click();
+    await expect(status).toHaveText('Put back together.');
+  });
+
   test('the open stack names the real steps and tables', async ({ page }) => {
     await toggle(page).click();
     for (const step of traceSteps) await expect(layer(page, 'logic')).toContainText(step.title);
@@ -131,7 +142,6 @@ test.describe('The software stack', () => {
 
 test.describe('A sale through the stack', () => {
   const HINT = 'Your sale went underneath too';
-  const BALANCE_CHECK = 'Work out every new balance before writing anything';
   const sales = (page: Page) => page.getByRole('group', { name: 'Try Rowszein’s Delight' });
   const sell = (page: Page, product: string) => sales(page).getByRole('button', { name: new RegExp(`Sell 1 ${product}`) });
   const lit = (page: Page) => layer(page, 'logic').locator('[data-lit="true"]');
@@ -150,9 +160,11 @@ test.describe('A sale through the stack', () => {
     await toggle(page).click();
     const before = await flour(page);
     await sell(page, 'Ube Cream').click();
-    await expect(lit(page)).toHaveCount(6, { timeout: 2000 });
+    await expect(lit(page)).toHaveCount(traceSteps.length, { timeout: 2000 });
     await expect(layer(page, 'logic').locator('[data-stopped]')).toHaveCount(0);
-    await expect(card(page, 'Sale')).toContainText('Ube Cream');
+    await expect(card(page, 'Sale')).toContainText('₱55.00');
+    await expect(card(page, 'Sale')).not.toContainText('Ube Cream');
+    await expect(card(page, 'SaleItem')).toContainText('1× Ube Cream');
     expect(await flour(page)).not.toBe(before);
     await expect(status(page)).toContainText('Underneath, the real app writes this sale and its paper trail in one transaction.');
   });
@@ -185,8 +197,54 @@ test.describe('A sale through the stack', () => {
   test('three quick sales all land and the flow ends lit', async ({ page }) => {
     await toggle(page).click();
     for (const product of ['Classic Glazed', 'Ube Cream', 'Chocolate Dip']) await sell(page, product).click();
-    for (const product of ['Classic Glazed', 'Ube Cream', 'Chocolate Dip']) await expect(card(page, 'Sale')).toContainText(product);
-    await expect(lit(page)).toHaveCount(6);
+    for (const product of ['Classic Glazed', 'Ube Cream', 'Chocolate Dip']) await expect(card(page, 'SaleItem')).toContainText(`1× ${product}`);
+    await expect(lit(page)).toHaveCount(traceSteps.length);
+  });
+
+  test('quick sales with the stack open never blank the figures or the newest sale', async ({ page }) => {
+    let state = initialState();
+    for (const id of ['ube-cream', 'classic-glazed'] as const) {
+      const result = recordSale(state, id);
+      if (!result.ok) throw new Error(`The demo refused ${id}`);
+      state = result.state;
+    }
+    const flourIngredient = demoIngredients.find((ingredient) => ingredient.id === 'flour')!;
+    const expected = formatStock(state.stock.flour, flourIngredient.unit);
+
+    await toggle(page).click();
+    await settled(page);
+    // Samples every frame, as drawn: an element's opacity times its ancestors' within the data layer.
+    const sampling = page.evaluate(async (ms) => {
+      const data = document.querySelector('[data-layer="data"]')!;
+      const drawn = (el: Element | null | undefined) => {
+        let opacity = 1;
+        for (let node = el ?? null; node && node !== data; node = node.parentElement) opacity *= parseFloat(getComputedStyle(node).opacity);
+        return opacity;
+      };
+      const samples = [];
+      const end = performance.now() + ms;
+      while (performance.now() < end) {
+        await new Promise(requestAnimationFrame);
+        const flour = [...data.querySelectorAll('[data-table="Ingredient"] li')].find((li) => li.textContent?.includes('All-purpose flour'));
+        const sale = data.querySelector('[data-table="Sale"] li');
+        samples.push({
+          flour: flour?.lastElementChild?.textContent,
+          flourOpacity: drawn(flour?.lastElementChild),
+          sale: sale?.textContent ?? null,
+          saleOpacity: drawn(sale),
+        });
+      }
+      return samples;
+    }, 2200);
+    await sell(page, 'Ube Cream').click();
+    await page.waitForTimeout(300);
+    await sell(page, 'Classic Glazed').click();
+    const samples = await sampling;
+    for (const sample of samples) {
+      expect(sample.flourOpacity, `flour drawn at ${sample.flour}`).toBe(1);
+      if (sample.sale !== null) expect(sample.saleOpacity, `newest sale drawn at ${sample.sale}`).toBe(1);
+    }
+    expect(samples.at(-1)).toMatchObject({ flour: expected, sale: '₱35.00' });
   });
 
   test('a sale with the stack closed updates the dashboard and hints once', async ({ page }) => {
@@ -217,13 +275,14 @@ test.describe('A sale through the stack', () => {
     const before = await layer(page, 'data').innerText();
     await glazed.focus();
     await page.keyboard.press('Enter');
-    await expect(lit(page)).toHaveCount(4);
+    await expect(lit(page)).toHaveCount(balanceCheck + 1);
     const stopped = layer(page, 'logic').locator('[data-stopped]');
     await expect(stopped).toHaveCount(1);
     await expect(stopped).toContainText(BALANCE_CHECK);
     await expect(stopped).toContainText('Stopped: not enough all-purpose flour');
     await expect(layer(page, 'data').locator('[data-written]')).toHaveCount(0);
     expect(await layer(page, 'data').innerText()).toBe(before);
+    await expect(status(page)).toContainText('Underneath, the real app checks every balance first');
   });
 
   test('reset returns the data layer to the start and lights nothing', async ({ page }) => {
@@ -231,10 +290,11 @@ test.describe('A sale through the stack', () => {
     await toggle(page).click();
     await sell(page, 'Ube Cream').click();
     await sell(page, 'Classic Glazed').click();
-    await expect(lit(page)).toHaveCount(6);
+    await expect(lit(page)).toHaveCount(traceSteps.length);
     await sales(page).getByRole('button', { name: 'Reset demo' }).click();
     await expect(lit(page)).toHaveCount(0);
     await expect(card(page, 'Sale').locator('li')).toHaveCount(0);
+    await expect(card(page, 'SaleItem').locator('li')).toHaveCount(0);
     expect(await flour(page)).toBe(start);
   });
 });

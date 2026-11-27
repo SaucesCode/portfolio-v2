@@ -1,19 +1,14 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { demoProducts, type DemoIngredient, type DemoProduct } from '@/data/rowszein-demo';
-import { costPerPieceCentavos, formatPeso, initialState, lowStock, recordSale, type DemoState } from '@/lib/rowszein-demo';
+import { demoProducts, type DemoProduct } from '@/data/rowszein-demo';
+import { costPerPieceCentavos, formatPeso, initialState, lowStock, recordSale, type DemoEvent, type DemoState } from '@/lib/rowszein-demo';
 
 export interface RecentSale {
   key: number;
   name: string;
   priceCentavos: number;
 }
-
-export type DemoEvent =
-  | { key: number; kind: 'sold'; productId: DemoProduct['id'] }
-  | { key: number; kind: 'refused'; productId: DemoProduct['id']; shortOf: DemoIngredient }
-  | { key: number; kind: 'reset' };
 
 export interface RowszeinDemo {
   state: DemoState;

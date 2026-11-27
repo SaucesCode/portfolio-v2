@@ -39,6 +39,12 @@ export interface DemoState {
   expensesCentavos: number;
 }
 
+/** One call to the demo's sell or reset; its key rises on every call, refusals included. */
+export type DemoEvent =
+  | { key: number; kind: 'sold'; productId: DemoProduct['id'] }
+  | { key: number; kind: 'refused'; productId: DemoProduct['id']; shortOf: DemoIngredient }
+  | { key: number; kind: 'reset' };
+
 export function initialState(): DemoState {
   return {
     stock: Object.fromEntries(demoIngredients.map((ingredient) => [ingredient.id, toQuanta(ingredient.start)])),

@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import { demoIngredients, watchedIngredientIds } from '@/data/rowszein-demo';
 import { tableGroups, traceSteps } from '@/data/rowszein-trace';
-import { formatStock, type DemoState } from '@/lib/rowszein-demo';
+import { formatPeso, formatStock, type DemoState } from '@/lib/rowszein-demo';
 import type { StackFlow } from '@/lib/stack-flow';
 import type { RecentSale } from '../live/useRowszeinDemo';
 import palette from '../live/RowszeinPalette.module.css';
@@ -92,11 +92,11 @@ export function DataLayer({ state, recent, flow }: { state: DemoState; recent: R
                       ))}
                     </ul>
                   )}
-                  {table === 'Sale' && recent.length > 0 && (
+                  {(table === 'Sale' || table === 'SaleItem') && recent.length > 0 && (
                     <ul className={styles.rows}>
                       {recent.map((sale, i) => (
                         <li key={sale.key} className={i === 0 ? styles.fresh : undefined}>
-                          1× {sale.name}
+                          {table === 'Sale' ? formatPeso(sale.priceCentavos) : `1× ${sale.name}`}
                         </li>
                       ))}
                     </ul>

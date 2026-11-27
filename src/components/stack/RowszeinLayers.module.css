@@ -238,6 +238,22 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* A figure or row a sale has just changed. It is drawn at once; a flash behind it marks it when the sale lands. */
+.fresh {
+  position: relative;
+  isolation: isolate;
+}
+
+.fresh::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -0.3cqi -0.8cqi;
+  border-radius: 0.6cqi;
+  background: color-mix(in srgb, var(--signal) 28%, transparent);
+  opacity: 0;
+}
+
 /*
  * On phones each layer's name is printed in its top-left corner, so the content starts below
  * --label-room. The sheets are drawn larger there, so the type steps up only where a line still fits.
@@ -306,7 +322,7 @@
 /*
  * Motion. A sale starts in the interface, where its new row pulses for one 120ms step; then each
  * step lights one --step-delay (the same 120ms) after the one before it, and the data layer after
- * the last lit step, when its new figures and row appear. A reset settles the rows back in. With
+ * the last lit step, when its new figures and row flash. A reset settles the rows back in. With
  * reduced motion every change is made in place.
  */
 @media (prefers-reduced-motion: no-preference) {
@@ -320,13 +336,13 @@
     animation-delay: calc((var(--order) + 1) * var(--step-delay));
   }
 
-  .tables > li[data-written]::before,
-  [data-written] .fresh {
+  .tables > li[data-written]::before {
     animation: appear var(--dur-component) var(--ease-out) backwards;
     animation-delay: calc((var(--order) + 1) * var(--step-delay));
   }
 
-  .tables > li[data-written]::after {
+  .tables > li[data-written]::after,
+  [data-written] .fresh::after {
     animation: flash calc(2 * var(--dur-page)) var(--ease-out) backwards;
     animation-delay: calc((var(--order) + 1) * var(--step-delay));
   }

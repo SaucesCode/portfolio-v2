@@ -1,5 +1,5 @@
 import { tableGroups, traceSteps, type Table } from '@/data/rowszein-trace';
-import type { DemoEvent } from '@/components/live/useRowszeinDemo';
+import type { DemoEvent } from '@/lib/rowszein-demo';
 
 export interface StackFlow {
   key: number;
@@ -36,3 +36,13 @@ export function describeFlow(flow: StackFlow): string {
   }
   return 'Underneath, the real app writes this sale and its paper trail in one transaction.';
 }
+
+const tables = new Intl.ListFormat('en', { type: 'conjunction' }).format(tableGroups.flatMap((g) => g.tables.map((t) => t.table)));
+
+/** What the open stack shows, for screen readers, which the drawn layers are hidden from. */
+export const OPENED_SENTENCE =
+  'Opened into four layers. Design: the app’s colours, type and spacing. Interface: the live demo. ' +
+  `Logic: the steps the real app runs for a sale, in order: ${traceSteps.map((s) => s.title).join('. ')}. ` +
+  `Data: the tables those steps use, shown with demonstration data: ${tables}.`;
+
+export const CLOSED_SENTENCE = 'Put back together.';
