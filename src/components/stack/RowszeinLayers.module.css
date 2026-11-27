@@ -17,8 +17,8 @@
 }
 
 /*
- * Design: the app's palette and type on a card at the top of a faint sheet. Lifted, the card clears
- * the interface, and the rest of the sheet only tints the interface beneath it.
+ * Design: the app's palette, spacing and type on a card at the top of a faint sheet. Lifted, the
+ * card clears the interface, and the rest of the sheet only tints the interface beneath it.
  */
 .design {
   background: color-mix(in srgb, var(--rz-page) 30%, transparent);
@@ -41,8 +41,8 @@
 .swatches {
   display: grid;
   flex: 1;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 1.2cqi;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1cqi 1.2cqi;
 }
 
 .swatch {
@@ -58,6 +58,37 @@
   border-radius: 1cqi;
   background: var(--swatch);
   box-shadow: inset 0 0 0 0.15cqi color-mix(in srgb, var(--rz-ink) 18%, transparent);
+}
+
+/* Each spacing step is drawn as a square its own size, in the sheet's scale: 24px is as tall as the type sample. */
+.spacing {
+  display: grid;
+  gap: 0.8cqi;
+  font-size: 2cqi;
+  font-weight: 600;
+}
+
+.spaces {
+  display: flex;
+  align-items: end;
+  gap: 1.4cqi;
+}
+
+.space {
+  display: grid;
+  justify-items: center;
+  gap: 0.6cqi;
+  font-size: 2.4cqi;
+  font-variant-numeric: tabular-nums;
+}
+
+.space::before {
+  content: '';
+  width: calc(var(--space) * 0.25cqi);
+  aspect-ratio: 1;
+  border-radius: 0.3cqi;
+  background: color-mix(in srgb, var(--rz-accent) 18%, transparent);
+  box-shadow: inset 0 0 0 0.2cqi var(--rz-accent);
 }
 
 .type {

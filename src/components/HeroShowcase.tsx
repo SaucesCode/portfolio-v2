@@ -406,9 +406,11 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
             onClick={() => choose(id)}
           >
             {id === 'software' ? (
+              // Behind the Websites window the stack closes at once, so its sheets never sweep across the handoff.
               <LayerStack
                 open={stackOpen}
                 peek={peek}
+                instant={selected !== 'software'}
                 layers={[
                   { id: 'design', label: 'Design', offset: 1, content: <DesignLayer />, hiddenWhenClosed: true },
                   { id: 'interface', label: 'Interface', offset: 0, content: frame },

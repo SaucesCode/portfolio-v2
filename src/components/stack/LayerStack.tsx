@@ -1,4 +1,7 @@
-import type { CSSProperties, ReactNode } from 'react';
+'use client';
+
+import { useRef, type CSSProperties, type ReactNode } from 'react';
+import { usePointerTilt } from './usePointerTilt';
 import styles from './LayerStack.module.css';
 
 export interface StackLayer {
@@ -22,18 +25,37 @@ const place = (layer: StackLayer) => ({
  * The labels are drawn by a second, identical scene laid over the first: separate 3D scenes never
  * cut into each other, so no sheet can cover a label. Rules for a layer or the scene address both
  * with [data-layer='id'], [data-label-for='id'] and [data-stack-scene], [data-stack-labels].
+ * While `instant` is set, opening and closing take effect without a transition.
  */
-export function LayerStack({ layers, open, peek = false }: { layers: StackLayer[]; open: boolean; peek?: boolean }) {
+export function LayerStack({
+  layers,
+  open,
+  peek = false,
+  instant = false,
+}: {
+  layers: StackLayer[];
+  open: boolean;
+  peek?: boolean;
+  instant?: boolean;
+}) {
+  const depth = useRef<HTMLDivElement>(null);
+  usePointerTilt(depth);
   return (
-    <div className={styles.depth}>
-      <div className={styles.scene} data-stack-scene data-open={open} data-peek={peek}>
+    <div ref={depth} className={styles.depth}>
+      <div className={styles.scene} data-stack-scene data-open={open} data-peek={peek} data-instant={instant || undefined}>
         {layers.map((layer) => (
           <div key={layer.id} className={styles.layer} data-layer={layer.id} {...place(layer)}>
             {layer.content}
           </div>
         ))}
       </div>
-      <div className={`${styles.scene} ${styles.labels}`} data-stack-labels data-open={open} data-peek={peek}>
+      <div
+        className={`${styles.scene} ${styles.labels}`}
+        data-stack-labels
+        data-open={open}
+        data-peek={peek}
+        data-instant={instant || undefined}
+      >
         {layers.map((layer) => (
           <div key={layer.id} className={styles.layer} data-label-for={layer.id} {...place(layer)}>
             <span className={styles.label}>{layer.label}</span>

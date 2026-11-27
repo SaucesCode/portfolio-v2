@@ -8,9 +8,11 @@ import palette from '../live/RowszeinPalette.module.css';
 import styles from './RowszeinLayers.module.css';
 
 const swatches = ['page', 'card', 'soft', 'accent', 'plum', 'ink', 'ok', 'low'];
+/** The dashboard's own gaps and padding, in px (LiveDashboard.module.css's phone layout, 0.25rem to 1.5rem). */
+const spacing = [4, 8, 12, 16, 24];
 const watched = demoIngredients.filter((ingredient) => watchedIngredientIds.includes(ingredient.id));
 
-/** The app's own palette and type, as a translucent sheet above the interface. */
+/** The app's own palette, spacing and type, as a translucent sheet above the interface. */
 export function DesignLayer() {
   return (
     <span className={`${styles.sheet} ${styles.design} ${palette.palette}`}>
@@ -21,6 +23,16 @@ export function DesignLayer() {
               {name}
             </span>
           ))}
+        </span>
+        <span className={styles.spacing}>
+          <span className={styles.spaces}>
+            {spacing.map((px) => (
+              <span key={px} className={styles.space} data-space style={{ '--space': px } as CSSProperties}>
+                {px}
+              </span>
+            ))}
+          </span>
+          Spacing (px)
         </span>
         <span className={styles.type}>
           <span className={styles.specimen}>

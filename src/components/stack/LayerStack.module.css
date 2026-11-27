@@ -32,6 +32,19 @@
 }
 
 /*
+ * A mouse over the stack tilts it a few degrees towards the pointer (usePointerTilt). The tilt is
+ * its own property, outside the pose, so it follows the pointer with its own quicker easing.
+ */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .scene {
+    rotate: var(--tilt-axis, 0 1 0) var(--tilt, 0deg);
+    transition:
+      transform var(--dur-page) var(--ease-in-out),
+      rotate var(--dur-component) var(--ease-out);
+  }
+}
+
+/*
  * Open, the sheets lift apart in depth and also slide within the turned plane, so in the drawing
  * each one clears the one above it and every line on it can be read. Below desktop the window
  * fills the column, so the lower sheets step down their short side, towards the reader, while
@@ -248,6 +261,13 @@
   transition:
     transform var(--dur-page) var(--ease-in-out),
     opacity var(--dur-component) var(--ease-out) var(--dur-page);
+}
+
+/* Declared after every transition above, so it overrides them at the same specificity. */
+.scene[data-instant],
+.scene[data-instant] .layer,
+.scene[data-instant] .label {
+  transition: none;
 }
 
 /*

@@ -89,7 +89,19 @@ test.describe('The software stack', () => {
   test('switching to Websites closes the stack and clears the focus state', async ({ page }) => {
     await toggle(page).click();
     await expect(hero(page)).toHaveAttribute('data-stack', 'open');
+    await settled(page);
     await page.getByRole('radio', { name: new RegExp(featuredWebsite.title) }).click();
+    // The handoff flies the windows; the stack closes at once rather than sweeping its sheets across the hero.
+    const stackMotion = await page.evaluate(() =>
+      document
+        .getAnimations()
+        .filter((animation) => {
+          const target = (animation.effect as KeyframeEffect | null)?.target;
+          return target?.matches('[data-stack-scene], [data-stack-labels], [data-layer], [data-label-for], [data-label-for] > *');
+        })
+        .map((animation) => (animation instanceof CSSTransition ? animation.transitionProperty : 'animation')),
+    );
+    expect(stackMotion).toEqual([]);
     await expect(toggle(page)).toHaveCount(0);
     await expect(hero(page)).not.toHaveAttribute('data-stack', 'open');
     await expect
@@ -128,6 +140,51 @@ test.describe('The software stack', () => {
     await expect(status).toContainText('demonstration data');
     await toggle(page).click();
     await expect(status).toHaveText('Put back together.');
+  });
+
+  test('the design layer shows the app’s colours, type and spacing', async ({ page }) => {
+    await toggle(page).click();
+    const design = layer(page, 'design');
+    await expect(design).toContainText('Newsreader');
+    await expect(design).toContainText('Spacing');
+    const steps = design.locator('[data-space]');
+    await expect(steps).toHaveText(['4', '8', '12', '16', '24']);
+    const widths = await steps.evaluateAll((els) => els.map((el) => parseFloat(getComputedStyle(el, '::before').width)));
+    for (let i = 1; i < widths.length; i++) expect(widths[i], `step ${i} drawn larger than the one before`).toBeGreaterThan(widths[i - 1]);
+  });
+
+  test('a fine pointer over the stack tilts it, closed and open, and leaving sets it back', async ({ page }) => {
+    const drawn = () =>
+      layer(page, 'interface').evaluate((el) => {
+        const { left, top, right, bottom } = el.getBoundingClientRect();
+        return [left, top, right, bottom];
+      });
+    const moved = (from: number[], to: number[]) => Math.max(...from.map((value, i) => Math.abs(value - to[i])));
+    await expect
+      .poll(() => page.locator('[data-id="software"]').evaluate((el) => getComputedStyle(el).transform), { timeout: 4000 })
+      .toBe('none');
+
+    for (const open of [false, true]) {
+      if (open) await toggle(page).click();
+      await settled(page);
+      const rest = await drawn();
+      const box = (await layer(page, 'interface').boundingBox())!;
+      await page.mouse.move(box.x + box.width * 0.8, box.y + box.height * 0.2, { steps: 4 });
+      await expect.poll(async () => moved(rest, await drawn()), { message: `tilts when ${open ? 'open' : 'closed'}` }).toBeGreaterThan(2);
+      await page.mouse.move(2, 2, { steps: 4 });
+      await expect.poll(async () => moved(rest, await drawn()), { message: `settles back when ${open ? 'open' : 'closed'}` }).toBeLessThan(0.5);
+    }
+  });
+
+  test('no tilt under reduced motion', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.reload();
+    await ready(page);
+    const box = (await layer(page, 'interface').boundingBox())!;
+    await page.mouse.move(box.x + box.width * 0.8, box.y + box.height * 0.2, { steps: 4 });
+    await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+    expect(await scene(page).evaluate((el) => getComputedStyle(el).rotate)).toBe('none');
+    expect(await scene(page).evaluate((el) => el.getAnimations().length)).toBe(0);
   });
 
   test('the open stack names the real steps and tables', async ({ page }) => {
