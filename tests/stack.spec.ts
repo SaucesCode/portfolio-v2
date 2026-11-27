@@ -399,11 +399,22 @@ test.describe('The stack on phones and under reduced motion', () => {
     const ms = (time: string) => parseFloat(time) * (time.trim().endsWith('ms') ? 1 : 1000);
     // The fade runs on the scene's perspective box: opacity below 1 on a 3D scene would flatten it.
     const fade = async () => {
-      const { name, duration, flat } = await scene(page).evaluate((el) => {
+      const { name, duration, flat, fadesOpacity } = await scene(page).evaluate((el) => {
         const style = getComputedStyle(el.parentElement!);
-        return { name: style.animationName, duration: style.animationDuration, flat: style.transformStyle === 'flat' };
+        const rules = (list: CSSRuleList): CSSRule[] =>
+          [...list].flatMap((rule) => ('cssRules' in rule ? [rule, ...rules((rule as CSSGroupingRule).cssRules)] : [rule]));
+        const keyframes = [...document.styleSheets]
+          .flatMap((sheet) => rules(sheet.cssRules))
+          .find((rule): rule is CSSKeyframesRule => rule instanceof CSSKeyframesRule && rule.name === style.animationName);
+        return {
+          name: style.animationName,
+          duration: style.animationDuration,
+          flat: style.transformStyle === 'flat',
+          fadesOpacity: !!keyframes && [...keyframes.cssRules].some((frame) => (frame as CSSKeyframeRule).style.opacity !== ''),
+        };
       });
       expect(flat).toBe(true);
+      expect(fadesOpacity).toBe(true);
       return { name, duration: ms(duration) };
     };
     const micro = ms(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--dur-micro')));
@@ -461,6 +472,42 @@ test.describe('The stack on phones and under reduced motion', () => {
       const size = await toggle(page).boundingBox();
       expect(size!.width).toBeGreaterThanOrEqual(44);
       expect(size!.height).toBeGreaterThanOrEqual(44);
+    }
+  });
+
+  test('between phone and tablet sizes the open stack stays inside the hero', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Small-tablet widths.');
+    await skipPeek(page);
+    for (const [width, height] of [
+      [640, 900],
+      [700, 1000],
+    ]) {
+      await page.setViewportSize({ width, height });
+      await page.goto('/');
+      await ready(page);
+      await toggle(page).click();
+      await expect(scene(page)).toHaveAttribute('data-open', 'true');
+      await inView(page);
+      expect(await noOverflow(page), `overflow at ${width}px`).toBe(true);
+      const stack = await drawn(page);
+      const box = await hero(page).evaluate((el) => {
+        const { left, right, top, bottom } = el.getBoundingClientRect();
+        return { left, right, top, bottom };
+      });
+      expect(stack.left, `left at ${width}px`).toBeGreaterThanOrEqual(box.left);
+      expect(stack.right, `right at ${width}px`).toBeLessThanOrEqual(box.right);
+      expect(stack.top, `top at ${width}px`).toBeGreaterThanOrEqual(box.top);
+      expect(stack.bottom, `bottom at ${width}px`).toBeLessThanOrEqual(box.bottom);
+      const parts = await page.evaluate(() =>
+        [...document.querySelectorAll('[data-layer], [data-label-for] > *')].map((el) => {
+          const { left, right } = el.getBoundingClientRect();
+          return { name: el.getAttribute('data-layer') ?? el.textContent, left, right };
+        }),
+      );
+      for (const { name, left, right } of parts) {
+        expect(left, `${name} left at ${width}px`).toBeGreaterThanOrEqual(0);
+        expect(right, `${name} right at ${width}px`).toBeLessThanOrEqual(width);
+      }
     }
   });
 

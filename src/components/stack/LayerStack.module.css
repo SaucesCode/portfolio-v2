@@ -54,21 +54,23 @@
 
 /*
  * Phones have no room beside the window, so the sheets step straight down the column: they slide
- * along the screen's vertical within the turned plane, and by as much again in depth, which at 45°
- * keeps each the same distance from the reader, so every sheet is drawn at the same size. The
- * turn is shallower and the sheets larger than on a tablet, so their lines still read.
+ * along the screen's vertical within the turned plane, and back in depth by tan(--rx) as much,
+ * which keeps each the same distance from the reader, so every sheet is drawn at the same size.
+ * The turn is shallower and the sheets larger than on a tablet, so their lines still read; the
+ * stack rises over the dimmed copy to make room.
  */
 @media (max-width: 599.98px) {
   .scene[data-open='true'] {
-    --rx: 45deg;
-    --rz: -18deg;
-    --scale: 0.9;
+    --rx: 34deg;
+    --rz: -12deg;
+    --scale: 0.93;
     --fan-x: calc(-1 * sin(var(--rz)));
     --fan-y: calc(-1 * cos(var(--rz)));
-    --fan: 30cqi;
-    --gap: 30cqi;
+    --fan: 39cqi;
+    --gap: 26.3cqi;
+    --lift: 6cqi;
     --shift-x: 3cqi;
-    --shift-y: -117%;
+    --shift-y: -139%;
   }
 }
 
@@ -79,7 +81,16 @@
 @media (min-width: 480px) and (max-width: 599.98px) {
   .scene[data-open='true'] {
     --scale: 0.72;
-    --shift-y: -90%;
+    --shift-y: -108%;
+  }
+}
+
+/* Small tablets keep the tablet pose, drawn a little larger, since the column has width to spare. */
+@media (min-width: 600px) and (max-width: 767.98px) {
+  .scene[data-open='true'] {
+    --scale: 0.66;
+    --shift-x: -4cqi;
+    --shift-y: -76%;
   }
 }
 
@@ -250,7 +261,7 @@
   50% {
     transform: translate3d(
       calc(var(--along) * var(--fan-x) - min(var(--offset), 0) * 2.5cqi),
-      calc(var(--along) * var(--fan-y) - min(var(--offset), 0) * 1.5cqi),
+      calc(var(--along) * var(--fan-y)),
       calc(var(--offset) * 40px)
     );
   }

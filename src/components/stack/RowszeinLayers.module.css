@@ -269,22 +269,26 @@
   }
 
   .groups {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.65fr) minmax(0, 1.5fr);
-    gap: 2cqi;
-    padding: var(--label-room) 3cqi 1cqi;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.62fr) minmax(0, 1.38fr);
+    gap: 1.5cqi;
+    padding: var(--label-room) 2cqi 1cqi;
   }
 
   .group {
-    gap: 1cqi;
-    padding-top: 1cqi;
+    gap: 0.6cqi;
+    padding-top: 0.6cqi;
   }
 
   .groupName {
     font-size: 4cqi;
+    line-height: 1.1;
   }
 
+  /* Sized here as well as on each name, so the list's own line height scales with the sheet. */
   .tables {
-    gap: 0.8cqi;
+    gap: 0.5cqi;
+    font-size: 3.8cqi;
+    line-height: 1.1;
   }
 
   .table {
@@ -292,10 +296,10 @@
   }
 
   .rows {
-    gap: 0.3cqi;
-    margin-top: 0.5cqi;
-    font-size: 3.2cqi;
-    line-height: 1.05;
+    gap: 0.2cqi;
+    margin-top: 0.3cqi;
+    font-size: 3.6cqi;
+    line-height: 1;
   }
 }
 
