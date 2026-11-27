@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 
 const PEEK_DELAY_MS = 1000;
 const PEEK_MS = 900;
@@ -23,22 +23,56 @@ function rememberPeek() {
 }
 
 /**
- * True for PEEK_MS, PEEK_DELAY_MS after the live demo is ready, once per browser session, so
- * visitors see that the stack opens. A visitor's first action cancels it for good.
+ * True for PEEK_MS, once per browser session, so visitors see that the stack opens. It starts
+ * PEEK_DELAY_MS after the live demo is ready and the stack is on screen in a visible tab, so it is
+ * never used up unseen. A visitor's first action cancels it for good.
  */
-export function usePeek({ ready, interacted }: { ready: boolean; interacted: boolean }): boolean {
+export function usePeek({
+  ready,
+  interacted,
+  target,
+}: {
+  ready: boolean;
+  interacted: boolean;
+  target: RefObject<Element | null>;
+}): boolean {
   const [peeking, setPeeking] = useState(false);
   const acted = useRef(false);
+  const shown = useRef(false);
 
   useEffect(() => {
     if (interacted) acted.current = true;
-    if (!ready || acted.current || alreadyPeeked() || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const start = setTimeout(() => {
-      rememberPeek();
-      setPeeking(true);
-    }, PEEK_DELAY_MS);
-    return () => clearTimeout(start);
-  }, [ready, interacted]);
+    const el = target.current;
+    if (!ready || !el || acted.current || shown.current || alreadyPeeked()) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let onScreen = false;
+    let start: ReturnType<typeof setTimeout> | undefined;
+    const arm = () => {
+      clearTimeout(start);
+      if (!onScreen || document.visibilityState !== 'visible') return;
+      start = setTimeout(() => {
+        shown.current = true;
+        stop();
+        rememberPeek();
+        setPeeking(true);
+      }, PEEK_DELAY_MS);
+    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        onScreen = entry.isIntersecting;
+        arm();
+      },
+      { threshold: 0.5 },
+    );
+    const stop = () => {
+      clearTimeout(start);
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', arm);
+    };
+    observer.observe(el);
+    document.addEventListener('visibilitychange', arm);
+    return stop;
+  }, [ready, interacted, target]);
 
   useEffect(() => {
     if (!peeking) return;

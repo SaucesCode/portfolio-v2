@@ -72,7 +72,7 @@
  * The turn is shallower and the sheets larger than on a tablet, so their lines still read; the
  * stack rises over the dimmed copy to make room.
  */
-@media (max-width: 599.98px) {
+@media (max-width: 37.49rem) {
   .scene[data-open='true'] {
     --rx: 34deg;
     --rz: -12deg;
@@ -91,7 +91,7 @@
  * Wider phones and small tablets have more width than height to spare, so the stack
  * is drawn smaller.
  */
-@media (min-width: 480px) and (max-width: 599.98px) {
+@media (min-width: 30rem) and (max-width: 37.49rem) {
   .scene[data-open='true'] {
     --scale: 0.72;
     --shift-y: -108%;
@@ -99,7 +99,7 @@
 }
 
 /* Small tablets keep the tablet pose, drawn a little larger, since the column has width to spare. */
-@media (min-width: 600px) and (max-width: 767.98px) {
+@media (min-width: 37.5rem) and (max-width: 767.98px) {
   .scene[data-open='true'] {
     --scale: 0.66;
     --shift-x: -4cqi;
@@ -236,7 +236,7 @@
  * On phones there is no room for callouts, so each name is printed inside its sheet's top-left
  * corner, lying on the sheet and sized with it. Content keeps the top --label-room of a sheet clear.
  */
-@media (max-width: 599.98px) {
+@media (max-width: 37.49rem) {
   .layer {
     --label-room: 12.5cqi;
   }

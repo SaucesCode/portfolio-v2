@@ -98,9 +98,11 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
   const [announcement, setAnnouncement] = useState({ text: '', underneath: false });
   const [stackOpen, setStackOpen] = useState(false);
   const [stackOpened, setStackOpened] = useState(false);
+  const softwareWindow = useRef<HTMLDivElement | null>(null);
   const peek = usePeek({
     ready: liveReady.software,
     interacted: stackOpened || demo.event !== null || selected === 'web',
+    target: softwareWindow,
   });
   const flow = useMemo(() => flowFor(demo.event), [demo.event]);
   const announce = useCallback((text: string) => setAnnouncement({ text, underneath: false }), []);
@@ -398,6 +400,7 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
             key={id}
             ref={(node) => {
               windows.current[id] = node;
+              if (id === 'software') softwareWindow.current = node;
             }}
             className={styles.window}
             data-role={selected === id ? 'primary' : 'support'}

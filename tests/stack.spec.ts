@@ -397,6 +397,8 @@ test.describe('The software stack at every size', () => {
 test.describe('The one-time peek', () => {
   const peeking = (page: Page) => scene(page).and(page.locator('[data-peek="true"]'));
   const peekedKey = (page: Page) => page.evaluate(() => sessionStorage.getItem('stack-peeked'));
+  // The peek starts a second after the demo is ready; this is long enough to know it did not.
+  const pastPeek = (page: Page) => page.waitForTimeout(1800);
 
   test.beforeEach(({ isMobile }) => {
     test.skip(isMobile, 'Desktop hero; the peek is the same on phones.');
@@ -411,8 +413,21 @@ test.describe('The one-time peek', () => {
 
     await page.reload();
     await ready(page);
-    await page.waitForTimeout(3000);
+    await pastPeek(page);
     await expect(peeking(page)).toHaveCount(0);
+  });
+
+  test('a visit that starts below the hero keeps the peek until the stack is in view', async ({ page }) => {
+    await page.goto('/#contact');
+    await expect(page.locator('[data-live="ready"]').first()).toBeAttached({ timeout: 10_000 });
+    await expect.poll(() => page.evaluate(() => scrollY > innerHeight)).toBe(true);
+    await pastPeek(page);
+    await expect(peeking(page)).toHaveCount(0);
+    expect(await peekedKey(page)).toBeNull();
+
+    await page.locator('[data-id="software"]').scrollIntoViewIfNeeded();
+    await expect(peeking(page)).toBeAttached({ timeout: 3000 });
+    expect(await peekedKey(page)).toBe('1');
   });
 
   test('the peek lifts the closed layers apart and settles back', async ({ page }) => {
@@ -431,7 +446,7 @@ test.describe('The one-time peek', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
     await ready(page);
-    await page.waitForTimeout(3000);
+    await pastPeek(page);
     await expect(peeking(page)).toHaveCount(0);
   });
 
@@ -439,7 +454,7 @@ test.describe('The one-time peek', () => {
     await page.goto('/');
     await expect(page.locator('[data-live="ready"]').first()).toBeAttached({ timeout: 10_000 });
     await page.getByRole('radio', { name: new RegExp(featuredWebsite.title) }).click();
-    await page.waitForTimeout(3000);
+    await pastPeek(page);
     await expect(peeking(page)).toHaveCount(0);
     await expect(page.locator('[data-id="web"]')).toHaveAttribute('data-role', 'primary');
   });
@@ -448,7 +463,7 @@ test.describe('The one-time peek', () => {
     await page.goto('/');
     await ready(page);
     await page.getByRole('group', { name: 'Try Rowszein’s Delight' }).getByRole('button', { name: /Sell 1 Ube Cream/ }).click();
-    await page.waitForTimeout(3000);
+    await pastPeek(page);
     await expect(peeking(page)).toHaveCount(0);
     await expect(page.locator('[data-id="software"]')).toHaveAttribute('data-role', 'primary');
   });

@@ -289,7 +289,7 @@
  * On phones each layer's name is printed in its top-left corner, so the content starts below
  * --label-room. The sheets are drawn larger there, so the type steps up only where a line still fits.
  */
-@media (max-width: 599.98px) {
+@media (max-width: 37.49rem) {
   .board {
     margin-top: var(--label-room);
   }
