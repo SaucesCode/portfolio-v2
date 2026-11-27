@@ -36,6 +36,9 @@ export const demoIngredients: DemoIngredient[] = [
   { id: 'ube-halaya', name: 'Ube halaya', unit: 'kg', costPerUnit: '360', minimum: '2', start: '2.30' },
 ];
 
+/** The ingredients that start just above their restock level, shown by the pantry and the data layer. */
+export const watchedIngredientIds = ['flour', 'powdered-sugar', 'ube-halaya'];
+
 const dough = { flour: '1.0', 'white-sugar': '0.15', butter: '0.12', eggs: '3', milk: '0.3', yeast: '14' };
 
 export const demoProducts: DemoProduct[] = [

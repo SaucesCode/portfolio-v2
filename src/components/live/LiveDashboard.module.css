@@ -6,21 +6,11 @@
 }
 
 /*
- * The Rowszein's Delight owner panel in miniature. Colours are sampled from the captured app; every
- * size is in container units, so the panel scales with its window exactly like a screenshot.
+ * The Rowszein's Delight owner panel in miniature, in the app's own palette. Every size is in
+ * container units, so the panel scales with its window exactly like a screenshot.
  */
 .panel {
-  --rz-page: #fdf4f5;
-  --rz-card: #ffffff;
-  --rz-soft: #fbe4ec;
-  --rz-accent: #b9396a;
-  --rz-plum: #5f233c;
-  --rz-ink: #1e040f;
-  --rz-muted: color-mix(in srgb, #1e040f 58%, transparent);
-  --rz-low: #9c491d;
-  --rz-ok: #2f6b4f;
-  --rz-track: #ffe5ee;
-
+  composes: palette from './RowszeinPalette.module.css';
   height: 100%;
   display: grid;
   grid-template-columns: 19% 1fr;
@@ -235,6 +225,35 @@
   from {
     opacity: 0;
     transform: translateY(0.4cqi);
+  }
+}
+
+/*
+ * In the hero's open stack, a new sale starts its way down here: its row pulses once, one 120ms
+ * step before the logic layer's first step lights.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .recent li[data-pulse] {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .recent li[data-pulse]::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: -0.4cqi -0.8cqi;
+    border-radius: 0.6cqi;
+    background: color-mix(in srgb, var(--rz-accent) 28%, transparent);
+    opacity: 0;
+    animation: rz-pulse var(--dur-component, 240ms) cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
+@keyframes rz-pulse {
+  40% {
+    opacity: 1;
+    transform: scale(1.04);
   }
 }
 

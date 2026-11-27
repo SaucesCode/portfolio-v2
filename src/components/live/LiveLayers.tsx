@@ -30,12 +30,22 @@ function useFontsReady(): boolean {
   return ready;
 }
 
-export function SoftwareLayer({ state, recent, onReady }: { state: DemoState; recent: RecentSale[]; onReady: () => void }) {
+export function SoftwareLayer({
+  state,
+  recent,
+  pulseKey,
+  onReady,
+}: {
+  state: DemoState;
+  recent: RecentSale[];
+  pulseKey: number | null;
+  onReady: () => void;
+}) {
   const fonts = useFontsReady();
   useEffect(() => {
     if (fonts) onReady();
   }, [fonts, onReady]);
-  return <LiveDashboard state={state} recent={recent} />;
+  return <LiveDashboard state={state} recent={recent} pulseKey={pulseKey} />;
 }
 
 export function WebLayer({ preset, type, onReady }: { preset: StylePreset; type: TypePair; onReady: () => void }) {

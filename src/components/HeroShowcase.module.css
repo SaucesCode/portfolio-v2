@@ -60,6 +60,29 @@
   }
 }
 
+/*
+ * The open stack is a focus state: everything but the stack and the controls steps back, and the
+ * stack spreads over it using transforms only, so nothing reflows. The controls stay as they are.
+ */
+.headline,
+.copy,
+.thread,
+.window[data-role="support"] {
+  transition: opacity var(--dur-component) var(--ease-out);
+}
+
+.hero[data-stack="open"] :is(.headline, .copy, .thread, .window[data-role="support"]) {
+  opacity: 0.15;
+}
+
+.hero[data-stack="open"] .window[data-id="software"] {
+  z-index: 3;
+}
+
+.hero[data-stack="open"] .window[data-role="support"] {
+  pointer-events: none;
+}
+
 .controls {
   grid-column: 1 / -1;
   grid-row: 5;
@@ -76,10 +99,38 @@
 .tryRow {
   grid-column: 1 / -1;
   grid-row: 6;
+  display: grid;
+}
+
+.stackToggle {
+  justify-self: start;
+  margin-bottom: 0.75rem;
+}
+
+/*
+ * From the phone breakpoint up, the stack's button shares the sale controls' heading row, at its
+ * far end, so the row is no taller than before and the products stay on screen.
+ */
+@media (min-width: 37.5rem) {
+  .tryRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .tryRow > * {
+    grid-row: 1;
+    grid-column: 1 / -1;
+  }
+
+  .tryRow > .stackToggle {
+    z-index: 1;
+    grid-column: 2;
+    align-self: start;
+    margin-bottom: 0;
+  }
 }
 
 :global(html[data-js]) .tryRow {
-  min-height: 14.5rem;
+  min-height: 16.5rem;
   margin-top: 1rem;
 }
 

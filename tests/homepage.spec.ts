@@ -687,8 +687,8 @@ test.describe('Responsive boundaries', () => {
         const box = (el: Element) => el.getBoundingClientRect();
         const hit = (a: DOMRect, b: DOMRect) => !(a.right <= b.left + 1 || b.right <= a.left + 1 || a.bottom <= b.top + 1 || b.bottom <= a.top + 1);
         const visible = (el: Element) => box(el).width > 0 && getComputedStyle(el).display !== 'none';
-        const header = [...document.querySelectorAll('header > div > *')].filter(visible).map(box);
-        const frames = [...document.querySelectorAll('[data-role] > span:first-child')].map(box);
+        const header = [...document.querySelector('header')!.querySelectorAll(':scope > div > *')].filter(visible).map(box);
+        const frames = [...document.querySelectorAll('[data-role] > :first-child')].map(box);
         // Text inside a window (the live demos) is part of that window's picture, not page text.
         const text = [...document.querySelectorAll('#intro-title span span, #main-content > section p')]
           .filter((el) => visible(el) && !el.closest('[data-role]'))

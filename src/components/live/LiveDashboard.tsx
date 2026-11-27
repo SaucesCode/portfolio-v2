@@ -1,4 +1,4 @@
-import { demoIngredients } from "@/data/rowszein-demo";
+import { demoIngredients, watchedIngredientIds } from "@/data/rowszein-demo";
 import {
   formatPeso,
   formatStock,
@@ -18,21 +18,23 @@ const nav = [
   "Recipe costing",
   "Profit & analytics",
 ];
-const watched = ["flour", "powdered-sugar", "ube-halaya"];
 
 /**
  * A miniature of the Rowszein's Delight owner panel, drawn from live demo state. It is a picture
  * for sighted visitors (aria-hidden); the controls and their announcements carry the information.
  * The phone layout follows the real app on phones: no sidebar, one column, readable sizes.
+ * pulseKey marks the sale row a sale travelling through the hero's open stack starts from.
  */
 export function LiveDashboard({
   state,
   recent,
   layout = "desktop",
+  pulseKey = null,
 }: {
   state: DemoState;
   recent: RecentSale[];
   layout?: "desktop" | "phone";
+  pulseKey?: number | null;
 }) {
   const low = lowStock(state);
   const spent = state.expensesCentavos;
@@ -90,7 +92,7 @@ export function LiveDashboard({
                   </li>
                 )}
                 {recent.map((sale) => (
-                  <li key={sale.key} className={styles.changed}>
+                  <li key={sale.key} className={styles.changed} data-pulse={sale.key === pulseKey || undefined}>
                     <span>Just now · 1× {sale.name}</span>
                     <span>{formatPeso(sale.priceCentavos)}</span>
                   </li>
@@ -118,7 +120,7 @@ export function LiveDashboard({
               <p className={styles.label}>Pantry</p>
               <ul className={styles.meters}>
                 {demoIngredients
-                  .filter((ingredient) => watched.includes(ingredient.id))
+                  .filter((ingredient) => watchedIngredientIds.includes(ingredient.id))
                   .map((ingredient) => {
                     const quantity = state.stock[ingredient.id];
                     const minimum = toQuanta(ingredient.minimum);

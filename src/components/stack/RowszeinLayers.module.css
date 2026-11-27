@@ -1,0 +1,403 @@
+/*
+ * The sheets under and over the Rowszein's Delight interface. Each is the size of the window and
+ * sizes its contents in container units, so the layers scale with the window like the dashboard.
+ */
+.sheet {
+  --step-delay: 120ms;
+
+  container-type: inline-size;
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  border-radius: var(--radius-frame);
+  background: var(--chalk);
+  box-shadow: inset 0 0 0 1px var(--rule);
+  color: var(--ink);
+}
+
+/*
+ * Design: the app's palette, spacing and type on a card at the top of a faint sheet. Lifted, the
+ * card clears the interface, and the rest of the sheet only tints the interface beneath it.
+ */
+.design {
+  background: color-mix(in srgb, var(--rz-page) 30%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--rz-accent) 55%, transparent);
+  color: var(--rz-ink);
+}
+
+.board {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 4cqi;
+  margin: 2.5cqi;
+  padding: 2.5cqi 3cqi;
+  border-radius: 1.6cqi;
+  background: var(--rz-page);
+  box-shadow: 0 0.4cqi 1.6cqi -0.8cqi color-mix(in srgb, var(--rz-plum) 40%, transparent);
+}
+
+.swatches {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1cqi 1.2cqi;
+}
+
+.swatch {
+  display: grid;
+  gap: 0.6cqi;
+  font-size: 2cqi;
+  font-weight: 600;
+}
+
+.swatch::before {
+  content: '';
+  aspect-ratio: 1;
+  border-radius: 1cqi;
+  background: var(--swatch);
+  box-shadow: inset 0 0 0 0.15cqi color-mix(in srgb, var(--rz-ink) 18%, transparent);
+}
+
+/* Each spacing step is drawn as a square its own size, in the sheet's scale: 24px is as tall as the type sample. */
+.spacing {
+  display: grid;
+  gap: 0.8cqi;
+  font-size: 2cqi;
+  font-weight: 600;
+}
+
+.spaces {
+  display: flex;
+  align-items: end;
+  gap: 1.4cqi;
+}
+
+.space {
+  display: grid;
+  justify-items: center;
+  gap: 0.6cqi;
+  font-size: 2.4cqi;
+  font-variant-numeric: tabular-nums;
+}
+
+.space::before {
+  content: '';
+  width: calc(var(--space) * 0.25cqi);
+  aspect-ratio: 1;
+  border-radius: 0.3cqi;
+  background: color-mix(in srgb, var(--rz-accent) 18%, transparent);
+  box-shadow: inset 0 0 0 0.2cqi var(--rz-accent);
+}
+
+.type {
+  display: flex;
+  gap: 3cqi;
+}
+
+.specimen {
+  display: grid;
+  font-size: 2cqi;
+  font-weight: 600;
+}
+
+.serif,
+.sans {
+  font-size: 6cqi;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.serif {
+  font-family: var(--font-newsreader), Georgia, serif;
+}
+
+.sans {
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/* Logic: the six steps of one sale on the server, large enough to read on the tilted sheet. */
+.steps {
+  display: grid;
+  height: 100%;
+  align-content: center;
+  gap: 1.8cqi;
+  padding: 3cqi 5.5cqi 10cqi;
+}
+
+.step {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 5.5cqi 1fr;
+  align-items: baseline;
+  font-size: 3.8cqi;
+  font-weight: 550;
+  line-height: 1.2;
+}
+
+.number {
+  color: var(--graphite);
+  font-size: 2.8cqi;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * A sale on its way through: each step it reaches is marked with a band that runs out from the left
+ * edge, one --step-delay after the step before it. A refused sale's last step is marked in ink and
+ * says why.
+ */
+.step::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -0.5cqi -1.6cqi;
+  border-left: 0.6cqi solid var(--signal);
+  border-radius: 0.6cqi;
+  background: color-mix(in srgb, var(--signal) 13%, var(--chalk));
+  opacity: 0;
+  transform-origin: left;
+}
+
+.step[data-lit='true']::before {
+  opacity: 1;
+}
+
+.step[data-stopped]::before {
+  border-left-color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 8%, var(--chalk));
+}
+
+.stop {
+  display: block;
+  width: fit-content;
+  margin-top: 1cqi;
+  padding: 0.5cqi 1.4cqi;
+  border-radius: 0.6cqi;
+  background: var(--ink);
+  color: var(--chalk);
+  font-size: 3.6cqi;
+  font-weight: 650;
+}
+
+/* Data: the tables, in the app's groups, with the demo's rows where a sale changes them. */
+.groups {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.6fr) minmax(0, 1.3fr);
+  align-items: start;
+  gap: 2.4cqi;
+  height: 100%;
+  padding: 10cqi 8cqi 2cqi 3cqi;
+  line-height: 1.2;
+}
+
+/* Below desktop the stack's callouts stand lower, so the columns start lower to stay clear of the tab. */
+@media (max-width: 1023px) {
+  .groups {
+    padding-top: 13cqi;
+  }
+}
+
+.group {
+  display: grid;
+  gap: 1.6cqi;
+  padding-top: 1.6cqi;
+  border-top: 1px solid var(--rule);
+}
+
+.groupName {
+  font-size: 3.6cqi;
+  font-weight: 650;
+}
+
+.tables {
+  display: grid;
+  gap: 1.2cqi;
+}
+
+.tables > li {
+  position: relative;
+  isolation: isolate;
+}
+
+/* The tables a sale wrote keep a tint, after a brighter flash as the sale arrives. */
+.tables > li[data-written]::before,
+.tables > li[data-written]::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -0.6cqi -1cqi;
+  border-radius: 0.6cqi;
+}
+
+.tables > li[data-written]::before {
+  border-left: 0.6cqi solid var(--signal);
+  background: color-mix(in srgb, var(--signal) 10%, var(--chalk));
+}
+
+.tables > li[data-written]::after {
+  background: color-mix(in srgb, var(--signal) 22%, transparent);
+  opacity: 0;
+}
+
+.table {
+  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace;
+  font-size: 3.3cqi;
+}
+
+.rows {
+  display: grid;
+  gap: 0.6cqi;
+  margin-top: 0.8cqi;
+  padding-left: 1.4cqi;
+  border-left: 1px solid var(--rule);
+  color: var(--graphite);
+  font-size: 3.4cqi;
+}
+
+.rows li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: 1cqi;
+}
+
+.value {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A figure or row a sale has just changed. It is drawn at once; a flash behind it marks it when the sale lands. */
+.fresh {
+  position: relative;
+  isolation: isolate;
+}
+
+.fresh::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -0.3cqi -0.8cqi;
+  border-radius: 0.6cqi;
+  background: color-mix(in srgb, var(--signal) 28%, transparent);
+  opacity: 0;
+}
+
+/*
+ * On phones each layer's name is printed in its top-left corner, so the content starts below
+ * --label-room. The sheets are drawn larger there, so the type steps up only where a line still fits.
+ */
+@media (max-width: 37.49rem) {
+  .board {
+    margin-top: var(--label-room);
+  }
+
+  .steps {
+    align-content: start;
+    gap: 0.8cqi;
+    padding: var(--label-room) 5cqi 1cqi;
+  }
+
+  .step {
+    font-size: 4.3cqi;
+    line-height: 1.08;
+  }
+
+  .number {
+    font-size: 3.2cqi;
+  }
+
+  .stop {
+    margin-top: 0.5cqi;
+    padding: 0.3cqi 1.2cqi;
+    font-size: 3.2cqi;
+  }
+
+  .groups {
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.62fr) minmax(0, 1.38fr);
+    gap: 1.5cqi;
+    padding: var(--label-room) 2cqi 1cqi;
+  }
+
+  .group {
+    gap: 0.6cqi;
+    padding-top: 0.6cqi;
+  }
+
+  .groupName {
+    font-size: 4cqi;
+    line-height: 1.1;
+  }
+
+  /* Sized here as well as on each name, so the list's own line height scales with the sheet. */
+  .tables {
+    gap: 0.5cqi;
+    font-size: 3.8cqi;
+    line-height: 1.1;
+  }
+
+  .table {
+    font-size: 3.8cqi;
+  }
+
+  .rows {
+    gap: 0.2cqi;
+    margin-top: 0.3cqi;
+    font-size: 3.6cqi;
+    line-height: 1;
+  }
+}
+
+/*
+ * Motion. A sale starts in the interface, where its new row pulses for one 120ms step; then each
+ * step lights one --step-delay (the same 120ms) after the one before it, and the data layer after
+ * the last lit step, when its new figures and row flash. A reset settles the rows back in. With
+ * reduced motion every change is made in place.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .step[data-lit='true']::before {
+    animation: band-out var(--dur-component) var(--ease-out) backwards;
+    animation-delay: calc((var(--order) + 1) * var(--step-delay));
+  }
+
+  .stop {
+    animation: appear var(--dur-micro) var(--ease-out) backwards;
+    animation-delay: calc((var(--order) + 1) * var(--step-delay));
+  }
+
+  .tables > li[data-written]::before {
+    animation: appear var(--dur-component) var(--ease-out) backwards;
+    animation-delay: calc((var(--order) + 1) * var(--step-delay));
+  }
+
+  .tables > li[data-written]::after,
+  [data-written] .fresh::after {
+    animation: flash calc(2 * var(--dur-page)) var(--ease-out) backwards;
+    animation-delay: calc((var(--order) + 1) * var(--step-delay));
+  }
+
+  .groups[data-reset] .rows {
+    animation: appear var(--dur-component) var(--ease-out) backwards;
+  }
+}
+
+@keyframes band-out {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes flash {
+  30% {
+    opacity: 1;
+  }
+}

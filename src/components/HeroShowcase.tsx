@@ -2,16 +2,21 @@
 
 import Image from 'next/image';
 import { ArrowDown } from 'lucide-react';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import dynamic from 'next/dynamic';
 import { categoryLabels, featuredSoftware, featuredWebsite, type Shot } from '@/data/projects';
 import { stylePresets, typePairs } from '@/data/thread-and-form';
+import { CLOSED_SENTENCE, describeFlow, flowFor, OPENED_SENTENCE } from '@/lib/stack-flow';
 import { LiveBoundary } from './live/LiveBoundary';
 import { PhoneDemo } from './live/PhoneDemo';
 import { SaleControls } from './live/SaleControls';
 import { StyleControls } from './live/StyleControls';
 import { useIdleMount } from './live/useIdleMount';
 import { useRowszeinDemo } from './live/useRowszeinDemo';
+import { LayerStack } from './stack/LayerStack';
+import { DataLayer, DesignLayer, LogicLayer } from './stack/RowszeinLayers';
+import { StackToggle } from './stack/StackToggle';
+import { usePeek } from './stack/usePeek';
 import { HERO_FOCUS_EVENT, takeHeroFocus } from './ask/actions';
 import styles from './HeroShowcase.module.css';
 
@@ -88,7 +93,28 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
   const [preset, setPreset] = useState(stylePresets[0]);
   const [type, setType] = useState(typePairs[0]);
   const [liveReady, setLiveReady] = useState<Record<Discipline, boolean>>({ software: false, web: false });
-  const [announcement, setAnnouncement] = useState('');
+  // A sale's sentence is made when it is recorded, but its flow only exists once the demo has
+  // re-rendered, so the announcement keeps whether to add what happened underneath.
+  const [announcement, setAnnouncement] = useState({ text: '', underneath: false });
+  const [stackOpen, setStackOpen] = useState(false);
+  const [stackOpened, setStackOpened] = useState(false);
+  const softwareWindow = useRef<HTMLDivElement | null>(null);
+  const peek = usePeek({
+    ready: liveReady.software,
+    interacted: stackOpened || demo.event !== null || selected === 'web',
+    target: softwareWindow,
+  });
+  const flow = useMemo(() => flowFor(demo.event), [demo.event]);
+  const announce = useCallback((text: string) => setAnnouncement({ text, underneath: false }), []);
+  const announceSale = (text: string) => setAnnouncement({ text, underneath: stackOpen });
+  const status = announcement.underneath && flow ? `${announcement.text} ${describeFlow(flow)}` : announcement.text;
+  // Only a sale recorded with the stack open travels from its dashboard row; a refusal adds no row.
+  const pulseKey = announcement.underneath && flow && !flow.shortOf ? flow.key : null;
+  const toggleStack = () => {
+    setStackOpen(!stackOpen);
+    setStackOpened(true);
+    announce(stackOpen ? CLOSED_SENTENCE : OPENED_SENTENCE);
+  };
   const markSoftwareReady = useCallback(() => setLiveReady((ready) => ({ ...ready, software: true })), []);
   const markWebReady = useCallback(() => setLiveReady((ready) => ({ ...ready, web: true })), []);
 
@@ -173,6 +199,7 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
     for (const id of order) rects[id] = windows.current[id]!.getBoundingClientRect();
     firstRects.current = rects;
     rootRef.current?.setAttribute('data-touched', '');
+    setStackOpen(false);
     setSelected(next);
   };
 
@@ -298,7 +325,13 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div ref={rootRef} className={styles.hero} data-active={selected} data-entrance>
+    <div
+      ref={rootRef}
+      className={styles.hero}
+      data-active={selected}
+      data-stack={selected === 'software' ? (stackOpen ? 'open' : 'closed') : undefined}
+      data-entrance
+    >
       <script dangerouslySetInnerHTML={{ __html: EARLY_PICK }} />
       <h1 id="intro-title" className={styles.headline}>
         {order.map((id) => (
@@ -315,15 +348,59 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
         ))}
       </h1>
 
-      <div className={styles.copy}>{children}</div>
+      {/* While the stack is open the copy is dimmed and partly under the sheets, so it leaves the tab order. */}
+      <div className={styles.copy} inert={selected === 'software' && stackOpen}>
+        {children}
+      </div>
 
       {order.map((id) => {
         const artifact = artifacts[id];
+        const frame = (
+          <span className={styles.frame}>
+            <Image
+              src={artifact.shot.src}
+              width={artifact.shot.width}
+              height={artifact.shot.height}
+              sizes="(min-width: 1024px) 46vw, 92vw"
+              alt=""
+              loading="eager"
+              fetchPriority={id === 'software' ? 'high' : 'auto'}
+              draggable={false}
+            />
+            {idle && (
+              <span
+                className={styles.live}
+                data-live={liveReady[id] ? 'ready' : 'loading'}
+                data-live-id={id}
+                inert={selected !== id}
+              >
+                <LiveBoundary>
+                  {id === 'software' ? (
+                    <SoftwareLayer
+                      state={demo.state}
+                      recent={demo.recent}
+                      pulseKey={pulseKey}
+                      onReady={markSoftwareReady}
+                    />
+                  ) : (
+                    <WebLayer preset={preset} type={type} onReady={markWebReady} />
+                  )}
+                </LiveBoundary>
+              </span>
+            )}
+            {liveReady[id] ? (
+              <span className={styles.demo}>Live demo · sample data, running in your browser</span>
+            ) : (
+              id === 'software' && <span className={styles.demo}>Demonstration data</span>
+            )}
+          </span>
+        );
         return (
           <div
             key={id}
             ref={(node) => {
               windows.current[id] = node;
+              if (id === 'software') softwareWindow.current = node;
             }}
             className={styles.window}
             data-role={selected === id ? 'primary' : 'support'}
@@ -331,39 +408,27 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
             aria-hidden
             onClick={() => choose(id)}
           >
-            <span className={styles.frame}>
-              <Image
-                src={artifact.shot.src}
-                width={artifact.shot.width}
-                height={artifact.shot.height}
-                sizes="(min-width: 1024px) 46vw, 92vw"
-                alt=""
-                loading="eager"
-                fetchPriority={id === 'software' ? 'high' : 'auto'}
-                draggable={false}
+            {id === 'software' ? (
+              // Behind the Websites window the stack closes at once, so its sheets never sweep across the handoff.
+              <LayerStack
+                open={stackOpen}
+                peek={peek}
+                instant={selected !== 'software'}
+                layers={[
+                  { id: 'design', label: 'Design', offset: 1, content: <DesignLayer />, hiddenWhenClosed: true },
+                  { id: 'interface', label: 'Interface', offset: 0, content: frame },
+                  { id: 'logic', label: 'Logic', offset: -1, content: <LogicLayer flow={flow} /> },
+                  {
+                    id: 'data',
+                    label: 'Data · demonstration data',
+                    offset: -2,
+                    content: <DataLayer state={demo.state} recent={demo.recent} flow={flow} />,
+                  },
+                ]}
               />
-              {idle && (
-                <span
-                  className={styles.live}
-                  data-live={liveReady[id] ? 'ready' : 'loading'}
-                  data-live-id={id}
-                  inert={selected !== id}
-                >
-                  <LiveBoundary>
-                    {id === 'software' ? (
-                      <SoftwareLayer state={demo.state} recent={demo.recent} onReady={markSoftwareReady} />
-                    ) : (
-                      <WebLayer preset={preset} type={type} onReady={markWebReady} />
-                    )}
-                  </LiveBoundary>
-                </span>
-              )}
-              {liveReady[id] ? (
-                <span className={styles.demo}>Live demo · sample data, running in your browser</span>
-              ) : (
-                id === 'software' && <span className={styles.demo}>Demonstration data</span>
-              )}
-            </span>
+            ) : (
+              frame
+            )}
             <span className={styles.tag}>{artifact.label}</span>
             {/* Registration marks: the corners a printer lines up before the work is trimmed. */}
             <span className={styles.marks} aria-hidden>
@@ -413,15 +478,22 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
         {liveReady[selected] &&
           (selected === 'software' ? (
             <>
-              <SaleControls demo={demo} announce={setAnnouncement} />
-              <PhoneDemo demo={demo} announce={setAnnouncement} />
+              <span className={styles.stackToggle}>
+                <StackToggle
+                  open={stackOpen}
+                  hint={!stackOpen && !stackOpened && demo.recent.length > 0}
+                  onToggle={toggleStack}
+                />
+              </span>
+              <SaleControls demo={demo} announce={announceSale} />
+              <PhoneDemo demo={demo} announce={announce} />
             </>
           ) : (
-            <StyleControls preset={preset} type={type} onPreset={setPreset} onType={setType} announce={setAnnouncement} />
+            <StyleControls preset={preset} type={type} onPreset={setPreset} onType={setType} announce={announce} />
           ))}
       </div>
       <p role="status" className="sr-only">
-        {announcement}
+        {status}
       </p>
 
       <svg className={styles.thread} aria-hidden>

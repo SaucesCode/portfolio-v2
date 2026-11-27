@@ -1,0 +1,333 @@
+/*
+ * The exploded stack. At rest the layers lie almost together under a gentle tilt, so only their
+ * edges show, like a slab. Open, the scene turns to the isometric angle of a drawing on a drafting
+ * table and the layers come apart. Both states share one transform list, so every angle
+ * interpolates on its own; the perspective stays fixed.
+ */
+.depth {
+  container-type: inline-size;
+  display: block;
+  perspective: 1600px;
+}
+
+.scene {
+  --spread: 3px;
+  --fan: 0px;
+  --fan-x: 1;
+  --fan-y: 0;
+  --lift: 0px;
+  --shift-x: 0px;
+  --shift-y: 0%;
+  --scale: 1;
+  --rx: 9deg;
+  --ry: -11deg;
+  --rz: 0deg;
+
+  position: relative;
+  display: block;
+  transform-style: preserve-3d;
+  transform: translate(var(--shift-x), var(--shift-y)) scale(var(--scale)) rotateX(var(--rx)) rotateY(var(--ry))
+    rotateZ(var(--rz));
+  transition: transform var(--dur-page) var(--ease-in-out);
+}
+
+/*
+ * A mouse over the stack tilts it a few degrees towards the pointer (usePointerTilt). The tilt is
+ * its own property, outside the pose, so it follows the pointer with its own quicker easing.
+ */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .scene {
+    rotate: var(--tilt-axis, 0 1 0) var(--tilt, 0deg);
+    transition:
+      transform var(--dur-page) var(--ease-in-out),
+      rotate var(--dur-component) var(--ease-out);
+  }
+}
+
+/*
+ * Open, the sheets lift apart in depth and also slide within the turned plane, so in the drawing
+ * each one clears the one above it and every line on it can be read. Below desktop the window
+ * fills the column, so the lower sheets step down their short side, towards the reader, while
+ * --gap carries them back a little further, so each stays behind the sheet above it: the stack
+ * runs down the column from the dimmed copy.
+ */
+.scene[data-open='true'] {
+  --spread: var(--gap);
+  --rx: 50deg;
+  --ry: 0deg;
+  --rz: -30deg;
+  --scale: 0.6;
+  --fan-x: 0;
+  --fan-y: -1;
+  --fan: 27cqi;
+  --gap: 34cqi;
+  --shift-x: -8cqi;
+  --shift-y: -70%;
+}
+
+/*
+ * Phones have no room beside the window, so the sheets step straight down the column: they slide
+ * along the screen's vertical within the turned plane, and back in depth by tan(--rx) as much,
+ * which keeps each the same distance from the reader, so every sheet is drawn at the same size.
+ * The turn is shallower and the sheets larger than on a tablet, so their lines still read; the
+ * stack rises over the dimmed copy to make room.
+ */
+@media (max-width: 37.49rem) {
+  .scene[data-open='true'] {
+    --rx: 34deg;
+    --rz: -12deg;
+    --scale: 0.93;
+    --fan-x: calc(-1 * sin(var(--rz)));
+    --fan-y: calc(-1 * cos(var(--rz)));
+    --fan: 39cqi;
+    --gap: 26.3cqi;
+    --lift: 6cqi;
+    --shift-x: 3cqi;
+    --shift-y: -139%;
+  }
+}
+
+/*
+ * Wider phones and small tablets have more width than height to spare, so the stack
+ * is drawn smaller.
+ */
+@media (min-width: 30rem) and (max-width: 37.49rem) {
+  .scene[data-open='true'] {
+    --scale: 0.72;
+    --shift-y: -108%;
+  }
+}
+
+/* Small tablets keep the tablet pose, drawn a little larger, since the column has width to spare. */
+@media (min-width: 37.5rem) and (max-width: 767.98px) {
+  .scene[data-open='true'] {
+    --scale: 0.66;
+    --shift-x: -4cqi;
+    --shift-y: -76%;
+  }
+}
+
+/*
+ * On desktop the hero copy steps back, so the lower sheets are dealt out to the left across the
+ * hero. They slide along the screen's horizontal within the turned plane, which keeps them at
+ * their depth, by as much as a turned sheet is wide (115cqi, plus what perspective takes back from
+ * the deeper sheets) less what the drop in depth already clears. That allowance stops growing past
+ * a 72px gap: on wider screens it overtook the clearance and the data sheet's ledger ran into the
+ * logic sheet. The design sheet lifts up and a little to the right, and the scene shifts left so it
+ * ends inside the window's edge.
+ */
+@media (min-width: 1024px) {
+  .scene[data-open='true'] {
+    --scale: 0.82;
+    --fan-x: cos(var(--rz));
+    --fan-y: calc(-1 * sin(var(--rz)));
+    --gap: clamp(56px, 7vw, 120px);
+    --fan: calc(122cqi - 0.69 * min(var(--gap), 72px));
+    --lift: 10cqi;
+    --shift-x: calc(47cqi - var(--scale) * (60cqi + var(--lift)));
+    --shift-y: -26%;
+  }
+}
+
+/* Taller screens give the window more width than three sheets have room for, so the stack is drawn smaller. */
+@media (min-width: 1024px) and (min-height: 840px) {
+  .scene[data-open='true'] {
+    --scale: 0.7;
+  }
+}
+
+@media (min-width: 1024px) and (min-height: 940px) {
+  .scene[data-open='true'] {
+    --scale: 0.58;
+  }
+}
+
+/* Each layer slides by --along in the turned plane, in the direction (--fan-x, --fan-y), then apart in depth. */
+.layer {
+  --along: calc(min(var(--offset), 0) * var(--fan) + max(var(--offset), 0) * var(--lift));
+
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform-style: preserve-3d;
+  transform: translate3d(
+    calc(var(--along) * var(--fan-x)),
+    calc(var(--along) * var(--fan-y)),
+    calc(var(--offset) * var(--spread))
+  );
+  transition:
+    transform var(--dur-page) var(--ease-in-out),
+    opacity var(--dur-page) var(--ease-in-out);
+  transition-delay: calc(max(var(--offset), -1 * var(--offset)) * 40ms);
+  pointer-events: none;
+}
+
+.layer[data-base] {
+  position: relative;
+  pointer-events: auto;
+}
+
+.scene[data-open='false'] .layer[data-hidden-when-closed] {
+  opacity: 0;
+}
+
+.labels,
+.labels .layer[data-base] {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/*
+ * Each layer's name, as a callout: a tab standing on a leader line from the layer's top-left
+ * corner, clear of the sheet. The tab undoes the scene's rotation and scale, so it faces the reader
+ * at full size instead of lying foreshortened on the sheet.
+ */
+.label {
+  --leader: 2.75rem;
+
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--chalk);
+  color: var(--ink);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  transform-origin: 0 100%;
+  transform: rotateZ(calc(-1 * var(--rz))) rotateY(calc(-1 * var(--ry))) rotateX(calc(-1 * var(--rx)))
+    scale(calc(1 / var(--scale))) translateY(calc(-1 * var(--leader)));
+  opacity: 0;
+  transition:
+    transform var(--dur-page) var(--ease-in-out),
+    opacity var(--dur-micro) var(--ease-in);
+}
+
+/* Below desktop the sheets sit closer together, so the leader is shorter and the tab stays off the sheet above. */
+@media (max-width: 1023px) {
+  .label {
+    --leader: 1rem;
+  }
+}
+
+.label::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: -1px;
+  width: 1px;
+  height: var(--leader);
+  background: var(--graphite);
+}
+
+.layer[data-base] > .label {
+  border-color: transparent;
+  background: var(--signal);
+  color: var(--signal-ink);
+}
+
+.layer[data-base] > .label::before {
+  background: var(--signal);
+}
+
+/*
+ * On phones there is no room for callouts, so each name is printed inside its sheet's top-left
+ * corner, lying on the sheet and sized with it. Content keeps the top --label-room of a sheet clear.
+ */
+@media (max-width: 37.49rem) {
+  .layer {
+    --label-room: 12.5cqi;
+  }
+
+  .label {
+    top: 2.5cqi;
+    bottom: auto;
+    left: 3cqi;
+    padding: 0.8cqi 2cqi;
+    border-radius: 1cqi;
+    font-size: 4.6cqi;
+    transform: none;
+  }
+
+  .label::before {
+    content: none;
+  }
+}
+
+.scene[data-open='true'] .label {
+  opacity: 1;
+  transition:
+    transform var(--dur-page) var(--ease-in-out),
+    opacity var(--dur-component) var(--ease-out) var(--dur-page);
+}
+
+/* Declared after every transition above, so it overrides them at the same specificity. */
+.scene[data-instant],
+.scene[data-instant] .layer,
+.scene[data-instant] .label {
+  transition: none;
+}
+
+/*
+ * Once per visit the closed layers lift apart and settle back, to show that the stack opens. At
+ * the gentle tilt depth alone barely shows, so the sheets under the interface also slide out past
+ * its right edge, like cards fanned from a deck. The keyframes repeat the layer's own
+ * transform list, so the motion composes with whatever the closed layer already carries. PEEK_MS
+ * in usePeek.ts is this duration.
+ */
+@keyframes peek {
+  50% {
+    transform: translate3d(
+      calc(var(--along) * var(--fan-x) - min(var(--offset), 0) * 2.5cqi),
+      calc(var(--along) * var(--fan-y)),
+      calc(var(--offset) * 40px)
+    );
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .scene[data-open='false'][data-peek='true'] .layer {
+    animation: peek 900ms var(--ease-in-out);
+  }
+}
+
+/*
+ * With reduced motion nothing slides or turns: the layers and labels take their places at once,
+ * and the stack fades in over --dur-micro when the page first shows it and each time it opens or
+ * closes. The fade is on the perspective box, not the scenes, because opacity below 1 on a 3D scene
+ * flattens it. The two keyframes are the same, so that changing the name with the state restarts
+ * the fade. The site-wide reduced-motion rule cuts every animation to 1ms; this one keeps its own
+ * duration over it.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .scene,
+  .layer,
+  .scene .label,
+  .scene[data-open='true'] .label {
+    transition: none;
+  }
+
+  .depth:has(> [data-open='true']) {
+    animation: swap-open var(--dur-micro) var(--ease-out) !important;
+  }
+
+  .depth:has(> [data-open='false']) {
+    animation: swap-closed var(--dur-micro) var(--ease-out) !important;
+  }
+}
+
+@keyframes swap-open {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes swap-closed {
+  from {
+    opacity: 0;
+  }
+}
