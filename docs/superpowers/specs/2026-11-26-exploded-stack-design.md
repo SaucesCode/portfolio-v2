@@ -85,7 +85,7 @@ The Thread & Form window gets its own stack with the same component. Draft layer
 
 ### Phones
 
-Below 768 px the stack is smaller and less tilted. It opens only through the button, with no scroll-driven opening, and the labels sit inside each layer instead of beside it. The full-screen phone demo (`PhoneDemo`) is unchanged.
+Below 600 px the stack is smaller and less tilted. (Amended during the build: from 600 to 767 px the tablet pose, which steps down the column with callout labels, fits and reads; the phone pose there would be about 930 px tall. That range is covered by its own overflow and containment checks.) It opens only through the button, with no scroll-driven opening, and the labels sit inside each layer instead of beside it. The full-screen phone demo (`PhoneDemo`) is unchanged.
 
 ### Across the site (phase 2 and 3)
 
