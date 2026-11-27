@@ -20,9 +20,13 @@ async function settled(page: Page) {
   await expect.poll(() => scene(page).evaluate((el) => el.getAnimations({ subtree: true }).length)).toBe(0);
 }
 
+/** Marks the peek as already shown this session, so tests that are not about it see the stack at rest. */
+const skipPeek = (page: Page) => page.addInitScript(() => sessionStorage.setItem('stack-peeked', '1'));
+
 test.describe('The software stack', () => {
   test.beforeEach(async ({ page, isMobile }) => {
     test.skip(isMobile, 'Desktop hero; phones are covered by the overflow check below.');
+    await skipPeek(page);
     await page.goto('/');
     await ready(page);
   });
@@ -137,6 +141,7 @@ test.describe('A sale through the stack', () => {
 
   test.beforeEach(async ({ page, isMobile }) => {
     test.skip(isMobile, 'Desktop hero; the flow is the same on phones.');
+    await skipPeek(page);
     await page.goto('/');
     await ready(page);
   });
@@ -237,6 +242,7 @@ test.describe('A sale through the stack', () => {
 test.describe('The software stack at every size', () => {
   test('with the stack open, the switch and sale buttons stay on screen at laptop sizes', async ({ page, isMobile }) => {
     test.skip(isMobile, 'Laptop heights.');
+    await skipPeek(page);
     for (const [width, height] of [
       [1024, 768],
       [1280, 720],
@@ -259,6 +265,7 @@ test.describe('The software stack at every size', () => {
   });
 
   test('no horizontal overflow with the stack open', async ({ page }) => {
+    await skipPeek(page);
     for (const width of [320, 375, 768, 1280, 1440]) {
       await page.setViewportSize({ width, height: 800 });
       await page.goto('/');
@@ -267,5 +274,78 @@ test.describe('The software stack at every size', () => {
       await settled(page);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `overflow at ${width}px`).toBe(true);
     }
+  });
+});
+
+test.describe('The one-time peek', () => {
+  const peeking = (page: Page) => scene(page).and(page.locator('[data-peek="true"]'));
+  const peekedKey = (page: Page) => page.evaluate(() => sessionStorage.getItem('stack-peeked'));
+
+  test.beforeEach(({ isMobile }) => {
+    test.skip(isMobile, 'Desktop hero; the peek is the same on phones.');
+  });
+
+  test('the stack peeks once per visit', async ({ page }) => {
+    await page.goto('/');
+    await ready(page);
+    await expect(peeking(page)).toBeAttached({ timeout: 3000 });
+    await expect(scene(page)).toHaveAttribute('data-peek', 'false', { timeout: 3000 });
+    expect(await peekedKey(page)).toBe('1');
+
+    await page.reload();
+    await ready(page);
+    await page.waitForTimeout(3000);
+    await expect(peeking(page)).toHaveCount(0);
+  });
+
+  test('the peek lifts the closed layers apart and settles back', async ({ page }) => {
+    await page.goto('/');
+    await ready(page);
+    await expect(peeking(page)).toBeAttached({ timeout: 3000 });
+    await expect
+      .poll(() => layer(page, 'logic').evaluate((el) => el.getAnimations().map((a) => (a as CSSAnimation).animationName).length))
+      .toBeGreaterThan(0);
+    await expect(scene(page)).toHaveAttribute('data-peek', 'false', { timeout: 3000 });
+    await settled(page);
+    expect(await scene(page).getAttribute('data-open')).toBe('false');
+  });
+
+  test('no peek under reduced motion', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    await ready(page);
+    await page.waitForTimeout(3000);
+    await expect(peeking(page)).toHaveCount(0);
+  });
+
+  test('an early switch to Websites cancels the peek and the handoff still lands', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('[data-live="ready"]').first()).toBeAttached({ timeout: 10_000 });
+    await page.getByRole('radio', { name: new RegExp(featuredWebsite.title) }).click();
+    await page.waitForTimeout(3000);
+    await expect(peeking(page)).toHaveCount(0);
+    await expect(page.locator('[data-id="web"]')).toHaveAttribute('data-role', 'primary');
+  });
+
+  test('an early sale cancels the peek', async ({ page }) => {
+    await page.goto('/');
+    await ready(page);
+    await page.getByRole('group', { name: 'Try Rowszein’s Delight' }).getByRole('button', { name: /Sell 1 Ube Cream/ }).click();
+    await page.waitForTimeout(3000);
+    await expect(peeking(page)).toHaveCount(0);
+    await expect(page.locator('[data-id="software"]')).toHaveAttribute('data-role', 'primary');
+  });
+
+  test('the peek works where storage is blocked', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.addInitScript(() => {
+      Object.defineProperty(window, 'sessionStorage', { get() { throw new Error('storage blocked'); } });
+    });
+    await page.goto('/');
+    await expect(page.locator('[data-live="ready"]').first()).toBeAttached({ timeout: 10_000 });
+    await expect(peeking(page)).toBeAttached({ timeout: 3000 });
+    await expect(scene(page)).toHaveAttribute('data-peek', 'false', { timeout: 3000 });
+    expect(errors).toEqual([]);
   });
 });

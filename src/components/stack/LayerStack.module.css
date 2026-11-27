@@ -183,3 +183,24 @@
     transform var(--dur-page) var(--ease-in-out),
     opacity var(--dur-component) var(--ease-out) var(--dur-page);
 }
+
+/*
+ * Once per visit the closed layers lift apart and settle back, to show that the stack opens. The
+ * keyframes repeat the layer's own transform list with only the depth changed, so the motion
+ * composes with whatever the closed layer already carries. PEEK_MS in usePeek.ts is this duration.
+ */
+@keyframes peek {
+  50% {
+    transform: translate3d(
+      calc(var(--along) * var(--fan-x)),
+      calc(var(--along) * var(--fan-y)),
+      calc(var(--offset) * 16px)
+    );
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .scene[data-open='false'][data-peek='true'] .layer {
+    animation: peek 900ms var(--ease-in-out);
+  }
+}

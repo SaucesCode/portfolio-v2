@@ -16,6 +16,7 @@ import { useRowszeinDemo } from './live/useRowszeinDemo';
 import { LayerStack } from './stack/LayerStack';
 import { DataLayer, DesignLayer, LogicLayer } from './stack/RowszeinLayers';
 import { StackToggle } from './stack/StackToggle';
+import { usePeek } from './stack/usePeek';
 import { HERO_FOCUS_EVENT, takeHeroFocus } from './ask/actions';
 import styles from './HeroShowcase.module.css';
 
@@ -97,6 +98,10 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
   const [announcement, setAnnouncement] = useState({ text: '', underneath: false });
   const [stackOpen, setStackOpen] = useState(false);
   const [stackOpened, setStackOpened] = useState(false);
+  const peek = usePeek({
+    ready: liveReady.software,
+    interacted: stackOpened || demo.event !== null || selected === 'web',
+  });
   const flow = useMemo(() => flowFor(demo.event), [demo.event]);
   const announce = useCallback((text: string) => setAnnouncement({ text, underneath: false }), []);
   const announceSale = (text: string) => setAnnouncement({ text, underneath: stackOpen });
@@ -402,6 +407,7 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
             {id === 'software' ? (
               <LayerStack
                 open={stackOpen}
+                peek={peek}
                 layers={[
                   { id: 'design', label: 'Design', offset: 1, content: <DesignLayer />, hiddenWhenClosed: true },
                   { id: 'interface', label: 'Interface', offset: 0, content: frame },
