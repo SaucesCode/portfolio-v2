@@ -111,7 +111,9 @@
  * On desktop the hero copy steps back, so the lower sheets are dealt out to the left across the
  * hero. They slide along the screen's horizontal within the turned plane, which keeps them at
  * their depth, by as much as a turned sheet is wide (115cqi, plus what perspective takes back from
- * the deeper sheets) less what the drop in depth already clears. The design sheet lifts up and a little to the right, and the scene shifts left so it
+ * the deeper sheets) less what the drop in depth already clears. That allowance stops growing past
+ * a 72px gap: on wider screens it overtook the clearance and the data sheet's ledger ran into the
+ * logic sheet. The design sheet lifts up and a little to the right, and the scene shifts left so it
  * ends inside the window's edge.
  */
 @media (min-width: 1024px) {
@@ -120,7 +122,7 @@
     --fan-x: cos(var(--rz));
     --fan-y: calc(-1 * sin(var(--rz)));
     --gap: clamp(56px, 7vw, 120px);
-    --fan: calc(122cqi - 0.69 * var(--gap));
+    --fan: calc(122cqi - 0.69 * min(var(--gap), 72px));
     --lift: 10cqi;
     --shift-x: calc(47cqi - var(--scale) * (60cqi + var(--lift)));
     --shift-y: -26%;

@@ -643,6 +643,75 @@ test.describe('The stack on phones and under reduced motion', () => {
     }
   });
 
+  test('on desktop screens the table names keep clear of the logic sheet, inside the hero', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Desktop widths.');
+    await skipPeek(page);
+    for (const [width, height] of [
+      [1024, 768],
+      [1280, 800],
+      [1440, 900],
+      [1680, 1050],
+      [1920, 1080],
+      [2560, 1440],
+    ]) {
+      await page.setViewportSize({ width, height });
+      await page.goto('/');
+      await ready(page);
+      await toggle(page).click();
+      await expect(scene(page)).toHaveAttribute('data-open', 'true');
+      await settled(page);
+      // The logic sheet's corners as drawn, found with probes placed at its corners, and the end of
+      // each table name as drawn, found with an inline probe after its last character. The distance
+      // from that end to the sheet's outline is the clear space left before the next sheet.
+      const clearances = await page.evaluate(() => {
+        const sheet = document.querySelector<HTMLElement>('[data-layer="logic"] > *')!;
+        const position = sheet.style.position;
+        sheet.style.position = 'relative';
+        const quad = ['left:0;top:0', 'right:0;top:0', 'right:0;bottom:0', 'left:0;bottom:0'].map((corner) => {
+          const probe = document.createElement('i');
+          probe.style.cssText = `position:absolute;${corner};width:0;height:0`;
+          sheet.appendChild(probe);
+          const { x, y } = probe.getBoundingClientRect();
+          probe.remove();
+          return [x, y];
+        });
+        sheet.style.position = position;
+        const outside = ([x, y]: number[]) => {
+          let sign = 0;
+          let inside = true;
+          let nearest = Infinity;
+          quad.forEach(([ax, ay], i) => {
+            const [bx, by] = quad[(i + 1) % 4];
+            const side = Math.sign((bx - ax) * (y - ay) - (by - ay) * (x - ax));
+            if (sign && side && side !== sign) inside = false;
+            sign ||= side;
+            const t = Math.max(0, Math.min(1, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / ((bx - ax) ** 2 + (by - ay) ** 2)));
+            nearest = Math.min(nearest, Math.hypot(x - ax - t * (bx - ax), y - ay - t * (by - ay)));
+          });
+          return inside ? -nearest : nearest;
+        };
+        return [...document.querySelectorAll<HTMLElement>('[data-layer="data"] [data-table] > span:first-child')].map((name) => {
+          const probe = document.createElement('i');
+          probe.style.cssText = 'display:inline-block;width:0;height:0.5em';
+          name.append(probe);
+          const { x, y, height: h } = probe.getBoundingClientRect();
+          probe.remove();
+          return { table: name.textContent, clear: outside([x, y + h / 2]) };
+        });
+      });
+      for (const { table, clear } of clearances) {
+        expect(clear, `${table} clear of the logic sheet at ${width}x${height}`).toBeGreaterThanOrEqual(10);
+      }
+      const stack = await drawn(page);
+      const box = await hero(page).evaluate((el) => {
+        const { left, right } = el.getBoundingClientRect();
+        return { left, right };
+      });
+      expect(stack.left, `left at ${width}x${height}`).toBeGreaterThanOrEqual(box.left - 1);
+      expect(stack.right, `right at ${width}x${height}`).toBeLessThanOrEqual(box.right + 1);
+    }
+  });
+
   test('resizing while open keeps the stack inside the hero', async ({ page, isMobile }) => {
     test.skip(isMobile, 'Starts at a laptop size.');
     await skipPeek(page);
