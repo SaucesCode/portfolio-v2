@@ -228,6 +228,35 @@
   }
 }
 
+/*
+ * In the hero's open stack, a new sale starts its way down here: its row pulses once, one 120ms
+ * step before the logic layer's first step lights.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .recent li[data-pulse] {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .recent li[data-pulse]::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: -0.4cqi -0.8cqi;
+    border-radius: 0.6cqi;
+    background: color-mix(in srgb, var(--rz-accent) 28%, transparent);
+    opacity: 0;
+    animation: rz-pulse var(--dur-component, 240ms) cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
+@keyframes rz-pulse {
+  40% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .changed,
   .track span {

@@ -152,6 +152,31 @@ test.describe('A sale through the stack', () => {
     await expect(status(page)).toContainText('Underneath, the real app writes this sale and its paper trail in one transaction.');
   });
 
+  test('with the stack open the new dashboard row pulses first, then the logic lights', async ({ page }) => {
+    const pulse = layer(page, 'interface').locator('[data-pulse]');
+    const pseudoTiming = (el: Element) => {
+      const style = getComputedStyle(el, '::before');
+      return { name: style.animationName, delay: parseFloat(style.animationDelay) };
+    };
+    await toggle(page).click();
+    await sell(page, 'Ube Cream').click();
+    await expect(pulse).toHaveCount(1);
+    await expect(pulse).toContainText('Ube Cream');
+    const row = await pulse.evaluate(pseudoTiming);
+    const firstStep = await lit(page).first().evaluate(pseudoTiming);
+    expect(row.name).not.toBe('none');
+    expect(firstStep.name).not.toBe('none');
+    expect(firstStep.delay).toBeGreaterThanOrEqual(row.delay + 0.1);
+  });
+
+  test('with the stack closed a sale adds no pulse, even once the stack opens', async ({ page }) => {
+    await sell(page, 'Ube Cream').click();
+    await expect(status(page)).toContainText('Sold 1 Ube Cream');
+    await expect(layer(page, 'interface').locator('[data-pulse]')).toHaveCount(0);
+    await toggle(page).click();
+    await expect(layer(page, 'interface').locator('[data-pulse]')).toHaveCount(0);
+  });
+
   test('three quick sales all land and the flow ends lit', async ({ page }) => {
     await toggle(page).click();
     for (const product of ['Classic Glazed', 'Ube Cream', 'Chocolate Dip']) await sell(page, product).click();

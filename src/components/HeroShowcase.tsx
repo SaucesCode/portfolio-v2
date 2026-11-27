@@ -101,6 +101,8 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
   const announce = useCallback((text: string) => setAnnouncement({ text, underneath: false }), []);
   const announceSale = (text: string) => setAnnouncement({ text, underneath: stackOpen });
   const status = announcement.underneath && flow ? `${announcement.text} ${describeFlow(flow)}` : announcement.text;
+  // Only a sale recorded with the stack open travels from its dashboard row; a refusal adds no row.
+  const pulseKey = announcement.underneath && flow && !flow.shortOf ? flow.key : null;
   const toggleStack = () => {
     setStackOpen((open) => !open);
     setStackOpened(true);
@@ -366,7 +368,12 @@ export function HeroShowcase({ children }: { children: ReactNode }) {
               >
                 <LiveBoundary>
                   {id === 'software' ? (
-                    <SoftwareLayer state={demo.state} recent={demo.recent} onReady={markSoftwareReady} />
+                    <SoftwareLayer
+                      state={demo.state}
+                      recent={demo.recent}
+                      pulseKey={pulseKey}
+                      onReady={markSoftwareReady}
+                    />
                   ) : (
                     <WebLayer preset={preset} type={type} onReady={markWebReady} />
                   )}

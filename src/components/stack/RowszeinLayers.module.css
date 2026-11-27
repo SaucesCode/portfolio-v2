@@ -236,30 +236,31 @@
 }
 
 /*
- * Motion. A step lights 120ms after the one before it, and the data layer after the last lit step,
- * when its new figures and row appear. A reset settles the rows back in. With reduced motion every
+ * Motion. A sale starts in the interface, where its new row pulses for one 120ms step; then each
+ * step lights 120ms after the one before it, and the data layer after the last lit step, when its
+ * new figures and row appear. A reset settles the rows back in. With reduced motion every
  * change is made in place.
  */
 @media (prefers-reduced-motion: no-preference) {
   .step[data-lit='true']::before {
     animation: band-out var(--dur-component) var(--ease-out) backwards;
-    animation-delay: calc(var(--order) * 120ms);
+    animation-delay: calc((var(--order) + 1) * 120ms);
   }
 
   .stop {
     animation: appear var(--dur-micro) var(--ease-out) backwards;
-    animation-delay: calc(var(--order) * 120ms);
+    animation-delay: calc((var(--order) + 1) * 120ms);
   }
 
   .tables > li[data-written]::before,
   [data-written] .fresh {
     animation: appear var(--dur-component) var(--ease-out) backwards;
-    animation-delay: calc(var(--order) * 120ms);
+    animation-delay: calc((var(--order) + 1) * 120ms);
   }
 
   .tables > li[data-written]::after {
     animation: flash calc(2 * var(--dur-page)) var(--ease-out) backwards;
-    animation-delay: calc(var(--order) * 120ms);
+    animation-delay: calc((var(--order) + 1) * 120ms);
   }
 
   .groups[data-reset] .rows {
